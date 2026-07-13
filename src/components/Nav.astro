@@ -1,0 +1,64 @@
+---
+import LangToggle from './LangToggle.astro';
+
+interface Props {
+  breadcrumbEn: string;
+  breadcrumbFr: string;
+  /** When set, the breadcrumb links there (tool pages link back to the toolbox). */
+  breadcrumbHref?: string;
+}
+
+const { breadcrumbEn, breadcrumbFr, breadcrumbHref } = Astro.props;
+---
+
+<nav class="nav">
+  <a href="/" class="home-link">← ENZO MUHLINGHAUS</a>
+  <div class="right">
+    {
+      breadcrumbHref ? (
+        <a href={breadcrumbHref} class="breadcrumb">
+          <span class="i18n-en">{breadcrumbEn}</span>
+          <span class="i18n-fr">{breadcrumbFr}</span>
+        </a>
+      ) : (
+        <span class="breadcrumb">
+          <span class="i18n-en">{breadcrumbEn}</span>
+          <span class="i18n-fr">{breadcrumbFr}</span>
+        </span>
+      )
+    }
+    <LangToggle />
+  </div>
+</nav>
+
+<style>
+  .nav {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 20px clamp(20px, 4vw, 44px);
+  }
+
+  .home-link {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .right {
+    display: flex;
+    gap: clamp(12px, 3vw, 24px);
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--ink-50);
+  }
+</style>

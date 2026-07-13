@@ -1,0 +1,40 @@
+---
+interface Props {
+  /** Light variant sits on top of the hero photo (homepage). */
+  light?: boolean;
+}
+
+const { light = false } = Astro.props;
+---
+
+<button type="button" data-lang-toggle class:list={['lang-toggle', { light }]} aria-label="Français / English">
+  <span class="i18n-en">EN <span class="dim">/ FR</span></span>
+  <span class="i18n-fr">FR <span class="dim">/ EN</span></span>
+</button>
+
+<style>
+  .lang-toggle {
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    color: inherit;
+    border: 1.5px solid rgba(38, 48, 42, 0.35);
+    border-radius: 4px;
+    padding: 4px 10px;
+    background: rgba(246, 236, 215, 0.5);
+  }
+
+  .lang-toggle .dim {
+    opacity: 0.4;
+  }
+
+  .lang-toggle.light {
+    font-size: 12px;
+    border-color: rgba(243, 241, 232, 0.7);
+    background: rgba(20, 26, 22, 0.25);
+    backdrop-filter: blur(3px);
+    text-shadow: 0 1px 8px rgba(20, 26, 22, 0.5);
+  }
+</style>

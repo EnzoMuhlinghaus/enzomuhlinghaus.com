@@ -1,0 +1,19 @@
+---
+import ToolPage from '../../layouts/ToolPage.astro';
+import PaceCalculator from '../../components/tools/PaceCalculator.vue';
+---
+
+<ToolPage
+  title="Pace Calculator — Enzo Muhlinghaus"
+  description="Running pace calculator: enter any two of distance, time and pace, and the third follows. Km or miles."
+  breadcrumbEn="TOOLBOX / PACE CALCULATOR"
+  breadcrumbFr="BOÎTE À OUTILS / ALLURE"
+  titleEn="Pace Calculator"
+  titleFr="Calculateur d'Allure"
+  blurbEn="Any two, and the third follows."
+  blurbFr="Deux valeurs suffisent, la troisième suit."
+  disclaimerEn="Accepted formats: mm:ss or h:mm:ss for time and pace."
+  disclaimerFr="Formats acceptés : mm:ss ou h:mm:ss pour le temps et l'allure."
+>
+  <PaceCalculator client:load />
+</ToolPage>

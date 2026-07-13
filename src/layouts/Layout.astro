@@ -1,0 +1,68 @@
+---
+import '@fontsource/archivo/400.css';
+import '@fontsource/archivo/500.css';
+import '@fontsource/archivo/700.css';
+import '@fontsource/archivo/900.css';
+import '@fontsource/instrument-serif/400.css';
+import '@fontsource/instrument-serif/400-italic.css';
+import '@fontsource/jetbrains-mono/400.css';
+import '@fontsource/jetbrains-mono/700.css';
+import '@fontsource/caveat/500.css';
+import '@fontsource/caveat/700.css';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const ogImage = new URL('/images/vancouver-hero.jpg', Astro.site);
+---
+
+<!doctype html>
+<html lang="en" data-lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={ogImage} />
+    <script is:inline>
+      // Pre-paint language detection: localStorage override, then browser locale.
+      (function () {
+        let lang = 'en';
+        try {
+          lang = localStorage.getItem('lang')
+            || ((navigator.language || '').toLowerCase().startsWith('fr') ? 'fr' : 'en');
+        } catch (e) {}
+        if (lang !== 'en' && lang !== 'fr') lang = 'en';
+        document.documentElement.dataset.lang = lang;
+        document.documentElement.lang = lang;
+      })();
+    </script>
+  </head>
+  <body>
+    <slot />
+    <script>
+      // Language toggle: any [data-lang-toggle] flips EN<->FR, persists, and
+      // notifies live widgets (clock, Vue islands) via a `langchange` event.
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement | null;
+        if (!target || !target.closest('[data-lang-toggle]')) return;
+        const next = document.documentElement.dataset.lang === 'fr' ? 'en' : 'fr';
+        document.documentElement.dataset.lang = next;
+        document.documentElement.lang = next;
+        try {
+          localStorage.setItem('lang', next);
+        } catch (e) {}
+        window.dispatchEvent(new CustomEvent('langchange', { detail: next }));
+      });
+    </script>
+  </body>
+</html>

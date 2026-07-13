@@ -1,0 +1,985 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Footer from '../components/Footer.astro';
+import LangToggle from '../components/LangToggle.astro';
+import { journalEntries, PRS } from '../lib/races';
+
+const races = journalEntries();
+
+const tools = [
+  {
+    href: '/toolbox/pace-calculator/',
+    dot: 'var(--accent)',
+    nameEn: 'Pace calculator',
+    nameFr: "Calculateur d'allure",
+    descEn: 'Splits & race pace.',
+    descFr: 'Allures et temps de passage.',
+  },
+  {
+    href: '/toolbox/mas-vo2max/',
+    dot: '#4a6a52',
+    nameEn: 'VMA / VO₂max',
+    nameFr: 'VMA / VO₂max',
+    descEn: 'Measure the engine.',
+    descFr: 'Mesurer le moteur.',
+  },
+  {
+    href: '/toolbox/race-predictor/',
+    dot: '#5d7a8c',
+    nameEn: 'Race predictor',
+    nameFr: 'Prédicteur de course',
+    descEn: '5K → marathon times.',
+    descFr: 'Du 5 km au marathon.',
+  },
+  {
+    href: '/toolbox/strava-namer/',
+    dot: '#a2843c',
+    nameEn: 'Strava namer',
+    nameFr: 'Nommeur Strava',
+    descEn: 'Names & descriptions.',
+    descFr: 'Titres et descriptions.',
+  },
+];
+---
+
+<Layout
+  title="Enzo Muhlinghaus — I work in tech, and I run a lot"
+  description="Personal site of Enzo Muhlinghaus: Frenchman in Vancouver, BC. Race journal and small running tools — pace calculator, VMA/VO2max estimator, race predictor."
+>
+  <div class="page">
+    <!-- hero panorama -->
+    <div class="hero">
+      <img
+        src="/images/vancouver-hero.jpg"
+        alt="Vancouver skyline at golden hour"
+        class="hero-img"
+        fetchpriority="high"
+      />
+      <div class="hero-tint"></div>
+      <div class="hero-nav">
+        <span class="brand">ENZO MUHLINGHAUS</span>
+        <LangToggle light />
+      </div>
+      <div class="hero-headline">
+        <div class="status-badge">
+          <span>
+            <span class="i18n-en">CURRENT POSITION: 49.28°N 123.12°W — VANCOUVER, BC</span>
+            <span class="i18n-fr">POSITION ACTUELLE : 49.28°N 123.12°O — VANCOUVER, C.-B.</span>
+          </span>
+          <span class="sep">·</span>
+          <span id="van-clock"></span>
+          <span class="sep">·</span>
+          <span id="weather-badge">
+            <span class="i18n-en">loading weather…</span>
+            <span class="i18n-fr">météo…</span>
+          </span>
+        </div>
+        <h1>
+          <span class="i18n-en">I'm Enzo. I work in tech,<br />and I run a lot.</span>
+          <span class="i18n-fr">Je m'appelle Enzo. Je bosse dans la tech,<br />et je cours beaucoup.</span>
+        </h1>
+      </div>
+      <!-- taped snapshot overlapping the edge -->
+      <div class="polaroid">
+        <div class="tape"></div>
+        <div class="polaroid-photo">
+          <img src="/images/moi_slurp.jpg" alt="Enzo, espresso in hand" />
+        </div>
+        <div class="polaroid-caption">
+          <span class="i18n-en">fuel stop, somewhere in Paris</span>
+          <span class="i18n-fr">ravitaillement, quelque part à Paris</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- aged parchment band: intro + toolbox + journal -->
+    <div class="parchment">
+      <div class="foxing"></div>
+      <!-- compass rose -->
+      <div class="rose" aria-hidden="true">
+        <div class="ring r1"></div>
+        <div class="ring r2"></div>
+        <div class="ring r3"></div>
+        <div class="needles">
+          <div class="needle n1"></div>
+          <div class="needle n2"></div>
+          <div class="needle n3"></div>
+          <div class="needle n4"></div>
+        </div>
+        <div class="hub"></div>
+        <div class="dir n">N</div>
+        <div class="dir s">S</div>
+        <div class="dir e">E</div>
+        <div class="dir w">W</div>
+      </div>
+      <!-- marathon route traces -->
+      <img src="/images/paris-trace.svg" alt="" class="trace paris" />
+      <img src="/images/vancouver-trace.svg" alt="" class="trace vancouver" />
+      <!-- scale bar -->
+      <div class="scale-bar" aria-hidden="true">
+        <div class="bar"><div class="f"></div><div></div><div class="f"></div><div></div></div>
+        <div class="ticks"><span>0</span><span>10</span><span>21.1</span><span>42.2 km</span></div>
+      </div>
+      <!-- soft stains -->
+      <div class="stain stain-a"></div>
+      <div class="stain stain-b"></div>
+
+      <div class="content">
+        <div class="intro">
+          <p>
+            <span class="i18n-en">Frenchman who likes anything with a finish line. I build small tools for my training and share them here.</span>
+            <span class="i18n-fr">Français qui aime tout ce qui a une ligne d'arrivée. Je construis de petits outils pour mon entraînement et je les partage ici.</span>
+          </p>
+        </div>
+
+        <!-- toolbox -->
+        <section id="toolbox" class="toolbox">
+          <a href="/toolbox/" class="toolbox-title">
+            <span class="i18n-en">The Toolbox</span>
+            <span class="i18n-fr">La Boîte à Outils</span>
+            →
+          </a>
+          <div class="tool-grid">
+            {
+              tools.map((t) => (
+                <a href={t.href} class="tool-card">
+                  <div class="dot" style={`background:${t.dot}`} />
+                  <span>
+                    <strong>
+                      <span class="i18n-en">{t.nameEn}</span>
+                      <span class="i18n-fr">{t.nameFr}</span>
+                    </strong>
+                    <span class="tool-desc">
+                      <span class="i18n-en">{t.descEn}</span>
+                      <span class="i18n-fr">{t.descFr}</span>
+                    </span>
+                  </span>
+                </a>
+              ))
+            }
+          </div>
+        </section>
+
+        <!-- race journal + PR blackboard -->
+        <section class="journal-row">
+          <div class="journal">
+            <div class="journal-head">
+              <h2 class="mono-label">
+                <span class="i18n-en">RACE JOURNAL</span>
+                <span class="i18n-fr">JOURNAL DE COURSE</span>
+              </h2>
+              <span class="journal-count">
+                <span class="i18n-en">{races.length} races</span>
+                <span class="i18n-fr">{races.length} courses</span>
+                 · scroll ↓
+              </span>
+            </div>
+            <div class="journal-scroll">
+              {
+                races.map((race) =>
+                  race.training ? (
+                    <div class="race-card training">
+                      <div class="race-top">
+                        <strong class="race-name">{race.name}</strong>
+                        <span class="state-label">
+                          <span class="i18n-en">TRAINING</span>
+                          <span class="i18n-fr">EN PRÉPA</span>
+                        </span>
+                      </div>
+                      <div class="race-meta italic">
+                        {race.day} · {race.type} · {race.location}
+                      </div>
+                    </div>
+                  ) : (
+                    <div class="race-card">
+                      <div class="race-top">
+                        <strong class="race-name-done">{race.name}</strong>
+                        <span class="race-time-wrap">
+                          {race.pr && <span class="pr-flash">PR!</span>}
+                          <span class="race-time">{race.time}</span>
+                        </span>
+                      </div>
+                      <div class="race-meta split">
+                        <span>
+                          {race.day} · {race.type} · {race.location}
+                        </span>
+                        <span class="rank">
+                          <span class="i18n-en">{race.rankLabelEn}</span>
+                          <span class="i18n-fr">{race.rankLabelFr}</span>
+                        </span>
+                      </div>
+                    </div>
+                  ),
+                )
+              }
+            </div>
+          </div>
+
+          <!-- PR blackboard -->
+          <div class="blackboard">
+            <h3>
+              <span class="i18n-en">FOR THE RECORD</span>
+              <span class="i18n-fr">POUR MÉMOIRE</span>
+            </h3>
+            <div class="chalk">
+              {
+                PRS.map((p) => (
+                  <div class:list={['pr-line', { dim: !p.time }]}>
+                    <span>
+                      <span class="i18n-en">{p.distanceEn}</span>
+                      <span class="i18n-fr">{p.distanceFr}</span>
+                    </span>
+                    {p.time ? (
+                      <strong>{p.time}</strong>
+                    ) : (
+                      <span>
+                        <span class="i18n-en">soon…</span>
+                        <span class="i18n-fr">bientôt…</span>
+                      </span>
+                    )}
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <Footer />
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Live Vancouver clock + Open-Meteo weather for the hero status badge.
+  const clockEl = document.getElementById('van-clock')!;
+  const weatherEl = document.getElementById('weather-badge')!;
+
+  const currentLang = () => (document.documentElement.dataset.lang === 'fr' ? 'fr' : 'en');
+
+  function renderClock() {
+    const fr = currentLang() === 'fr';
+    const now = new Date();
+    const time = now.toLocaleTimeString(fr ? 'fr-CA' : 'en-US', {
+      timeZone: 'America/Vancouver',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: !fr,
+    });
+    const date = now.toLocaleDateString(fr ? 'fr-CA' : 'en-US', {
+      timeZone: 'America/Vancouver',
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    });
+    clockEl.textContent = `${time} · ${date}`;
+  }
+
+  function weatherIcon(code: number): string {
+    if (code === 0) return '☀️';
+    if ([1, 2, 3].includes(code)) return '☁️';
+    if ([45, 48].includes(code)) return '🌫️';
+    if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return '🌧️';
+    if ([71, 73, 75, 77, 85, 86].includes(code)) return '❄️';
+    if ([95, 96, 99].includes(code)) return '⛈️';
+    return '🌤️';
+  }
+
+  async function fetchWeather() {
+    try {
+      const r = await fetch(
+        'https://api.open-meteo.com/v1/forecast?latitude=49.28&longitude=-123.12&current_weather=true&temperature_unit=celsius',
+      );
+      const d = await r.json();
+      const w = d.current_weather;
+      if (w) {
+        weatherEl.textContent = `${weatherIcon(w.weathercode)} ${Math.round(w.temperature)}°C`;
+      }
+    } catch {
+      /* keep the loading label */
+    }
+  }
+
+  renderClock();
+  setInterval(renderClock, 1000);
+  window.addEventListener('langchange', renderClock);
+  fetchWeather();
+  setInterval(fetchWeather, 10 * 60 * 1000);
+</script>
+
+<style>
+  .page {
+    background: #ecdfc2;
+    color: var(--ink);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative;
+    height: 520px;
+  }
+
+  .hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .hero-tint {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(38, 48, 42, 0.18) 0%, rgba(38, 48, 42, 0.05) 45%, rgba(38, 48, 42, 0.58) 100%);
+  }
+
+  .hero-nav {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px clamp(20px, 4vw, 44px);
+    color: #f3f1e8;
+  }
+
+  .brand {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-shadow: 0 1px 8px rgba(20, 26, 22, 0.5);
+  }
+
+  .hero-headline {
+    position: absolute;
+    left: clamp(20px, 4vw, 44px);
+    bottom: 44px;
+    right: 400px;
+    color: #f3f1e8;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    margin-bottom: 16px;
+    text-shadow: 0 1px 10px rgba(20, 26, 22, 0.6);
+    border: 1.5px solid rgba(243, 241, 232, 0.5);
+    border-radius: 4px;
+    padding: 4px 10px;
+    background: rgba(20, 26, 22, 0.25);
+    backdrop-filter: blur(3px);
+  }
+
+  .status-badge .sep {
+    opacity: 0.75;
+  }
+
+  #van-clock {
+    opacity: 0.9;
+  }
+
+  #weather-badge {
+    display: inline-block;
+    min-width: 64px;
+  }
+
+  .hero-headline h1 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(34px, 5.5vw, 70px);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    text-shadow: 0 2px 12px rgba(20, 26, 22, 0.55), 0 4px 28px rgba(20, 26, 22, 0.5);
+    margin: 0;
+  }
+
+  /* ---------- polaroid ---------- */
+  .polaroid {
+    position: absolute;
+    right: 56px;
+    bottom: -74px;
+    background: var(--cream);
+    padding: 11px 11px 34px;
+    box-shadow: 0 14px 36px rgba(38, 48, 42, 0.3);
+    transform: rotate(3deg);
+    width: 238px;
+    z-index: 2;
+    transition: transform 0.15s ease;
+  }
+
+  .polaroid:hover {
+    transform: rotate(1deg) scale(1.03);
+  }
+
+  .tape {
+    position: absolute;
+    top: -11px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 82px;
+    height: 24px;
+    background: rgba(214, 204, 176, 0.8);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  }
+
+  .polaroid-photo {
+    width: 100%;
+    height: 210px;
+    overflow: hidden;
+  }
+
+  .polaroid-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 30%;
+    transform: scale(1.18);
+    display: block;
+  }
+
+  .polaroid-caption {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: rgba(38, 48, 42, 0.78);
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  /* ---------- parchment band ---------- */
+  .parchment {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 120% 95% at 50% 45%, transparent 48%, rgba(92, 58, 24, 0.12) 84%, rgba(66, 40, 14, 0.22) 100%),
+      radial-gradient(ellipse 340px 220px at 12% 18%, rgba(110, 72, 30, 0.1) 0%, transparent 70%),
+      radial-gradient(ellipse 300px 200px at 88% 12%, rgba(110, 72, 30, 0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 380px 260px at 78% 82%, rgba(120, 78, 32, 0.11) 0%, transparent 70%),
+      radial-gradient(ellipse 560px 380px at 50% 42%, rgba(240, 222, 186, 0.35) 0%, transparent 75%),
+      var(--parchment);
+  }
+
+  .foxing {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.55;
+    background-image:
+      radial-gradient(circle at 22% 31%, rgba(80, 48, 16, 0.3) 0, rgba(80, 48, 16, 0.3) 1px, transparent 2px),
+      radial-gradient(circle at 71% 64%, rgba(80, 48, 16, 0.24) 0, rgba(80, 48, 16, 0.24) 1.5px, transparent 2.5px);
+    background-size: 137px 113px, 211px 173px;
+  }
+
+  /* compass rose */
+  @keyframes rose-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .rose {
+    position: absolute;
+    left: -90px;
+    top: 110px;
+    width: 440px;
+    height: 440px;
+    pointer-events: none;
+  }
+
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+  }
+
+  .r1 {
+    inset: 0;
+    border: 1.5px solid rgba(94, 58, 20, 0.28);
+  }
+
+  .r2 {
+    inset: 22px;
+    border: 1px solid rgba(94, 58, 20, 0.2);
+  }
+
+  .r3 {
+    inset: 82px;
+    border: 1px dashed rgba(94, 58, 20, 0.2);
+  }
+
+  .needles {
+    position: absolute;
+    inset: 0;
+    animation: rose-spin 90s linear infinite;
+  }
+
+  .needle {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  }
+
+  .n1 {
+    width: 7px;
+    height: 340px;
+    background: linear-gradient(180deg, rgba(94, 58, 20, 0.32) 0%, rgba(94, 58, 20, 0.32) 48%, rgba(94, 58, 20, 0.15) 52%, rgba(94, 58, 20, 0.15) 100%);
+    transform: translate(-50%, -50%);
+  }
+
+  .n2 {
+    width: 7px;
+    height: 340px;
+    background: linear-gradient(180deg, rgba(94, 58, 20, 0.26) 0%, rgba(94, 58, 20, 0.26) 48%, rgba(94, 58, 20, 0.13) 52%, rgba(94, 58, 20, 0.13) 100%);
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+
+  .n3 {
+    width: 5px;
+    height: 240px;
+    background: rgba(94, 58, 20, 0.18);
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  .n4 {
+    width: 5px;
+    height: 240px;
+    background: rgba(94, 58, 20, 0.18);
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+
+  .hub {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(94, 58, 20, 0.28);
+    border-radius: 50%;
+    background: var(--parchment);
+    transform: translate(-50%, -50%);
+  }
+
+  .dir {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(94, 58, 20, 0.28);
+  }
+
+  .dir.n {
+    left: 50%;
+    top: 6px;
+    transform: translateX(-50%);
+    font-size: 15px;
+    color: rgba(94, 58, 20, 0.4);
+  }
+
+  .dir.s {
+    left: 50%;
+    bottom: 6px;
+    transform: translateX(-50%);
+  }
+
+  .dir.e {
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .dir.w {
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .trace {
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .trace.paris {
+    left: 36%;
+    top: 120px;
+    width: 29%;
+  }
+
+  .trace.vancouver {
+    left: 70%;
+    top: 70px;
+    width: 22%;
+  }
+
+  .scale-bar {
+    position: absolute;
+    right: 48px;
+    bottom: 90px;
+    pointer-events: none;
+  }
+
+  .scale-bar .bar {
+    display: flex;
+    height: 7px;
+    width: 280px;
+    border: 1.5px solid rgba(94, 58, 20, 0.33);
+  }
+
+  .scale-bar .bar > div {
+    flex: 1;
+  }
+
+  .scale-bar .bar > .f {
+    background: rgba(94, 58, 20, 0.33);
+  }
+
+  .scale-bar .ticks {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: rgba(94, 58, 20, 0.4);
+    margin-top: 4px;
+  }
+
+  .stain {
+    position: absolute;
+    pointer-events: none;
+    filter: blur(3px);
+  }
+
+  .stain-a {
+    right: 10%;
+    top: 44px;
+    width: 200px;
+    height: 150px;
+    background: radial-gradient(ellipse at 42% 45%, rgba(96, 58, 20, 0.08) 0%, transparent 70%);
+    border-radius: 60% 45% 55% 50% / 55% 60% 45% 50%;
+  }
+
+  .stain-b {
+    left: 30%;
+    bottom: 60px;
+    width: 150px;
+    height: 110px;
+    background: radial-gradient(ellipse at 50% 50%, rgba(96, 58, 20, 0.07) 0%, transparent 70%);
+    border-radius: 50% 60% 45% 55% / 60% 45% 55% 50%;
+  }
+
+  .content {
+    max-width: 1331px;
+    margin: 0 auto;
+  }
+
+  .intro {
+    position: relative;
+    padding: 36px clamp(20px, 4vw, 44px) 0;
+    max-width: min(640px, calc(100vw - 340px));
+  }
+
+  .intro p {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    line-height: 1.55;
+    color: rgba(38, 48, 42, 0.75);
+    margin: 0;
+  }
+
+  /* ---------- toolbox ---------- */
+  .toolbox {
+    position: relative;
+    padding: 32px clamp(20px, 4vw, 44px) 0;
+  }
+
+  .toolbox-title {
+    display: inline-block;
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 32px;
+    margin: 0 0 16px;
+  }
+
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .tool-card {
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    transition: transform 0.15s ease;
+    box-shadow: 0 2px 8px rgba(66, 40, 14, 0.18);
+  }
+
+  .tool-card:hover {
+    transform: translateY(-4px) rotate(-0.5deg);
+  }
+
+  .tool-card:nth-child(even):hover {
+    transform: translateY(-4px) rotate(0.5deg);
+  }
+
+  .tool-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .tool-card .dot {
+    width: 11px;
+    height: 11px;
+    transform: rotate(45deg);
+  }
+
+  .tool-card strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .tool-desc {
+    font-size: 13px;
+    color: var(--ink-70);
+  }
+
+  /* ---------- journal + blackboard ---------- */
+  .journal-row {
+    position: relative;
+    padding: 32px clamp(20px, 4vw, 44px) 40px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  .journal {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .journal-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .journal-head h2 {
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .journal-count {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: rgba(38, 48, 42, 0.45);
+  }
+
+  .journal-scroll {
+    height: 280px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 6px;
+    scrollbar-width: none;
+  }
+
+  .journal-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .race-card {
+    padding: 14px 18px;
+    background: var(--cream);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  .race-card.training {
+    background: transparent;
+    border: 2px dashed var(--accent);
+  }
+
+  .race-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .race-name {
+    font-style: italic;
+    font-size: 16px;
+    color: var(--accent);
+  }
+
+  .race-name-done {
+    font-size: 16px;
+  }
+
+  .state-label {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .race-time-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .pr-flash {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 21px;
+    line-height: 1;
+    color: var(--accent);
+    padding: 3px 4px;
+    transform: rotate(-4deg);
+  }
+
+  .race-time {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .race-meta {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--ink-70);
+  }
+
+  .race-meta.italic {
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  .race-meta.split {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .rank {
+    color: rgba(38, 48, 42, 0.65);
+    font-weight: 700;
+  }
+
+  .blackboard {
+    flex-shrink: 0;
+    width: 200px;
+    margin-top: 60px;
+    background: var(--footer-green);
+    border: 8px solid #6b4a32;
+    border-radius: 4px;
+    padding: 14px 16px 16px;
+    box-shadow: 0 10px 26px rgba(38, 48, 42, 0.35);
+  }
+
+  .blackboard h3 {
+    font-family: var(--font-hand);
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    color: rgba(245, 241, 232, 0.75);
+    margin: 0 0 8px;
+    border-bottom: 1px dashed rgba(245, 241, 232, 0.35);
+    padding-bottom: 6px;
+  }
+
+  .chalk {
+    font-family: var(--font-hand);
+    font-size: 21px;
+    line-height: 1.5;
+    color: #f5f1e8;
+  }
+
+  .pr-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .pr-line.dim {
+    color: rgba(245, 241, 232, 0.5);
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 900px) {
+    .hero {
+      height: auto;
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-headline {
+      position: relative;
+      left: auto;
+      right: auto;
+      bottom: auto;
+      padding: 120px clamp(20px, 4vw, 44px) 30px;
+      margin-top: auto;
+    }
+
+    .polaroid {
+      position: relative;
+      right: auto;
+      bottom: auto;
+      margin: 0 auto -60px;
+    }
+
+    .intro {
+      max-width: 640px;
+      padding-top: 90px;
+    }
+
+    .rose {
+      opacity: 0.5;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .tool-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 700px) {
+    .journal-row {
+      flex-direction: column;
+    }
+
+    .blackboard {
+      margin-top: 0;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .scale-bar {
+      display: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .tool-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

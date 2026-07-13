@@ -1,0 +1,107 @@
+---
+// Shared dark-green footer. The Résumé/CV button is a placeholder (TODO: real CV PDF).
+const socials = [
+  { label: 'Email', href: 'mailto:pro@enzomuhlinghaus.com' },
+  { label: 'Instagram', href: 'https://www.instagram.com/muhlinghausenzo/' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/enzo-muhlinghaus-20030713b/' },
+  { label: 'GitHub', href: 'https://github.com/EnzoMuhlinghaus' },
+  { label: 'Strava', href: 'https://www.strava.com/athletes/128774902' },
+];
+---
+
+<footer id="sayhi" class="footer">
+  <span class="say-hi">
+    <span class="say-hi-text">
+      <span class="i18n-en">Say hi</span>
+      <span class="i18n-fr">Dites bonjour</span>
+    </span>
+    <span class="arrow">→</span>
+  </span>
+  <div class="links">
+    {socials.map((s) => <a href={s.href} class="footer-btn">{s.label}</a>)}
+    <a href="#sayhi" class="footer-btn accent">
+      <span class="i18n-en">Résumé / CV</span>
+      <span class="i18n-fr">CV</span>
+      ↓
+    </a>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 16px clamp(20px, 4vw, 44px);
+    background: var(--footer-green);
+    color: var(--paper);
+  }
+
+  .say-hi {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.25s ease;
+    cursor: default;
+  }
+
+  .say-hi:hover {
+    transform: translateX(10px);
+  }
+
+  .say-hi-text {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 22px;
+  }
+
+  .arrow {
+    font-family: var(--font-mono);
+    font-size: 18px;
+  }
+
+  .links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .footer-btn {
+    border: 1.5px solid var(--paper);
+    border-radius: 12px;
+    padding: 9px 16px;
+    background: transparent;
+    text-transform: uppercase;
+    transition: transform 0.15s ease;
+  }
+
+  .footer-btn:hover {
+    transform: translateY(-4px) rotate(0.5deg);
+  }
+
+  .footer-btn:nth-child(even):hover {
+    transform: translateY(-4px) rotate(-0.5deg);
+  }
+
+  .footer-btn:focus-visible {
+    outline: 2px solid var(--paper);
+    outline-offset: 2px;
+  }
+
+  .footer-btn.accent {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .footer-btn.accent:focus-visible {
+    outline-color: var(--accent);
+  }
+</style>

@@ -1,0 +1,19 @@
+---
+import ToolPage from '../../layouts/ToolPage.astro';
+import RacePredictor from '../../components/tools/RacePredictor.vue';
+---
+
+<ToolPage
+  title="Race Predictor — Enzo Muhlinghaus"
+  description="Predict your 5K, 10K, half and marathon times from a recent race result, a second race, or your VO2max/MAS."
+  breadcrumbEn="TOOLBOX / RACE PREDICTOR"
+  breadcrumbFr="BOÎTE À OUTILS / PRÉDICTEUR"
+  titleEn="Race Predictor"
+  titleFr="Prédicteur de course"
+  blurbEn="Enter a recent race time and see what it predicts across other distances."
+  blurbFr="Entrez un temps de course récent et découvrez ce qu'il prédit sur d'autres distances."
+  disclaimerEn="These are estimates only — real-world results vary with terrain, taper, and how much you wanted it."
+  disclaimerFr="Ce ne sont que des estimations — les résultats réels varient selon le terrain, l'affûtage et l'envie du jour."
+>
+  <RacePredictor client:load />
+</ToolPage>

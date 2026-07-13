@@ -1,0 +1,58 @@
+---
+import Layout from './Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  breadcrumbEn: string;
+  breadcrumbFr: string;
+  titleEn: string;
+  titleFr: string;
+  blurbEn: string;
+  blurbFr: string;
+  disclaimerEn: string;
+  disclaimerFr: string;
+}
+
+const { title, description, breadcrumbEn, breadcrumbFr, titleEn, titleFr, blurbEn, blurbFr, disclaimerEn, disclaimerFr } =
+  Astro.props;
+---
+
+<Layout title={title} description={description}>
+  <div class="parchment-page">
+    <Nav breadcrumbEn={breadcrumbEn} breadcrumbFr={breadcrumbFr} breadcrumbHref="/toolbox/" />
+
+    <main class="main">
+      <h1 class="page-title">
+        <span class="i18n-en">{titleEn}</span>
+        <span class="i18n-fr">{titleFr}</span>
+      </h1>
+      <p class="page-blurb">
+        <span class="i18n-en">{blurbEn}</span>
+        <span class="i18n-fr">{blurbFr}</span>
+      </p>
+
+      <slot />
+
+      <p class="disclaimer">
+        <span class="i18n-en">{disclaimerEn}</span>
+        <span class="i18n-fr">{disclaimerFr}</span>
+      </p>
+    </main>
+
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .main {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px clamp(20px, 4vw, 44px) 64px;
+    width: 100%;
+    flex: 1;
+  }
+</style>
