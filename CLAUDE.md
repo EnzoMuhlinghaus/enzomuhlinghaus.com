@@ -42,4 +42,4 @@ Deploy = upload `dist/` contents to the Infomaniak web root.
 
 ## TODO markers
 
-- Footer "Résumé / CV" button is a placeholder link until a real CV PDF exists.
+(none currently — the footer CV button links to `public/enzo-muhlinghaus-cv.pdf`)

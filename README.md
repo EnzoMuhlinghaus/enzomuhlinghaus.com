@@ -23,7 +23,5 @@ Every route is a real HTML file, so no server config or `.htaccess` is needed.
 
 ## Notes
 
-- The polaroid photo `public/images/moi_slurp.jpg` is a placeholder — replace it
-  with the real photo (same filename) when available.
 - Race journal + PR data are sample data in `src/lib/races.ts`, to be replaced by
   an API later.
