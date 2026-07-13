@@ -29,10 +29,6 @@ a {
   text-decoration: none;
 }
 
-a:hover {
-  opacity: 0.7;
-}
-
 /* ---- i18n: paired EN/FR elements toggled by <html data-lang> ---- */
 html[data-lang='en'] .i18n-fr {
   display: none !important;
