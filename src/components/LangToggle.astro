@@ -8,8 +8,7 @@ const { light = false } = Astro.props;
 ---
 
 <button type="button" data-lang-toggle class:list={['lang-toggle', { light }]} aria-label="Français / English">
-  <span class="i18n-en">EN <span class="dim">/ FR</span></span>
-  <span class="i18n-fr">FR <span class="dim">/ EN</span></span>
+  <span class="opt en">EN</span> <span class="dim">/</span> <span class="opt fr">FR</span>
 </button>
 
 <style>
@@ -26,8 +25,14 @@ const { light = false } = Astro.props;
     background: rgba(246, 236, 215, 0.5);
   }
 
-  .lang-toggle .dim {
+  .lang-toggle .dim,
+  .lang-toggle .opt {
     opacity: 0.4;
+  }
+
+  :global(html[data-lang='en']) .lang-toggle .opt.en,
+  :global(html[data-lang='fr']) .lang-toggle .opt.fr {
+    opacity: 1;
   }
 
   .lang-toggle.light {
