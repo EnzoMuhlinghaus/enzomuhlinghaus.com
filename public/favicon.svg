@@ -1,1 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect x="9" y="9" width="14" height="14" transform="rotate(45 16 16)" fill="#c25c26"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+<rect width="64" height="64" rx="12" fill="#26302a"></rect>
+<polygon points="45.44,18.56 34.47,34.47 18.56,45.44 29.53,29.53" fill="rgba(246,236,215,0.45)"></polygon>
+<polygon points="18.56,18.56 34.47,29.53 45.44,45.44 29.53,34.47" fill="rgba(246,236,215,0.45)"></polygon>
+<polygon points="32.00,6.00 37.50,32.00 32.00,58.00 26.50,32.00" fill="#c25c26"></polygon>
+<polygon points="58.00,32.00 32.00,37.50 6.00,32.00 32.00,26.50" fill="#c25c26"></polygon>
+<circle cx="32" cy="32" r="4" fill="#f6ecd7"></circle>
+</svg>
