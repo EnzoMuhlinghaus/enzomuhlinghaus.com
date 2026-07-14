@@ -2,44 +2,33 @@
 import Layout from './Layout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import T from '../components/T.astro';
+import { t } from '../i18n';
+import type { ToolKey } from '../lib/tools';
 
 interface Props {
+  /** EN-only <head> metadata. */
   title: string;
   description: string;
-  breadcrumbEn: string;
-  breadcrumbFr: string;
-  titleEn: string;
-  titleFr: string;
-  blurbEn: string;
-  blurbFr: string;
-  disclaimerEn: string;
-  disclaimerFr: string;
+  /** Which tool's wording to pull from the i18n dictionaries. */
+  toolKey: ToolKey;
 }
 
-const { title, description, breadcrumbEn, breadcrumbFr, titleEn, titleFr, blurbEn, blurbFr, disclaimerEn, disclaimerFr } =
-  Astro.props;
+const { title, description, toolKey } = Astro.props;
+const tool = t[toolKey];
 ---
 
 <Layout title={title} description={description}>
   <div class="parchment-page">
-    <Nav breadcrumbEn={breadcrumbEn} breadcrumbFr={breadcrumbFr} breadcrumbHref="/toolbox/" />
+    <Nav breadcrumb={tool.breadcrumb} breadcrumbHref="/toolbox/" />
 
     <main class="main">
-      <h1 class="page-title">
-        <span class="i18n-en">{titleEn}</span>
-        <span class="i18n-fr">{titleFr}</span>
-      </h1>
-      <p class="page-blurb">
-        <span class="i18n-en">{blurbEn}</span>
-        <span class="i18n-fr">{blurbFr}</span>
-      </p>
+      <h1 class="page-title"><T t={tool.title} /></h1>
+      <p class="page-blurb"><T t={tool.blurb} /></p>
 
       <slot />
 
-      <p class="disclaimer">
-        <span class="i18n-en">{disclaimerEn}</span>
-        <span class="i18n-fr">{disclaimerFr}</span>
-      </p>
+      <p class="disclaimer"><T t={tool.disclaimer} /></p>
     </main>
 
     <Footer />

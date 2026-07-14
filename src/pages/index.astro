@@ -2,44 +2,12 @@
 import Layout from '../layouts/Layout.astro';
 import Footer from '../components/Footer.astro';
 import LangToggle from '../components/LangToggle.astro';
+import T from '../components/T.astro';
 import { journalEntries, PRS } from '../lib/races';
+import { TOOLS } from '../lib/tools';
+import { t } from '../i18n';
 
 const races = journalEntries();
-
-const tools = [
-  {
-    href: '/toolbox/pace-calculator/',
-    dot: 'var(--accent)',
-    nameEn: 'Pace calculator',
-    nameFr: "Calculateur d'allure",
-    descEn: 'Splits & race pace.',
-    descFr: 'Allures et temps de passage.',
-  },
-  {
-    href: '/toolbox/mas-vo2max/',
-    dot: '#4a6a52',
-    nameEn: 'VMA / VO₂max',
-    nameFr: 'VMA / VO₂max',
-    descEn: 'Measure the engine.',
-    descFr: 'Mesurer le moteur.',
-  },
-  {
-    href: '/toolbox/race-predictor/',
-    dot: '#5d7a8c',
-    nameEn: 'Race predictor',
-    nameFr: 'Prédicteur de course',
-    descEn: '5K → marathon times.',
-    descFr: 'Du 5 km au marathon.',
-  },
-  {
-    href: '/toolbox/strava-namer/',
-    dot: '#a2843c',
-    nameEn: 'Strava namer',
-    nameFr: 'Nommeur Strava',
-    descEn: 'Names & descriptions.',
-    descFr: 'Titres et descriptions.',
-  },
-];
 ---
 
 <Layout
@@ -62,21 +30,14 @@ const tools = [
       </div>
       <div class="hero-headline">
         <div class="status-badge">
-          <span>
-            <span class="i18n-en">CURRENT POSITION: 49.28°N 123.12°W — VANCOUVER, BC</span>
-            <span class="i18n-fr">POSITION ACTUELLE : 49.28°N 123.12°O — VANCOUVER, C.-B.</span>
-          </span>
+          <span><T t={t.home.position} /></span>
           <span class="sep">·</span>
           <span id="van-clock"></span>
           <span class="sep">·</span>
-          <span id="weather-badge">
-            <span class="i18n-en">loading weather…</span>
-            <span class="i18n-fr">météo…</span>
-          </span>
+          <span id="weather-badge"><T t={t.home.loadingWeather} /></span>
         </div>
         <h1>
-          <span class="i18n-en">I'm Enzo. I work in tech,<br />and I run a lot.</span>
-          <span class="i18n-fr">Je m'appelle Enzo. Je bosse dans la tech,<br />et je cours beaucoup.</span>
+          <T t={t.home.headline1} /><br /><T t={t.home.headline2} />
         </h1>
       </div>
       <!-- taped snapshot overlapping the edge -->
@@ -85,10 +46,7 @@ const tools = [
         <div class="polaroid-photo">
           <img src="/images/moi_slurp.jpg" alt="Enzo, espresso in hand" />
         </div>
-        <div class="polaroid-caption">
-          <span class="i18n-en">fuel stop, somewhere in Paris</span>
-          <span class="i18n-fr">ravitaillement, quelque part à Paris</span>
-        </div>
+        <div class="polaroid-caption"><T t={t.home.photoCaption} /></div>
       </div>
     </div>
 
@@ -126,33 +84,23 @@ const tools = [
 
       <div class="content">
         <div class="intro">
-          <p>
-            <span class="i18n-en">Frenchman who likes anything with a finish line. I build small tools for my training and share them here.</span>
-            <span class="i18n-fr">Français qui aime tout ce qui a une ligne d'arrivée. Je construis de petits outils pour mon entraînement et je les partage ici.</span>
-          </p>
+          <p><T t={t.home.blurb} /></p>
         </div>
 
         <!-- toolbox -->
         <section id="toolbox" class="toolbox">
           <a href="/toolbox/" class="toolbox-title">
-            <span class="i18n-en">The Toolbox</span>
-            <span class="i18n-fr">La Boîte à Outils</span>
+            <T t={t.toolbox.title} />
             →
           </a>
           <div class="tool-grid">
             {
-              tools.map((t) => (
-                <a href={t.href} class="tool-card">
-                  <div class="dot" style={`background:${t.dot}`} />
+              TOOLS.map((tool) => (
+                <a href={tool.href} class="tool-card">
+                  <div class="dot" style={`background:${tool.dot}`} />
                   <span>
-                    <strong>
-                      <span class="i18n-en">{t.nameEn}</span>
-                      <span class="i18n-fr">{t.nameFr}</span>
-                    </strong>
-                    <span class="tool-desc">
-                      <span class="i18n-en">{t.descEn}</span>
-                      <span class="i18n-fr">{t.descFr}</span>
-                    </span>
+                    <strong><T t={t.tools[tool.key].homeName} /></strong>
+                    <span class="tool-desc"><T t={t.tools[tool.key].desc} /></span>
                   </span>
                 </a>
               ))
@@ -164,14 +112,10 @@ const tools = [
         <section class="journal-row">
           <div class="journal">
             <div class="journal-head">
-              <h2 class="mono-label">
-                <span class="i18n-en">RACE JOURNAL</span>
-                <span class="i18n-fr">JOURNAL DE COURSE</span>
-              </h2>
+              <h2 class="mono-label"><T t={t.home.journalTitle} /></h2>
               <span class="journal-count">
-                <span class="i18n-en">{races.length} races</span>
-                <span class="i18n-fr">{races.length} courses</span>
-                 · scroll ↓
+                <span class="i18n-en">{t.home.racesCount.en(races.length)}</span>
+                <span class="i18n-fr">{t.home.racesCount.fr(races.length)}</span>
               </span>
             </div>
             <div class="journal-scroll">
@@ -181,10 +125,7 @@ const tools = [
                     <div class="race-card training">
                       <div class="race-top">
                         <strong class="race-name">{race.name}</strong>
-                        <span class="state-label">
-                          <span class="i18n-en">TRAINING</span>
-                          <span class="i18n-fr">EN PRÉPA</span>
-                        </span>
+                        <span class="state-label"><T t={t.home.training} /></span>
                       </div>
                       <div class="race-meta italic">
                         {race.day} · {race.type} · {race.location}
@@ -203,10 +144,7 @@ const tools = [
                         <span>
                           {race.day} · {race.type} · {race.location}
                         </span>
-                        <span class="rank">
-                          <span class="i18n-en">{race.rankLabelEn}</span>
-                          <span class="i18n-fr">{race.rankLabelFr}</span>
-                        </span>
+                        <span class="rank">{race.rankLabel}</span>
                       </div>
                     </div>
                   ),
@@ -217,25 +155,16 @@ const tools = [
 
           <!-- PR blackboard -->
           <div class="blackboard">
-            <h3>
-              <span class="i18n-en">FOR THE RECORD</span>
-              <span class="i18n-fr">POUR MÉMOIRE</span>
-            </h3>
+            <h3><T t={t.home.prTitle} /></h3>
             <div class="chalk">
               {
                 PRS.map((p) => (
                   <div class:list={['pr-line', { dim: !p.time }]}>
-                    <span>
-                      <span class="i18n-en">{p.distanceEn}</span>
-                      <span class="i18n-fr">{p.distanceFr}</span>
-                    </span>
+                    <span><T t={t.home.prDistances[p.distance]} /></span>
                     {p.time ? (
                       <strong>{p.time}</strong>
                     ) : (
-                      <span>
-                        <span class="i18n-en">soon…</span>
-                        <span class="i18n-fr">bientôt…</span>
-                      </span>
+                      <span><T t={t.home.soon} /></span>
                     )}
                   </div>
                 ))

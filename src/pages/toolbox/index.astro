@@ -2,41 +2,9 @@
 import Layout from '../../layouts/Layout.astro';
 import Nav from '../../components/Nav.astro';
 import Footer from '../../components/Footer.astro';
-
-const tools = [
-  {
-    href: '/toolbox/pace-calculator/',
-    dot: 'var(--accent)',
-    nameEn: 'Pace Calculator',
-    nameFr: "Calculateur d'Allure",
-    descEn: 'Splits & race pace.',
-    descFr: 'Allures et temps de passage.',
-  },
-  {
-    href: '/toolbox/mas-vo2max/',
-    dot: '#4a6a52',
-    nameEn: 'MAS / VO2max',
-    nameFr: 'VMA / VO2max',
-    descEn: 'Measure the engine.',
-    descFr: 'Mesurer le moteur.',
-  },
-  {
-    href: '/toolbox/race-predictor/',
-    dot: '#5d7a8c',
-    nameEn: 'Race Predictor',
-    nameFr: 'Prédicteur de Course',
-    descEn: '5K → marathon times.',
-    descFr: 'Du 5 km au marathon.',
-  },
-  {
-    href: '/toolbox/strava-namer/',
-    dot: '#a2843c',
-    nameEn: 'Strava Namer',
-    nameFr: 'Nommeur Strava',
-    descEn: 'Names & descriptions.',
-    descFr: 'Titres et descriptions.',
-  },
-];
+import T from '../../components/T.astro';
+import { TOOLS } from '../../lib/tools';
+import { t } from '../../i18n';
 ---
 
 <Layout
@@ -44,32 +12,20 @@ const tools = [
   description="Small running tools built for my own training: pace calculator, MAS/VO2max estimator, race predictor, Strava namer."
 >
   <div class="parchment-page">
-    <Nav breadcrumbEn="TOOLBOX" breadcrumbFr="BOÎTE À OUTILS" />
+    <Nav breadcrumb={t.toolbox.breadcrumb} />
 
     <main class="main">
-      <h1 class="page-title">
-        <span class="i18n-en">The Toolbox</span>
-        <span class="i18n-fr">La Boîte à Outils</span>
-      </h1>
-      <p class="page-blurb">
-        <span class="i18n-en">Small tools built for my own training, shared here.</span>
-        <span class="i18n-fr">De petits outils construits pour mon entraînement, partagés ici.</span>
-      </p>
+      <h1 class="page-title"><T t={t.toolbox.title} /></h1>
+      <p class="page-blurb"><T t={t.toolbox.blurb} /></p>
 
       <div class="tool-grid">
         {
-          tools.map((t) => (
-            <a href={t.href} class="tool-card">
-              <div class="dot" style={`background:${t.dot}`} />
+          TOOLS.map((tool) => (
+            <a href={tool.href} class="tool-card">
+              <div class="dot" style={`background:${tool.dot}`} />
               <span>
-                <strong>
-                  <span class="i18n-en">{t.nameEn}</span>
-                  <span class="i18n-fr">{t.nameFr}</span>
-                </strong>
-                <span class="tool-desc">
-                  <span class="i18n-en">{t.descEn}</span>
-                  <span class="i18n-fr">{t.descFr}</span>
-                </span>
+                <strong><T t={t.tools[tool.key].name} /></strong>
+                <span class="tool-desc"><T t={t.tools[tool.key].desc} /></span>
               </span>
             </a>
           ))

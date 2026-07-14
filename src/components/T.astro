@@ -1,0 +1,11 @@
+---
+// Renders one translated string as the standard EN/FR span pair toggled by
+// CSS via <html data-lang> (see global.css). Usage: <T t={t.home.blurb} />
+interface Props {
+  t: { en: string; fr: string };
+}
+
+const { t } = Astro.props;
+---
+
+<span class="i18n-en">{t.en}</span><span class="i18n-fr">{t.fr}</span>

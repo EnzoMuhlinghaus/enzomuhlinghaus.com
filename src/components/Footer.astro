@@ -1,5 +1,8 @@
 ---
 // Shared dark-green footer.
+import T from './T.astro';
+import { t } from '../i18n';
+
 const socials = [
   { label: 'Email', href: 'mailto:pro@enzomuhlinghaus.com' },
   { label: 'Instagram', href: 'https://www.instagram.com/muhlinghausenzo/' },
@@ -11,17 +14,13 @@ const socials = [
 
 <footer id="sayhi" class="footer">
   <span class="say-hi">
-    <span class="say-hi-text">
-      <span class="i18n-en">Say hi</span>
-      <span class="i18n-fr">Dites bonjour</span>
-    </span>
+    <span class="say-hi-text"><T t={t.footer.sayHi} /></span>
     <span class="arrow">→</span>
   </span>
   <div class="links">
     {socials.map((s) => <a href={s.href} class="footer-btn">{s.label}</a>)}
     <a href="/enzo-muhlinghaus-cv.pdf" target="_blank" rel="noopener" class="footer-btn accent">
-      <span class="i18n-en">Résumé / CV</span>
-      <span class="i18n-fr">CV</span>
+      <T t={t.footer.resume} />
       ↓
     </a>
   </div>

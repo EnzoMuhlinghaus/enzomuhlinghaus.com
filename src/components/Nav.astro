@@ -1,14 +1,14 @@
 ---
 import LangToggle from './LangToggle.astro';
+import T from './T.astro';
 
 interface Props {
-  breadcrumbEn: string;
-  breadcrumbFr: string;
+  breadcrumb: { en: string; fr: string };
   /** When set, the breadcrumb links there (tool pages link back to the toolbox). */
   breadcrumbHref?: string;
 }
 
-const { breadcrumbEn, breadcrumbFr, breadcrumbHref } = Astro.props;
+const { breadcrumb, breadcrumbHref } = Astro.props;
 ---
 
 <nav class="nav">
@@ -17,13 +17,11 @@ const { breadcrumbEn, breadcrumbFr, breadcrumbHref } = Astro.props;
     {
       breadcrumbHref ? (
         <a href={breadcrumbHref} class="breadcrumb">
-          <span class="i18n-en">{breadcrumbEn}</span>
-          <span class="i18n-fr">{breadcrumbFr}</span>
+          <T t={breadcrumb} />
         </a>
       ) : (
         <span class="breadcrumb">
-          <span class="i18n-en">{breadcrumbEn}</span>
-          <span class="i18n-fr">{breadcrumbFr}</span>
+          <T t={breadcrumb} />
         </span>
       )
     }

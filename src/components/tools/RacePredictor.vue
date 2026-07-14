@@ -2,10 +2,9 @@
 import { computed, ref } from 'vue';
 import { KM_PER_MI, parseTime, formatTime } from '../../lib/time';
 import { vo2Cost, vdotFromRace, timeMinFromVdot, riegelFit } from '../../lib/vdot';
-import { useLang } from '../../lib/lang';
+import { useMessages } from '../../i18n';
 
-const lang = useLang();
-const fr = computed(() => lang.value === 'fr');
+const m = useMessages();
 
 const ORDER = ['5K', '10K', 'Half', 'Marathon'] as const;
 type Dist = (typeof ORDER)[number];
@@ -23,7 +22,7 @@ const vo2Value = ref('');
 const vo2Mode = ref<'mas' | 'vo2max'>('mas');
 const masFormat = ref<'kmh' | 'minkm'>('kmh');
 
-const distLabel = (k: string) => (k === 'Half' && fr.value ? 'Semi' : k);
+const distLabel = (k: string) => (k === 'Half' ? m.value.common.half : k);
 
 function selectDistance(k: Dist) {
   selected.value = k;
@@ -77,9 +76,9 @@ const method = computed<'vo2max' | 'personalized' | 'default' | null>(() => {
 });
 
 const predictions = computed(() => {
-  const m = method.value;
+  const meth = method.value;
   let riegel: { e: number; lnA: number } | null = null;
-  if (m === 'personalized') {
+  if (meth === 'personalized') {
     riegel = riegelFit(DIST_KM[selected.value], seconds.value!, DIST_KM[secondDistance.value], secondSeconds.value!);
   }
   const distInUnit = (km: number) => (unit.value === 'km' ? km : km / KM_PER_MI);
@@ -87,16 +86,16 @@ const predictions = computed(() => {
   return ORDER.filter((k) => k !== selected.value).map((k) => {
     let predSeconds: number | null = null;
     let tag = '';
-    if (m === 'vo2max') {
+    if (meth === 'vo2max') {
       predSeconds = timeMinFromVdot(DIST_KM[k] * 1000, vo2Input.value.vo2!) * 60;
-      tag = vo2Mode.value === 'mas' ? (fr.value ? 'VIA MAS' : 'FROM MAS') : (fr.value ? 'VIA VO2MAX' : 'FROM VO2MAX');
-    } else if (m === 'personalized') {
+      tag = vo2Mode.value === 'mas' ? m.value.predictor.tagFromMas : m.value.predictor.tagFromVo2;
+    } else if (meth === 'personalized') {
       predSeconds = Math.exp(riegel!.lnA + riegel!.e * Math.log(DIST_KM[k]));
-      tag = fr.value ? 'PERSONNALISÉ' : 'PERSONALIZED';
-    } else if (m === 'default') {
+      tag = m.value.predictor.tagPersonalized;
+    } else if (meth === 'default') {
       const vdot = vdotFromRace(DIST_KM[selected.value] * 1000, seconds.value! / 60);
       predSeconds = timeMinFromVdot(DIST_KM[k] * 1000, vdot) * 60;
-      tag = fr.value ? 'ESTIMATION' : 'DEFAULT';
+      tag = m.value.predictor.tagDefault;
     }
     return {
       key: k,
@@ -109,52 +108,29 @@ const predictions = computed(() => {
 });
 
 const methodSummary = computed(() => {
-  const m = method.value;
-  if (m === 'vo2max') {
-    return fr.value
-      ? `À partir de votre ${vo2Mode.value === 'mas' ? 'VMA' : 'VO2max'}.`
-      : `From your ${vo2Mode.value === 'mas' ? 'MAS' : 'VO2max'}.`;
+  const meth = method.value;
+  if (meth === 'vo2max') {
+    return vo2Mode.value === 'mas' ? m.value.predictor.methodFromMas : m.value.predictor.methodFromVo2;
   }
-  if (m === 'personalized') {
-    return fr.value
-      ? `Personnalisé (à partir de vos résultats en ${distLabel(selected.value)} et ${distLabel(secondDistance.value)}).`
-      : `Personalized (based on your ${distLabel(selected.value)} and ${distLabel(secondDistance.value)} results).`;
+  if (meth === 'personalized') {
+    return m.value.predictor.methodPersonalized(distLabel(selected.value), distLabel(secondDistance.value));
   }
-  if (m === 'default') {
-    return fr.value
-      ? `Basé sur le VDOT (à partir de votre ${distLabel(selected.value)}).`
-      : `Based on VDOT (from your ${distLabel(selected.value)}).`;
+  if (meth === 'default') {
+    return m.value.predictor.methodDefault(distLabel(selected.value));
   }
-  return fr.value ? 'Entrez un temps pour commencer.' : 'Enter a time to get started.';
+  return m.value.predictor.methodEmpty;
 });
 
 const vo2Placeholder = computed(() => {
-  if (vo2Mode.value === 'vo2max') return fr.value ? 'ex. 52' : 'e.g. 52';
-  return masFormat.value === 'kmh' ? (fr.value ? 'ex. 18.5' : 'e.g. 18.5') : (fr.value ? 'ex. 3:15' : 'e.g. 3:15');
+  if (vo2Mode.value === 'vo2max') return m.value.predictor.vo2Placeholder;
+  return masFormat.value === 'kmh' ? m.value.predictor.masKmhPlaceholder : m.value.predictor.masPacePlaceholder;
 });
 
-const vo2Hint = computed(() => {
-  const intro = fr.value
-    ? "VO2max : consommation maximale d'oxygène (mL/kg/min). VMA : vitesse maximale aérobie, la vitesse à laquelle le VO2max est atteint — les deux sont liés par l'économie de course."
-    : 'VO2max: maximal oxygen uptake (mL/kg/min). MAS: maximal aerobic speed, the pace at which VO2max is reached — the two are linked through running economy.';
-  const masKmh = vo2Input.value.masKmh;
-  const kmh = masKmh != null ? masKmh : 18;
-  const paceStr = `${formatTime(3600 / kmh)}/km`;
-  const meters = Math.round(kmh * 100);
-  const example =
-    masKmh != null
-      ? fr.value
-        ? ` Une VMA de ${kmh.toFixed(1)} km/h signifie que vous pouvez tenir ${paceStr} pendant ~6 minutes, soit environ ${meters} m.`
-        : ` A MAS of ${kmh.toFixed(1)} km/h means that you can hold ${paceStr} for ~6 minutes, or about ${meters} m.`
-      : fr.value
-        ? ` Par exemple, une VMA de ${kmh} km/h signifie tenir environ ${paceStr} pendant ~6 minutes, soit environ ${meters} m.`
-        : ` For example, a MAS of ${kmh} km/h means holding about ${paceStr} for ~6 minutes, or about ${meters} m.`;
-  return intro + example;
-});
+const vo2Hint = computed(() => m.value.predictor.vo2Hint(vo2Input.value.masKmh));
 </script>
 
 <template>
-  <div class="mono-label section-label">{{ fr ? 'VOTRE TEMPS' : 'YOUR TIME' }}</div>
+  <div class="mono-label section-label">{{ m.common.yourTime }}</div>
   <div class="chip-row">
     <button
       v-for="k in ORDER"
@@ -169,11 +145,7 @@ const vo2Hint = computed(() => {
   <div class="time-block">
     <input v-model="rawTime" type="text" class="text-input time-input" :placeholder="DEFAULTS[selected]" />
     <div class="hint">
-      {{
-        seconds == null
-          ? (fr ? 'Format : mm:ss ou h:mm:ss' : 'Format: mm:ss or h:mm:ss')
-          : (fr ? 'Modifiez pour votre propre temps' : 'Edit this to your own time')
-      }}
+      {{ seconds == null ? m.common.formatHint : m.common.editHint }}
     </div>
   </div>
 
@@ -181,11 +153,7 @@ const vo2Hint = computed(() => {
   <div class="disclosure">
     <button class="toggle" @click="secondOpen = !secondOpen">
       <span>{{ secondOpen ? '−' : '+' }}</span>
-      <span>{{
-        fr
-          ? 'Ajouter une autre course récente pour une prédiction plus personnalisée'
-          : 'Add another recent race for a more personalized prediction'
-      }}</span>
+      <span>{{ m.predictor.addSecondRace }}</span>
     </button>
     <div v-if="secondOpen" class="drawer">
       <div class="small-chip-row">
@@ -207,23 +175,21 @@ const vo2Hint = computed(() => {
   <div class="disclosure last">
     <button class="toggle" @click="vo2Open = !vo2Open">
       <span>{{ vo2Open ? '−' : '+' }}</span>
-      <span>{{
-        fr ? 'Vous avez un VO2max ou une VMA ? Entrez-le directement' : 'Have a VO2max or MAS estimate? Enter it directly'
-      }}</span>
+      <span>{{ m.predictor.enterVo2 }}</span>
     </button>
     <div v-if="vo2Open" class="drawer">
       <div class="small-chip-row">
         <button
-          v-for="m in [
-            { key: 'mas', label: fr ? 'VMA' : 'MAS' },
+          v-for="mo in [
+            { key: 'mas', label: m.predictor.masMode },
             { key: 'vo2max', label: 'VO2MAX' },
           ]"
-          :key="m.key"
+          :key="mo.key"
           class="chip chip--small"
-          :class="{ active: vo2Mode === m.key }"
-          @click="vo2Mode = m.key as 'mas' | 'vo2max'"
+          :class="{ active: vo2Mode === mo.key }"
+          @click="vo2Mode = mo.key as 'mas' | 'vo2max'"
         >
-          {{ m.label }}
+          {{ mo.label }}
         </button>
       </div>
       <div class="vo2-row">
@@ -242,7 +208,7 @@ const vo2Hint = computed(() => {
             {{ f.label }}
           </button>
         </div>
-        <span class="caveat">{{ fr ? 'montre, labo ou piste — au choix' : 'watch, lab, or track — any source works' }}</span>
+        <span class="caveat">{{ m.predictor.vo2Caveat }}</span>
       </div>
       <div class="fine-print">{{ vo2Hint }}</div>
     </div>
@@ -250,15 +216,11 @@ const vo2Hint = computed(() => {
 
   <div class="method">{{ methodSummary }}</div>
   <div v-if="method === 'default'" class="fine-print vdot-hint">
-    {{
-      fr
-        ? "VDOT : l'indice de forme de Jack Daniels, calculé à partir de ce résultat de course."
-        : "VDOT: Jack Daniels' fitness index, calculated from this race result."
-    }}
+    {{ m.predictor.vdotHint }}
   </div>
 
   <div class="head-row">
-    <div class="mono-label">{{ fr ? '→ PRÉDICTION' : '→ PREDICTED' }}</div>
+    <div class="mono-label">{{ m.predictor.predicted }}</div>
     <div class="unit-row">
       <button
         v-for="u in ['km', 'mi'] as const"

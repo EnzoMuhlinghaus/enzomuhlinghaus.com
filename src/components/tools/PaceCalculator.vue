@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { KM_PER_MI, parseTime, formatTime } from '../../lib/time';
-import { useLang } from '../../lib/lang';
+import { useMessages } from '../../i18n';
 
-const lang = useLang();
-const fr = computed(() => lang.value === 'fr');
+const m = useMessages();
 
 type Mode = 'pace' | 'time' | 'distance';
+const MODES: Mode[] = ['pace', 'time', 'distance'];
 
 const QUICK_DIST_KM: Record<string, number> = {
   '100m': 0.1,
@@ -20,12 +20,6 @@ const QUICK_DIST_KM: Record<string, number> = {
   Half: 21.0975,
   Marathon: 42.195,
 };
-
-const MODES: { key: Mode; en: string; fr: string }[] = [
-  { key: 'pace', en: 'Find Pace', fr: "Trouver l'Allure" },
-  { key: 'time', en: 'Find Time', fr: 'Trouver le Temps' },
-  { key: 'distance', en: 'Find Distance', fr: 'Trouver la Distance' },
-];
 
 const mode = ref<Mode>('pace');
 const unit = ref<'km' | 'mi'>('km');
@@ -78,15 +72,15 @@ const result = computed(() => {
 });
 
 const resultLabel = computed(() => {
-  if (mode.value === 'pace') return fr.value ? '→ ALLURE' : '→ PACE';
-  if (mode.value === 'time') return fr.value ? '→ TEMPS' : '→ TIME';
-  return fr.value ? '→ DISTANCE' : '→ DISTANCE';
+  if (mode.value === 'pace') return m.value.pace.resultPace;
+  if (mode.value === 'time') return m.value.pace.resultTime;
+  return m.value.pace.resultDistance;
 });
 </script>
 
 <template>
   <div class="head-row">
-    <div class="mono-label">{{ fr ? 'CALCULER' : 'SOLVE FOR' }}</div>
+    <div class="mono-label">{{ m.pace.solveFor }}</div>
     <div class="unit-row">
       <button
         v-for="u in ['km', 'mi'] as const"
@@ -102,19 +96,19 @@ const resultLabel = computed(() => {
 
   <div class="mode-row">
     <button
-      v-for="m in MODES"
-      :key="m.key"
+      v-for="k in MODES"
+      :key="k"
       class="chip"
-      :class="{ active: mode === m.key }"
-      @click="mode = m.key"
+      :class="{ active: mode === k }"
+      @click="mode = k"
     >
-      {{ fr ? m.fr : m.en }}
+      {{ m.pace.modes[k] }}
     </button>
   </div>
 
   <div class="fields">
     <div v-if="mode !== 'distance'">
-      <div class="mono-label field-label">DISTANCE ({{ unit.toUpperCase() }})</div>
+      <div class="mono-label field-label">{{ m.pace.distanceLabel }} ({{ unit.toUpperCase() }})</div>
       <input
         v-model="distanceValue"
         type="text"
@@ -123,16 +117,16 @@ const resultLabel = computed(() => {
       />
       <div class="quick-row">
         <button v-for="(km, k) in QUICK_DIST_KM" :key="k" class="chip chip--ghost" @click="setQuickDist(String(k))">
-          {{ k === 'Half' && fr ? 'Semi' : k }}
+          {{ k === 'Half' ? m.common.half : k }}
         </button>
       </div>
     </div>
     <div v-if="mode !== 'time'">
-      <div class="mono-label field-label">{{ fr ? 'TEMPS' : 'TIME' }}</div>
+      <div class="mono-label field-label">{{ m.pace.timeLabel }}</div>
       <input v-model="timeValue" type="text" class="text-input" placeholder="40:00" />
     </div>
     <div v-if="mode !== 'pace'">
-      <div class="mono-label field-label">{{ fr ? 'ALLURE' : 'PACE' }} (/{{ unit.toUpperCase() }})</div>
+      <div class="mono-label field-label">{{ m.pace.paceLabel }} (/{{ unit.toUpperCase() }})</div>
       <input v-model="paceValue" type="text" class="text-input" placeholder="4:00" />
     </div>
   </div>

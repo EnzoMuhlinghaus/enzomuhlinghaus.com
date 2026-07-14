@@ -14,9 +14,10 @@ export interface Race {
   state: 'done' | 'training';
 }
 
+export type PrDistance = '5K' | '10K' | 'Half' | 'Marathon';
+
 export interface PrEntry {
-  distanceEn: string;
-  distanceFr: string;
+  distance: PrDistance;
   time: string | null;
 }
 
@@ -34,10 +35,10 @@ const RACES: Race[] = [
 ];
 
 export const PRS: PrEntry[] = [
-  { distanceEn: '5K', distanceFr: '5K', time: null },
-  { distanceEn: '10K', distanceFr: '10K', time: '38:50' },
-  { distanceEn: 'Half', distanceFr: 'Semi', time: '1:27:42' },
-  { distanceEn: 'Marathon', distanceFr: 'Marathon', time: null },
+  { distance: '5K', time: null },
+  { distance: '10K', time: '38:50' },
+  { distance: 'Half', time: '1:27:42' },
+  { distance: 'Marathon', time: null },
 ];
 
 function flagFor(location: string): string {
@@ -53,13 +54,12 @@ export interface JournalEntry {
   location: string;
   type: string;
   time: string;
-  rankLabelEn: string;
-  rankLabelFr: string;
+  rankLabel: string | null;
   pr: boolean;
   training: boolean;
 }
 
-/** Race journal entries, newest first, with display fields for both languages. */
+/** Race journal entries, newest first, with language-neutral display fields. */
 export function journalEntries(): JournalEntry[] {
   return RACES.slice()
     .reverse()
@@ -69,8 +69,7 @@ export function journalEntries(): JournalEntry[] {
       location: `${flagFor(r.location)} ${r.location}`,
       type: r.type,
       time: r.time ?? '—',
-      rankLabelEn: r.rank ? `${r.rank} / ${r.field}` : 'not yet run',
-      rankLabelFr: r.rank ? `${r.rank} / ${r.field}` : 'à courir',
+      rankLabel: r.rank ? `${r.rank} / ${r.field}` : null,
       pr: r.pr,
       training: r.state === 'training',
     }));
