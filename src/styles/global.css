@@ -17,6 +17,15 @@
   box-sizing: border-box;
 }
 
+/* Decorative elements (compass rose, route traces, the taped polaroid) bleed
+   past the layout box by design. Guard against them ever leaking a horizontal
+   scrollbar — including left-side overflow, which scrollWidth doesn't report.
+   overflow-x: hidden on <html> leaves vertical scrolling intact (y computes to
+   auto). */
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   background: var(--parchment);
