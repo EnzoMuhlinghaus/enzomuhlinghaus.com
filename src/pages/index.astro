@@ -3,11 +3,12 @@ import Layout from '../layouts/Layout.astro';
 import Footer from '../components/Footer.astro';
 import LangToggle from '../components/LangToggle.astro';
 import T from '../components/T.astro';
-import { journalEntries, PRS } from '../lib/races';
+import { journalEntries, prEntries } from '../lib/races';
 import { TOOLS } from '../lib/tools';
 import { t } from '../i18n';
 
-const races = journalEntries();
+const races = await journalEntries();
+const prs = await prEntries();
 ---
 
 <Layout
@@ -128,7 +129,7 @@ const races = journalEntries();
                         <span class="state-label"><T t={t.home.training} /></span>
                       </div>
                       <div class="race-meta italic">
-                        {race.day} · {race.type} · {race.location}
+                        {race.day} · {race.type}{race.distance ? ` · ${race.distance}` : ''} · {race.location}
                       </div>
                     </div>
                   ) : (
@@ -142,7 +143,7 @@ const races = journalEntries();
                       </div>
                       <div class="race-meta split">
                         <span>
-                          {race.day} · {race.type} · {race.location}
+                          {race.day} · {race.type}{race.distance ? ` · ${race.distance}` : ''} · {race.location}
                         </span>
                         <span class="rank">{race.rankLabel}</span>
                       </div>
@@ -158,7 +159,7 @@ const races = journalEntries();
             <h3><T t={t.home.prTitle} /></h3>
             <div class="chalk">
               {
-                PRS.map((p) => (
+                prs.map((p) => (
                   <div class:list={['pr-line', { dim: !p.time }]}>
                     <span><T t={t.home.prDistances[p.distance]} /></span>
                     {p.time ? (

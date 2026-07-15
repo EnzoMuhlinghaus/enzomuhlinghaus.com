@@ -27,10 +27,17 @@ The `.dc.html` files there are the reference when a visual or copy question come
 
 ## Races & PR data
 
-The race journal and PR blackboard on the homepage use **sample data** in `src/lib/races.ts`.
-Enzo plans to build an API later to supply this data — keep all race/PR data and its display
-mapping in that one file so the swap is a single-file change. Don't scatter race content
-into page markup.
+The race journal and PR blackboard on the homepage are fetched from Enzo's Notion **"Race Journal"**
+database at **build time** (in `src/lib/races.ts`, which runs only in Astro's Node frontmatter — the
+token never ships to the client). Editing Notion means re-running `npm run build` + re-uploading
+`dist/`. Keep all race/PR fetch + display mapping in that one file; don't scatter race content into
+page markup.
+
+- Secrets: `NOTION_TOKEN` + `NOTION_DB_ID` in `.env` (gitignored), declared as `astro:env/server`
+  secrets in `astro.config.mjs`. `.env.example` documents the shape.
+- `journalEntries()` (journal, newest-first) and `prEntries()` (PR bests derived from `Run Distance`)
+  are `async`; `src/pages/index.astro` `await`s them. Notion property names live in one `PROP` map.
+- No `Status` column in Notion: a race is "training" (upcoming) when it has no `Time` or a future `Date`.
 
 ## Commands
 
