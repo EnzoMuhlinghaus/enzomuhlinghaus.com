@@ -91,7 +91,7 @@ export const fr: Messages = {
     builtBy: 'Fait par Enzo Muhlinghaus —',
     readJournal: 'venez lire mon journal ↗',
     disclaimer:
-      'estimations seulement · temps au format mm:ss ou h:mm:ss · basé sur le modèle VDOT de Jack Daniels · le Nommeur Strava est une démo',
+      'estimations seulement · temps au format mm:ss ou h:mm:ss · basé sur le modèle VDOT de Jack Daniels',
   },
 
   pace: {
@@ -114,26 +114,17 @@ export const fr: Messages = {
   predictor: {
     title: 'Prédicteur de Course',
     blurb: "D'un résultat découlent les autres.",
-    help: "Donnez un résultat de course — ou deux, ou votre VMA mesurée — et l'outil projette les temps équivalents sur les autres distances.",
+    help: "Donnez un résultat de course (ou votre VMA) et l'outil projette les temps équivalents sur les autres distances, via le modèle VDOT de Jack Daniels.",
     predictFrom: 'PRÉDIRE À PARTIR DE',
     sourceRace: 'UNE COURSE',
-    sourceTwo: 'DEUX COURSES',
-    sourceEngine: 'VMA · VO₂',
+    sourceMas: 'VMA',
     yourTimeFor: (d: string) => `VOTRE TEMPS SUR ${d.toUpperCase()}`,
+    masFieldLabel: 'VOTRE VMA (KM/H)',
     predicted: '→ PRÉDIT',
-    masMode: 'VMA',
-    masFieldLabel: 'VOTRE VMA',
-    vo2FieldLabel: 'VOTRE VO₂MAX',
-    vo2Caveat: "montre, labo ou piste — peu importe la source",
-    vo2Placeholder: 'ex. 52',
-    masKmhPlaceholder: 'ex. 18.5',
-    masPacePlaceholder: 'ex. 3:15',
-    tagFromMas: 'DEPUIS LA VMA',
-    tagFromVo2: 'DEPUIS LA VO₂MAX',
-    tagPersonalized: 'COURBE DE RIEGEL',
-    tagDefault: 'VDOT',
+    tagVdot: 'VDOT',
+    tagMasVdot: 'VMA→VDOT',
     vdotHint:
-      "Le VDOT est un indice de forme unique déduit de votre résultat, puis utilisé pour projeter les temps équivalents sur les autres distances (modèle de Jack Daniels). Avec deux résultats, on ajuste plutôt votre propre courbe de fatigue.",
+      "Le VDOT est un indice de forme unique déduit de votre résultat, puis utilisé pour projeter les temps équivalents sur les autres distances (modèle de Jack Daniels).",
   },
 
   mas: {

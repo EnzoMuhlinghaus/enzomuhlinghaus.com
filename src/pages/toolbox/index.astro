@@ -5,19 +5,31 @@ import Workbench from '../../components/tools/Workbench.vue';
 
 <Layout
   title="The Workbench — Enzo Muhlinghaus"
-  description="Small running tools built for my own training: pace calculator, race predictor, MAS/VO2max estimator and a Strava namer. All on one bench."
+  description="Small running tools built for my own training: pace calculator, race predictor and MAS/VO2max estimator. All on one bench."
 >
   <div class="bench-page">
     <Workbench client:load />
   </div>
 </Layout>
 
-<style>
-  /* One dark bench holding the whole toolbox — no page-turns, no nav chrome. */
+<style is:global>
+  /* One dark bench holding the whole toolbox — no page-turns, no nav chrome.
+     Global rather than scoped so it also reaches the Vue island's links;
+     `.bench-page` only exists on this page, so nothing else is touched. */
   .bench-page {
     min-height: 100vh;
     background: radial-gradient(ellipse 120% 80% at 50% -10%, var(--bench-top), var(--bench-bottom));
     padding: 34px 30px 64px;
     box-sizing: border-box;
+  }
+
+  /* Every link on the bench nudges right on hover. */
+  .bench-page a {
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+
+  .bench-page a:hover {
+    transform: translateX(4px);
   }
 </style>

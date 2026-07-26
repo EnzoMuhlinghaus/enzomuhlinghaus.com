@@ -16,7 +16,7 @@ defineProps<{
   <section class="card" :data-tone="tone">
     <div class="card-head">
       <span class="card-no">No. {{ no }}</span>
-      <span class="info" tabindex="0" role="note" :aria-label="help">?<span class="tip tip--right">{{ help }}</span></span>
+      <span class="info" tabindex="0" role="note" :aria-label="help">?<span class="tip">{{ help }}</span></span>
     </div>
     <h2 class="card-title">{{ title }}</h2>
     <p class="card-sub">{{ subtitle }}</p>
@@ -41,9 +41,17 @@ defineProps<{
 .card-head {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
   gap: 10px;
   margin-bottom: 4px;
+}
+
+/* Pinned to the card, not the head row, so it holds its corner whatever
+   the title wraps to. */
+.card .info {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  z-index: 6;
 }
 
 .card-no {

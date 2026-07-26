@@ -274,10 +274,10 @@ html[data-lang='fr'] .i18n-en {
 
 .tip {
   position: absolute;
-  top: 26px;
+  top: 24px;
   left: -2px;
   z-index: 7;
-  width: 220px;
+  width: 212px;
   background: var(--ink);
   color: var(--on-desk);
   font-family: var(--font-mono);
@@ -295,8 +295,16 @@ html[data-lang='fr'] .i18n-en {
   pointer-events: none;
 }
 
-/* Tips near the right edge hang off the right instead. */
-.tip--right {
+/* The big card bubble sits further out and carries a wider tip. */
+.info .tip {
+  top: 30px;
+  width: 236px;
+}
+
+/* Tips near the right edge hang off the right instead. Matched on the
+   bubble so it outranks the `.info .tip` / `.iinfo .tip` pair above. */
+.info .tip,
+.iinfo .tip--right {
   left: auto;
   right: -2px;
 }

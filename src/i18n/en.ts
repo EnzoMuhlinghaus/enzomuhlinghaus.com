@@ -93,8 +93,9 @@ export const en = {
     unitsLabel: 'UNITS — ALL TOOLS',
     builtBy: 'Built by Enzo Muhlinghaus —',
     readJournal: 'come read my journal ↗',
-    disclaimer:
-      'estimates only · times accept mm:ss or h:mm:ss · based on Jack Daniels’ VDOT model · Strava Namer is a demo',
+    // The design's line ends "· Strava Namer is a demo — connect your account
+    // to run it live"; dropped while that tool is off the bench.
+    disclaimer: 'estimates only · times accept mm:ss or h:mm:ss · Based on Jack Daniels’ VDOT model',
   },
 
   pace: {
@@ -117,26 +118,17 @@ export const en = {
   predictor: {
     title: 'Race Predictor',
     blurb: 'From one result, the rest follow.',
-    help: 'Give one race result — or two, or your measured MAS — and it projects equivalent times across the other distances.',
+    help: 'Give one race result (or your MAS) and it projects equivalent times across the other distances, via Jack Daniels’ VDOT model.',
     predictFrom: 'PREDICT FROM',
     sourceRace: 'A RACE',
-    sourceTwo: 'TWO RACES',
-    sourceEngine: 'MAS · VO₂',
+    sourceMas: 'MAS',
     yourTimeFor: (d: string) => `YOUR ${d.toUpperCase()} TIME`,
+    masFieldLabel: 'YOUR MAS (KM/H)',
     predicted: '→ PREDICTED',
-    masMode: 'MAS',
-    masFieldLabel: 'YOUR MAS',
-    vo2FieldLabel: 'YOUR VO₂MAX',
-    vo2Caveat: 'watch, lab, or track — any source works',
-    vo2Placeholder: 'e.g. 52',
-    masKmhPlaceholder: 'e.g. 18.5',
-    masPacePlaceholder: 'e.g. 3:15',
-    tagFromMas: 'FROM MAS',
-    tagFromVo2: 'FROM VO₂MAX',
-    tagPersonalized: 'RIEGEL FIT',
-    tagDefault: 'VDOT',
+    tagVdot: 'VDOT',
+    tagMasVdot: 'MAS→VDOT',
     vdotHint:
-      'VDOT is a single fitness score read from your result, then used to project equivalent times at the other distances (Jack Daniels’ model). Two results instead fit your own fatigue curve.',
+      'VDOT is a single fitness score read from your result, then used to project equivalent times at the other distances (Jack Daniels’ model).',
   },
 
   mas: {
@@ -186,7 +178,7 @@ export const en = {
 
   namer: {
     title: 'Strava Namer',
-    blurb: 'Because "Morning Run" wasn\'t cutting it.',
+    blurb: 'Because “Morning Run” wasn’t cutting it.',
     help: 'Pick an activity type and a tone to generate a Strava title & description. Hit shuffle for another take.',
     activityLabel: 'ACTIVITY',
     toneLabel: 'TONE',

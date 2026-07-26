@@ -83,7 +83,14 @@ const resultLabel = computed(() => {
 <template>
   <ToolCard no="01" tone="l" :title="m.pace.title" :subtitle="m.pace.blurb" :help="m.pace.help">
     <div class="pill-row">
-      <button v-for="k in MODES" :key="k" class="pill" :class="{ active: mode === k }" @click="mode = k">
+      <button
+        v-for="k in MODES"
+        :key="k"
+        class="pill"
+        :class="{ active: mode === k }"
+        :aria-pressed="mode === k"
+        @click="mode = k"
+      >
         {{ m.pace.modes[k] }}
       </button>
     </div>

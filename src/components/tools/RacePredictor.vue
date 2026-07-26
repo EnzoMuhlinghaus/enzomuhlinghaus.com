@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { KM_PER_MI, parseTime, formatTime } from '../../lib/time';
-import { vo2Cost, vdotFromRace, timeMinFromVdot, riegelFit } from '../../lib/vdot';
+import { vo2Cost, vdotFromRace, timeMinFromVdot } from '../../lib/vdot';
 import { useUnit } from '../../lib/units';
 import { useMessages } from '../../i18n';
 import ToolCard from './ToolCard.vue';
@@ -14,25 +14,12 @@ type Dist = (typeof ORDER)[number];
 const DIST_KM: Record<Dist, number> = { '5K': 5, '10K': 10, Half: 21.0975, Marathon: 42.195 };
 const DEFAULTS: Record<Dist, string> = { '5K': '18:38', '10K': '38:50', Half: '1:27:42', Marathon: '3:42:05' };
 
-/** Where the prediction is derived from. 'two' fits a Riegel curve to two
- *  results; 'engine' takes a measured MAS or VO2max directly. */
-type Source = 'race' | 'two' | 'engine';
-
-const source = ref<Source>('race');
+const source = ref<'race' | 'mas'>('race');
 const selected = ref<Dist>('10K');
 const times = ref<Record<string, string>>({ ...DEFAULTS });
-const secondDistance = ref<Dist>('5K');
-const secondTimes = ref<Record<string, string>>({});
-const engineValue = ref('');
-const engineMode = ref<'mas' | 'vo2max'>('mas');
-const masFormat = ref<'kmh' | 'minkm'>('kmh');
+const masValue = ref('16.5');
 
 const distLabel = (k: string) => (k === 'Half' ? m.value.common.half : k);
-
-function selectDistance(k: Dist) {
-  selected.value = k;
-  if (secondDistance.value === k) secondDistance.value = ORDER.find((x) => x !== k)!;
-}
 
 const rawTime = computed({
   get: () => times.value[selected.value] ?? '',
@@ -41,90 +28,36 @@ const rawTime = computed({
   },
 });
 
-const secondTime = computed({
-  get: () => secondTimes.value[secondDistance.value] ?? '',
-  set: (v: string) => {
-    secondTimes.value = { ...secondTimes.value, [secondDistance.value]: v };
-  },
-});
-
-const seconds = computed(() => parseTime(rawTime.value));
-const secondSeconds = computed(() => parseTime(secondTime.value));
-
-// A measured MAS / vVO2max is converted to an equivalent VO2max through the
-// same Daniels running-economy curve used for race predictions.
-const engine = computed<{ vo2: number | null; masKmh: number | null }>(() => {
-  if (source.value !== 'engine') return { vo2: null, masKmh: null };
-  if (engineMode.value === 'vo2max') {
-    const n = parseFloat(engineValue.value);
-    return Number.isFinite(n) && n >= 20 && n <= 95 ? { vo2: n, masKmh: null } : { vo2: null, masKmh: null };
+/** Both sources collapse to a single VDOT, which drives every predicted time. */
+const vdot = computed<number | null>(() => {
+  if (source.value === 'race') {
+    const seconds = parseTime(rawTime.value);
+    return seconds == null ? null : vdotFromRace(DIST_KM[selected.value] * 1000, seconds / 60);
   }
-  let kmh: number | null = null;
-  if (masFormat.value === 'kmh') {
-    const n = parseFloat(engineValue.value);
-    if (Number.isFinite(n) && n >= 8 && n <= 26) kmh = n;
-  } else {
-    const paceSec = parseTime(engineValue.value);
-    if (paceSec != null && paceSec > 0) kmh = 3600 / paceSec;
-  }
-  return kmh != null ? { vo2: vo2Cost((kmh * 1000) / 60), masKmh: kmh } : { vo2: null, masKmh: null };
-});
-
-const method = computed<'engine' | 'personalized' | 'default' | null>(() => {
-  if (source.value === 'engine') return engine.value.vo2 != null ? 'engine' : null;
-  if (source.value === 'two') {
-    const ok = secondSeconds.value != null && secondDistance.value !== selected.value && seconds.value != null;
-    return ok ? 'personalized' : seconds.value != null ? 'default' : null;
-  }
-  return seconds.value != null ? 'default' : null;
+  const kmh = parseFloat(masValue.value);
+  return Number.isFinite(kmh) && kmh > 0 ? vo2Cost((kmh * 1000) / 60) : null;
 });
 
 const methodTag = computed(() => {
-  switch (method.value) {
-    case 'engine':
-      return engineMode.value === 'mas' ? m.value.predictor.tagFromMas : m.value.predictor.tagFromVo2;
-    case 'personalized':
-      return m.value.predictor.tagPersonalized;
-    case 'default':
-      return m.value.predictor.tagDefault;
-    default:
-      return '—';
-  }
+  if (vdot.value == null) return '—';
+  return source.value === 'mas' ? m.value.predictor.tagMasVdot : m.value.predictor.tagVdot;
 });
 
 const predictions = computed(() => {
-  const meth = method.value;
-  const riegel =
-    meth === 'personalized'
-      ? riegelFit(DIST_KM[selected.value], seconds.value!, DIST_KM[secondDistance.value], secondSeconds.value!)
-      : null;
   const distInUnit = (km: number) => (unit.value === 'km' ? km : km / KM_PER_MI);
-
-  // With a single race, that distance is an input, not a prediction.
-  const shown = ORDER.filter((k) => !(source.value !== 'engine' && k === selected.value));
+  // With a race as the source, that distance is an input, not a prediction.
+  const shown = ORDER.filter((k) => !(source.value === 'race' && k === selected.value));
 
   return shown.map((k) => {
-    let predSeconds: number | null = null;
-    if (meth === 'engine') {
-      predSeconds = timeMinFromVdot(DIST_KM[k] * 1000, engine.value.vo2!) * 60;
-    } else if (meth === 'personalized') {
-      predSeconds = Math.exp(riegel!.lnA + riegel!.e * Math.log(DIST_KM[k]));
-    } else if (meth === 'default') {
-      const vdot = vdotFromRace(DIST_KM[selected.value] * 1000, seconds.value! / 60);
-      predSeconds = timeMinFromVdot(DIST_KM[k] * 1000, vdot) * 60;
-    }
+    if (vdot.value == null) return { key: k, label: distLabel(k), time: '—', pace: '—' };
+    const seconds = timeMinFromVdot(DIST_KM[k] * 1000, vdot.value) * 60;
     return {
       key: k,
       label: distLabel(k),
-      time: predSeconds != null ? formatTime(predSeconds) : '—',
-      pace: predSeconds != null ? `${formatTime(predSeconds / distInUnit(DIST_KM[k]))}/${unit.value}` : '—',
+      time: formatTime(seconds),
+      pace: `${formatTime(seconds / distInUnit(DIST_KM[k]))}/${unit.value}`,
     };
   });
-});
-
-const enginePlaceholder = computed(() => {
-  if (engineMode.value === 'vo2max') return m.value.predictor.vo2Placeholder;
-  return masFormat.value === 'kmh' ? m.value.predictor.masKmhPlaceholder : m.value.predictor.masPacePlaceholder;
 });
 </script>
 
@@ -132,25 +65,23 @@ const enginePlaceholder = computed(() => {
   <ToolCard no="02" tone="r" :title="m.predictor.title" :subtitle="m.predictor.blurb" :help="m.predictor.help">
     <div class="field-label">{{ m.predictor.predictFrom }}</div>
     <div class="pill-row">
-      <button class="pill" :class="{ active: source === 'race' }" @click="source = 'race'">
+      <button class="pill" :class="{ active: source === 'race' }" :aria-pressed="source === 'race'" @click="source = 'race'">
         {{ m.predictor.sourceRace }}
       </button>
-      <button class="pill" :class="{ active: source === 'two' }" @click="source = 'two'">
-        {{ m.predictor.sourceTwo }}
-      </button>
-      <button class="pill" :class="{ active: source === 'engine' }" @click="source = 'engine'">
-        {{ m.predictor.sourceEngine }}
+      <button class="pill" :class="{ active: source === 'mas' }" :aria-pressed="source === 'mas'" @click="source = 'mas'">
+        {{ m.predictor.sourceMas }}
       </button>
     </div>
 
-    <template v-if="source !== 'engine'">
+    <template v-if="source === 'race'">
       <div class="pill-row">
         <button
           v-for="k in ORDER"
           :key="k"
-          class="pill pill--tight"
+          class="pill"
           :class="{ active: selected === k }"
-          @click="selectDistance(k)"
+          :aria-pressed="selected === k"
+          @click="selected = k"
         >
           {{ distLabel(k) }}
         </button>
@@ -159,51 +90,12 @@ const enginePlaceholder = computed(() => {
         <div class="field-label">{{ m.predictor.yourTimeFor(distLabel(selected)) }}</div>
         <input v-model="rawTime" type="text" class="wf wf--sm" :placeholder="DEFAULTS[selected]" />
       </div>
-
-      <template v-if="source === 'two'">
-        <div class="pill-row">
-          <button
-            v-for="k in ORDER.filter((x) => x !== selected)"
-            :key="k"
-            class="pill pill--tight"
-            :class="{ active: secondDistance === k }"
-            @click="secondDistance = k"
-          >
-            {{ distLabel(k) }}
-          </button>
-        </div>
-        <div class="field">
-          <div class="field-label">{{ m.predictor.yourTimeFor(distLabel(secondDistance)) }}</div>
-          <input v-model="secondTime" type="text" class="wf wf--sm" :placeholder="DEFAULTS[secondDistance]" />
-        </div>
-      </template>
     </template>
 
-    <template v-else>
-      <div class="pill-row">
-        <button class="pill pill--tight" :class="{ active: engineMode === 'mas' }" @click="engineMode = 'mas'">
-          {{ m.predictor.masMode }}
-        </button>
-        <button class="pill pill--tight" :class="{ active: engineMode === 'vo2max' }" @click="engineMode = 'vo2max'">
-          VO₂MAX
-        </button>
-        <template v-if="engineMode === 'mas'">
-          <button class="pill pill--tight" :class="{ active: masFormat === 'kmh' }" @click="masFormat = 'kmh'">
-            KM/H
-          </button>
-          <button class="pill pill--tight" :class="{ active: masFormat === 'minkm' }" @click="masFormat = 'minkm'">
-            MIN/KM
-          </button>
-        </template>
-      </div>
-      <div class="field">
-        <div class="field-label">
-          {{ engineMode === 'vo2max' ? m.predictor.vo2FieldLabel : m.predictor.masFieldLabel }}
-        </div>
-        <input v-model="engineValue" type="text" class="wf wf--sm" :placeholder="enginePlaceholder" />
-        <p class="caveat">{{ m.predictor.vo2Caveat }}</p>
-      </div>
-    </template>
+    <div v-else class="field">
+      <div class="field-label">{{ m.predictor.masFieldLabel }}</div>
+      <input v-model="masValue" type="text" class="wf wf--sm" placeholder="16.5" />
+    </div>
 
     <div class="result-head result-rule">
       <span class="result-label">{{ m.predictor.predicted }}</span>
@@ -241,25 +133,13 @@ const enginePlaceholder = computed(() => {
   margin-bottom: 14px;
 }
 
-.pill--tight {
-  padding: 7px 13px;
-}
-
 .field {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .wf--sm {
   font-size: 22px;
   width: 150px;
-}
-
-.caveat {
-  font-family: var(--font-hand);
-  font-weight: 600;
-  font-size: 16px;
-  color: var(--on-desk-3);
-  margin: 6px 0 0;
 }
 
 .result-head {
@@ -287,6 +167,12 @@ const enginePlaceholder = computed(() => {
 .method-tag {
   font-family: var(--font-mono);
   font-size: 10px;
+  color: var(--faint);
+}
+
+/* The method bubble sits on the faint tag, not the gold field labels. */
+.method .iinfo {
+  border-color: var(--faint);
   color: var(--faint);
 }
 

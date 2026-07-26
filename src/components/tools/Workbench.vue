@@ -8,7 +8,9 @@ import { useMessages } from '../../i18n';
 import PaceCalculator from './PaceCalculator.vue';
 import RacePredictor from './RacePredictor.vue';
 import MasEstimator from './MasEstimator.vue';
-import StravaNamer from './StravaNamer.vue';
+// StravaNamer.vue is finished code but deliberately not mounted — the tool
+// isn't ready to ship, so it stays off the bench and off the journal's
+// workbench card in src/pages/index.astro. Re-add both together.
 
 const m = useMessages();
 const unit = useUnit();
@@ -52,7 +54,6 @@ function setUnit(u: Unit) {
       <PaceCalculator ref="pace" />
       <RacePredictor />
       <MasEstimator />
-      <StravaNamer />
     </div>
 
     <footer class="bench-foot">
@@ -138,11 +139,11 @@ function setUnit(u: Unit) {
   color: var(--paper-l);
 }
 
+/* Cards stretch to their row's height, so paired cards square off. */
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 22px;
-  align-items: start;
 }
 
 .bench-foot {

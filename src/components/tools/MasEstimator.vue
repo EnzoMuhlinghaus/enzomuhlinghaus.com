@@ -9,26 +9,24 @@ import ToolCard from './ToolCard.vue';
 const m = useMessages();
 const unit = useUnit();
 
-const ORDER = ['1 Mile', '3K', '5K', '10K', '15K', 'Half', 'Marathon', '50K'] as const;
+const ORDER = ['1500m', '1 Mile', '3000m', '5K', '10K', 'Half', 'Marathon'] as const;
 const DIST_KM: Record<string, number> = {
-  '1 Mile': 1.60934,
-  '3K': 3,
+  '1500m': 1.5,
+  '1 Mile': 1.609344,
+  '3000m': 3,
   '5K': 5,
   '10K': 10,
-  '15K': 15,
   Half: 21.0975,
   Marathon: 42.195,
-  '50K': 50,
 };
 const DEFAULTS: Record<string, string> = {
-  '1 Mile': '5:35',
-  '3K': '11:10',
+  '1500m': '4:45',
+  '1 Mile': '5:05',
+  '3000m': '10:20',
   '5K': '18:38',
   '10K': '38:50',
-  '15K': '59:30',
   Half: '1:27:42',
   Marathon: '3:42:05',
-  '50K': '4:15:00',
 };
 
 const ZONE_PCTS = [
@@ -114,10 +112,10 @@ const zones = computed(() =>
   <ToolCard no="03" tone="r" :title="m.mas.title" :subtitle="m.mas.blurb" :help="m.mas.help">
     <div class="field-label">{{ m.mas.measureFrom }}</div>
     <div class="pill-row">
-      <button class="pill" :class="{ active: source === 'race' }" @click="source = 'race'">
+      <button class="pill" :class="{ active: source === 'race' }" :aria-pressed="source === 'race'" @click="source = 'race'">
         {{ m.mas.sourceRace }}
       </button>
-      <button class="pill" :class="{ active: source === 'test' }" @click="source = 'test'">
+      <button class="pill" :class="{ active: source === 'test' }" :aria-pressed="source === 'test'" @click="source = 'test'">
         {{ m.mas.sourceTest }}
       </button>
     </div>
@@ -129,6 +127,7 @@ const zones = computed(() =>
           :key="k"
           class="pill pill--tight"
           :class="{ active: selected === k }"
+          :aria-pressed="selected === k"
           @click="selected = k"
         >
           {{ distLabel(k) }}
@@ -147,6 +146,7 @@ const zones = computed(() =>
           :key="p"
           class="pill pill--tight"
           :class="{ active: protocol === p }"
+          :aria-pressed="protocol === p"
           @click="protocol = p"
         >
           {{ m.mas.protocols[p] }}

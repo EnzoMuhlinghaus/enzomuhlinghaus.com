@@ -2,8 +2,13 @@
 
 Enzo's personal website, **v2 "Field Journal"**: the homepage is an open journal on a dark
 desk — four two-page spreads (Home / Endurance / Work / Travel) with edge tabs and a
-page-turn fold — and `/toolbox/` is a single dark "workbench" holding a 2×2 grid of paper
-tool cards (Pace Calculator, Race Predictor, MAS/VO₂max Estimator, Strava Namer).
+page-turn fold — and `/toolbox/` is a single dark "workbench" holding a grid of paper
+tool cards (Pace Calculator, Race Predictor, MAS/VO₂max Estimator).
+
+`StravaNamer.vue` is a fourth, finished card that is **deliberately not mounted** — it isn't
+ready to ship. It is off the bench (`Workbench.vue`), off the journal's workbench card
+(`src/pages/index.astro`), and out of the footer disclaimer. Its `namer` i18n block is kept
+intact. Re-add all of those together when the tool is ready.
 
 [PLAN.md](PLAN.md) documents the superseded v1 build and is kept for history only.
 
