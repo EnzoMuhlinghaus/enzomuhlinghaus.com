@@ -1129,7 +1129,12 @@ const prs = await prEntries();
     display: flex;
     align-items: center;
     gap: 16px;
-    margin: auto 16px 0 0;
+    /* `auto` drops it as low as the page allows; the negative bottom margin
+       takes it further, down into the strip reserved for the page nav. That is
+       safe here because the nav's link is left-aligned and this photo is
+       right-aligned, so they sit side by side rather than on top of each
+       other. */
+    margin: auto 16px -36px 0;
   }
 
   .race-shot-note {
