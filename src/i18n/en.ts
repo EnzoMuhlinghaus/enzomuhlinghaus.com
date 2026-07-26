@@ -1,135 +1,195 @@
 // English wording — the master dictionary. `fr.ts` must mirror this shape
 // exactly (enforced by the Messages type), so adding/removing a key here
 // without updating fr.ts is a build error.
-import { formatTime } from '../lib/time';
+//
+// Scope note: this holds UI chrome only. The v2 journal's long-form content
+// (entry blurbs, travel captions, the career log) lives in src/data/* — it is
+// content, not interface, and is authored in one language for now.
 
 export const en = {
   common: {
     half: 'Half',
-    yourTime: 'YOUR TIME',
     formatHint: 'Format: mm:ss or h:mm:ss',
-    editHint: 'Edit this to your own time',
   },
 
-  footer: {
-    sayHi: 'Say hi',
-    resume: 'Résumé / CV',
-  },
-
+  // ---- the journal book ----
   home: {
-    position: 'CURRENT POSITION: 49.28°N 123.12°W — VANCOUVER, BC',
-    loadingWeather: 'loading weather…',
-    headline1: "I'm Enzo. I work in tech,",
-    headline2: 'and I run a lot.',
-    blurb: 'Frenchman who likes anything with a finish line. I build small tools for my training and share them here.',
-    photoCaption: 'fuel stop, somewhere in Paris',
+    volume: 'FIELD JOURNAL · VOL. I',
+    position: 'current position: 49°16′N, 123°07′W',
+    city: 'Vancouver, BC',
+    loadingWeather: 'checking the sky…',
+    tagline: 'curious about everything.',
+    sayHi: 'say hi',
+    meLabel: 'me',
+    turnPage: 'turn the page ➝',
+    back: '⟵ back',
+    backHome: 'back home ➝',
+    tabs: {
+      home: 'home',
+      endurance: 'endurance',
+      work: 'work',
+      travel: 'travel',
+    },
+    // Open-Meteo weather_code buckets, matching the five hand-drawn icons.
+    weather: {
+      clear: 'clear skies',
+      partly: 'partly cloudy',
+      overcast: 'overcast',
+      fog: 'foggy',
+      rain: 'rain',
+      snow: 'snowing',
+      storm: 'thunderstorm',
+    },
+  },
+
+  endurance: {
+    eyebrow: 'ENTRY 01',
+    kicker: 'run · tri · ride',
+    title: 'Endurance',
+    blurb: 'Runner, among other things.',
+    kmSuffix: (year: string) => `run so far in ${year}`,
+    pbTitle: 'PERSONAL BESTS',
+    soon: 'soon…',
     journalTitle: 'RACE JOURNAL',
     racesCount: (n: number) => `${n} races · scroll ↓`,
-    training: 'TRAINING',
-    prTitle: 'FOR THE RECORD',
-    soon: 'soon…',
+    upNext: 'UP NEXT',
+    workbenchTitle: 'THE WORKBENCH · RUNNING TOOLS',
+    firstHalfIron: 'My first IRONMAN 70.3!',
     prDistances: {
       '5K': '5K',
       '10K': '10K',
-      Half: 'Half',
+      Half: 'Half Marathon',
       Marathon: 'Marathon',
     },
   },
 
-  // Tool cards: `name` is the Toolbox grid title, `homeName` the homepage card title.
-  tools: {
-    pace: { name: 'Pace Calculator', homeName: 'Pace calculator', desc: 'Splits & race pace.' },
-    mas: { name: 'MAS / VO2max', homeName: 'VMA / VO₂max', desc: 'Measure the engine.' },
-    predictor: { name: 'Race Predictor', homeName: 'Race predictor', desc: '5K → marathon times.' },
-    namer: { name: 'Strava Namer', homeName: 'Strava namer', desc: 'Names & descriptions.' },
+  work: {
+    eyebrow: 'ENTRY 02',
+    kicker: 'senior software engineer',
+    title: 'Work',
+    blurb:
+      '9+ years of experience designing and operating high-scale distributed systems in enterprise SaaS environments',
+    resumeTitle: 'THE RÉSUMÉ / CV',
+    resumeBlurb: 'grab the full copy, one page, PDF',
+    careerTitle: 'CAREER LOG',
+    toolbeltLabel: 'in the toolbelt:',
+    fieldNotes: 'FIELD NOTES',
+    photoCaption: 'the Captain Wallet loft, Paris 2019 - startup years',
   },
 
+  travel: {
+    eyebrow: 'ENTRY 03',
+    kicker: 'home is a moving target',
+    title: 'Travel',
+    blurb: 'Born in France, currently parked in Vancouver',
+    subBlurb: 'the places that left a mark on me.',
+  },
+
+  // ---- the workbench ----
   toolbox: {
-    breadcrumb: 'TOOLBOX',
-    title: 'The Toolbox',
+    eyebrow: 'THE WORKBENCH',
+    title: 'Running Tools',
     blurb: 'Small tools built for my own training, shared here.',
+    unitsLabel: 'UNITS — ALL TOOLS',
+    builtBy: 'Built by Enzo Muhlinghaus —',
+    readJournal: 'come read my journal ↗',
+    disclaimer:
+      'estimates only · times accept mm:ss or h:mm:ss · based on Jack Daniels’ VDOT model · Strava Namer is a demo',
   },
 
   pace: {
-    breadcrumb: 'TOOLBOX / PACE CALCULATOR',
     title: 'Pace Calculator',
     blurb: 'Any two, and the third follows.',
-    disclaimer: 'Accepted formats: mm:ss or h:mm:ss for time and pace.',
-    solveFor: 'SOLVE FOR',
+    help: 'Enter any two of distance, time, or pace — it solves the third. Quick chips drop in common race distances.',
     modes: {
-      pace: 'Find Pace',
-      time: 'Find Time',
-      distance: 'Find Distance',
+      pace: 'PACE',
+      time: 'TIME',
+      distance: 'DISTANCE',
     },
     distanceLabel: 'DISTANCE',
     timeLabel: 'TIME',
     paceLabel: 'PACE',
     resultPace: '→ PACE',
     resultTime: '→ TIME',
-    resultDistance: '→ DISTANCE',
-  },
-
-  mas: {
-    breadcrumb: 'TOOLBOX / MAS · VO2MAX',
-    title: 'MAS / VO2max Estimator',
-    blurb: 'Measure the engine.',
-    disclaimer: "Based on Jack Daniels' VDOT model. These are estimates only.",
-    estimated: '→ ESTIMATED',
-    masLabel: 'MAS',
-    zonesTitle: 'TRAINING PACES',
-    zones: {
-      easy: 'Easy',
-      marathon: 'Marathon',
-      threshold: 'Threshold',
-      vo2max: 'VO2max',
-    },
+    resultDistance: '→ DIST',
   },
 
   predictor: {
-    breadcrumb: 'TOOLBOX / RACE PREDICTOR',
     title: 'Race Predictor',
-    blurb: 'Enter a recent race time and see what it predicts across other distances.',
-    disclaimer: 'These are estimates only — real-world results vary with terrain, taper, and how much you wanted it.',
+    blurb: 'From one result, the rest follow.',
+    help: 'Give one race result — or two, or your measured MAS — and it projects equivalent times across the other distances.',
+    predictFrom: 'PREDICT FROM',
+    sourceRace: 'A RACE',
+    sourceTwo: 'TWO RACES',
+    sourceEngine: 'MAS · VO₂',
+    yourTimeFor: (d: string) => `YOUR ${d.toUpperCase()} TIME`,
     predicted: '→ PREDICTED',
-    addSecondRace: 'Add another recent race for a more personalized prediction',
-    enterVo2: 'Have a VO2max or MAS estimate? Enter it directly',
     masMode: 'MAS',
+    masFieldLabel: 'YOUR MAS',
+    vo2FieldLabel: 'YOUR VO₂MAX',
     vo2Caveat: 'watch, lab, or track — any source works',
     vo2Placeholder: 'e.g. 52',
     masKmhPlaceholder: 'e.g. 18.5',
     masPacePlaceholder: 'e.g. 3:15',
     tagFromMas: 'FROM MAS',
-    tagFromVo2: 'FROM VO2MAX',
-    tagPersonalized: 'PERSONALIZED',
-    tagDefault: 'DEFAULT',
-    methodFromMas: 'From your MAS.',
-    methodFromVo2: 'From your VO2max.',
-    methodPersonalized: (d1: string, d2: string) => `Personalized (based on your ${d1} and ${d2} results).`,
-    methodDefault: (d: string) => `Based on VDOT (from your ${d}).`,
-    methodEmpty: 'Enter a time to get started.',
-    vdotHint: "VDOT: Jack Daniels' fitness index, calculated from this race result.",
-    vo2Hint: (masKmh: number | null) => {
-      const intro =
-        'VO2max: maximal oxygen uptake (mL/kg/min). MAS: maximal aerobic speed, the pace at which VO2max is reached — the two are linked through running economy.';
-      const kmh = masKmh != null ? masKmh : 18;
-      const paceStr = `${formatTime(3600 / kmh)}/km`;
-      const meters = Math.round(kmh * 100);
-      const example =
-        masKmh != null
-          ? ` A MAS of ${kmh.toFixed(1)} km/h means that you can hold ${paceStr} for ~6 minutes, or about ${meters} m.`
-          : ` For example, a MAS of ${kmh} km/h means holding about ${paceStr} for ~6 minutes, or about ${meters} m.`;
-      return intro + example;
+    tagFromVo2: 'FROM VO₂MAX',
+    tagPersonalized: 'RIEGEL FIT',
+    tagDefault: 'VDOT',
+    vdotHint:
+      'VDOT is a single fitness score read from your result, then used to project equivalent times at the other distances (Jack Daniels’ model). Two results instead fit your own fatigue curve.',
+  },
+
+  mas: {
+    title: 'MAS / VO₂max Estimator',
+    blurb: 'Measure the engine.',
+    help: 'Estimate Maximal Aerobic Speed & VO₂max from a race result or a field test, then read your training paces off it.',
+    measureFrom: 'MEASURE FROM',
+    sourceRace: 'A RACE',
+    sourceTest: 'FIELD TEST',
+    yourTimeFor: (d: string) => `YOUR ${d.toUpperCase()} TIME`,
+    whatsThis: 'what’s this? ↗',
+    protocols: {
+      demi: '6-MIN ½-COOPER',
+      cooper: '12-MIN COOPER',
+      leger: 'BEEP TEST',
+    },
+    testLabels: {
+      demi: 'DISTANCE IN 6 MIN (M)',
+      cooper: 'DISTANCE IN 12 MIN (M)',
+      leger: 'FINAL STAGE SPEED (KM/H)',
+    },
+    testHints: {
+      demi: 'Run as far as you can in 6 minutes; enter the metres covered.',
+      cooper: 'Run as far as you can in 12 minutes; enter the metres covered.',
+      leger: '20 m shuttle to the beeps; enter the speed of your last full stage.',
+    },
+    vo2Label: 'VO₂MAX',
+    vo2Info:
+      'The most oxygen your body can use per minute, per kg of bodyweight. A bigger number means a bigger aerobic engine.',
+    masLabel: 'MAS',
+    masInfo:
+      'Maximal Aerobic Speed — the slowest pace at which you reach VO₂max. Every training pace below is derived from it.',
+    zonesTitle: 'TRAINING PACES',
+    zones: {
+      easy: 'Easy',
+      marathon: 'Marathon',
+      threshold: 'Threshold',
+      vo2max: 'VO₂max',
+    },
+    zoneInfo: {
+      easy: 'Conversational effort — the bulk of your weekly mileage. Builds aerobic base with little fatigue.',
+      marathon: 'Steady, sustainable for a couple of hours. Roughly your goal marathon effort.',
+      threshold: 'Comfortably hard, about a 1-hour race effort. Lifts the pace you can hold before lactate piles up.',
+      vo2max: 'Hard 3–5 min intervals near your aerobic max. Grows the size of the engine itself.',
     },
   },
 
   namer: {
-    breadcrumb: 'TOOLBOX / STRAVA NAMER',
     title: 'Strava Namer',
     blurb: 'Because "Morning Run" wasn\'t cutting it.',
-    disclaimer: 'Titles and descriptions only — connect your own Strava account to run this for real.',
+    help: 'Pick an activity type and a tone to generate a Strava title & description. Hit shuffle for another take.',
     activityLabel: 'ACTIVITY',
     toneLabel: 'TONE',
-    demoLabel: 'DEMO ACTIVITY',
     copyTitle: 'Copy',
     shuffleTitle: 'Shuffle',
     typeLabels: {

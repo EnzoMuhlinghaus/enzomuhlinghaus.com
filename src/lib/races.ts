@@ -7,11 +7,13 @@
 // (PR blackboard). Editing Notion means re-running `npm run build` + re-uploading dist/.
 
 import { NOTION_TOKEN, NOTION_DB_ID } from 'astro:env/server';
+import type { CountryCode } from '../components/Flag.astro';
 
 export interface Race {
   day: string;
   name: string;
-  location: string; // short display label incl. flag, e.g. "🇫🇷 Annecy"
+  location: string; // short display label, e.g. "Annecy, FR"
+  country: CountryCode | null;
   lat: number | null;
   lon: number | null;
   type: string; // 'Road Running' | 'Trail Running' | 'Triathlon'
@@ -89,25 +91,28 @@ const place = (p: NotionProps, key: string): { name: string; lat: number | null;
 
 // ---- Display helpers -----------------------------------------------------------
 
-const COUNTRY_FLAG: Record<string, string> = {
-  France: '🇫🇷',
-  Italy: '🇮🇹',
-  Canada: '🇨🇦',
+// Country name (last segment of a Notion place name) → ISO-3166 alpha-2, which
+// is what <Flag> keys off. v2 draws its own flag marks rather than using emoji,
+// so the journal needs the code, not a glyph.
+const COUNTRY_CODE: Record<string, CountryCode> = {
+  France: 'FR',
+  Italy: 'IT',
+  Canada: 'CA',
+  Japan: 'JP',
+  'United States': 'US',
+  USA: 'US',
+  Portugal: 'PT',
+  Spain: 'ES',
+  'United Kingdom': 'GB',
 };
 
-/** Flag from a country name (last segment of a Notion place name). */
-function flagFor(country: string): string {
-  return COUNTRY_FLAG[country.trim()] ?? '';
-}
-
-/** "Annecy, Auvergne-Rhone-Alpes, France" → "🇫🇷 Annecy". */
-function displayLocation(placeName: string): string {
+/** "Annecy, Auvergne-Rhone-Alpes, France" → { label: "Annecy, FR", country: "FR" }. */
+function displayLocation(placeName: string): { label: string; country: CountryCode | null } {
   const parts = placeName.split(',').map((s) => s.trim()).filter(Boolean);
-  if (parts.length === 0) return '';
+  if (parts.length === 0) return { label: '', country: null };
   const city = parts[0];
-  const country = parts[parts.length - 1];
-  const flag = flagFor(country);
-  return flag ? `${flag} ${city}` : city;
+  const country = COUNTRY_CODE[parts[parts.length - 1]] ?? null;
+  return { label: country ? `${city}, ${country}` : city, country };
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -183,11 +188,13 @@ async function queryRaces(): Promise<Race[]> {
       // No Status column in Notion: a race is "training" (upcoming) when it has no
       // recorded time or its date is still in the future.
       const upcoming = time === null || (iso !== null && iso > today);
+      const where = displayLocation(loc.name);
 
       races.push({
         day: iso ? formatDay(iso) : '',
         name: title(p, PROP.name),
-        location: displayLocation(loc.name),
+        location: where.label,
+        country: where.country,
         lat: loc.lat,
         lon: loc.lon,
         type: selectName(p, PROP.type) ?? '',
@@ -217,8 +224,11 @@ export interface JournalEntry {
   day: string;
   name: string;
   location: string;
+  country: CountryCode | null;
   type: string;
   distance: string | null; // display distance: triathlon distance or run distance, when known
+  /** "Road Running · Annecy, FR" — the single meta line under the race name. */
+  meta: string;
   time: string;
   rankLabel: string | null;
   pr: boolean;
@@ -243,8 +253,12 @@ export async function journalEntries(): Promise<JournalEntry[]> {
       day: r.day,
       name: r.name,
       location: r.location,
+      country: r.country,
       type: r.type,
       distance: displayDistance(r),
+      // "Triathlon · 70.3 · Cervia, IT" — distance is dropped for races that
+      // carry neither a run nor a triathlon distance (trails, mostly).
+      meta: [r.type, displayDistance(r), r.location].filter(Boolean).join(' · '),
       time: r.time ?? '—',
       // Only show "place / total" when both are known (older races lack a total).
       rankLabel: r.overallPlace && r.overallTotal ? `${r.overallPlace} / ${r.overallTotal}` : null,

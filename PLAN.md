@@ -1,3 +1,10 @@
+> **SUPERSEDED — kept for history.**
+> This is the original v1 "expedition map" build plan. The site has since been rebuilt as the
+> v2 "Field Journal" design: a four-spread journal homepage and a single-page workbench toolbox.
+> Anything below about the scrolling homepage, the compass rose, the standalone tool pages, the
+> alpine-morning palette, the Archivo / Instrument Serif fonts or the Infomaniak upload is no
+> longer true. See [CLAUDE.md](CLAUDE.md) for the current architecture and locked decisions.
+
 # Implement enzomuhlinghaus.com from the Claude Design project
 
 ## Context

@@ -1,0 +1,114 @@
+---
+import { Image } from 'astro:assets';
+import Flag from '../Flag.astro';
+import { polaroidStyle, tapeStyles, type Polaroid } from '../../data/travel';
+
+interface Props {
+  polaroid: Polaroid;
+}
+
+const { polaroid: p } = Astro.props;
+---
+
+<figure class="polaroid" style={polaroidStyle(p)}>
+  <div class="mount">
+    <div class="frame">
+      {
+        p.photo ? (
+          <Image src={p.photo} alt={`${p.place} — ${p.caption}`} width={480} loading="lazy" />
+        ) : (
+          <div class="photo-empty" aria-hidden="true" />
+        )
+      }
+    </div>
+    <figcaption>
+      <div class="line">
+        <span class="place">{p.place}</span>
+        <Flag country={p.country} width={23} />
+        {p.year && <span class="year">{p.year}</span>}
+      </div>
+      <div class="caption">{p.caption}</div>
+    </figcaption>
+  </div>
+  {tapeStyles(p).map((s) => <div class="tape" style={s} />)}
+</figure>
+
+<style>
+  .polaroid {
+    position: absolute;
+    margin: 0;
+  }
+
+  /* Polaroid tape sits a touch more opaque than the photo tapes elsewhere. */
+  .polaroid .tape {
+    background: rgba(240, 230, 190, 0.72);
+  }
+
+  .mount {
+    background: var(--mount);
+    padding: 10px 10px 9px;
+    box-shadow: 0 7px 18px rgba(60, 40, 15, 0.36);
+  }
+
+  .frame {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+  }
+
+  .frame :global(img),
+  .photo-empty {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 7px;
+  }
+
+  .place {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .year {
+    font-family: var(--font-label);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    margin-left: auto;
+  }
+
+  .caption {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.15;
+    color: var(--ink-2);
+    margin-top: 1px;
+  }
+
+  /* Stacked layout: the hand-placed coordinates stop making sense. */
+  @media (max-width: 1060px) {
+    .polaroid {
+      position: static !important;
+      width: 100% !important;
+      max-width: 300px;
+      transform: rotate(var(--tilt, -1deg)) !important;
+      margin: 0 auto;
+    }
+
+    .tape {
+      display: none;
+    }
+  }
+</style>

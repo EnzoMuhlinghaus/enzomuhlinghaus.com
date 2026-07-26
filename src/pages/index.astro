@@ -1,924 +1,1700 @@
 ---
+import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
-import Footer from '../components/Footer.astro';
-import LangToggle from '../components/LangToggle.astro';
 import T from '../components/T.astro';
+import Flag from '../components/Flag.astro';
+import Page from '../components/journal/Page.astro';
+import Dateline from '../components/journal/Dateline.astro';
+import Polaroid from '../components/journal/Polaroid.astro';
 import { journalEntries, prEntries } from '../lib/races';
-import { TOOLS } from '../lib/tools';
+import { JOURNAL_ROWS, LINKS, SPREADS } from '../data/journal';
+import { JOBS, TOOLBELT, DOODLE_BOXES } from '../data/work';
+import { POLAROIDS_LEFT, POLAROIDS_RIGHT } from '../data/travel';
+import { KM_THIS_YEAR, KM_YEAR_LABEL, STRAVA_URL } from '../data/endurance';
 import { t } from '../i18n';
+import moi from '../assets/photos/moi.jpg';
+import race703 from '../assets/photos/race-703-finish.jpeg';
+import captainWallet from '../assets/photos/captain-wallet.jpg';
 
 const races = await journalEntries();
 const prs = await prEntries();
 ---
 
 <Layout
-  title="Enzo Muhlinghaus — I work in tech, and I run a lot"
-  description="Personal site of Enzo Muhlinghaus: Frenchman in Vancouver, BC. Race journal and small running tools — pace calculator, VMA/VO2max estimator, race predictor."
+  title="Enzo Muhlinghaus — Field Journal"
+  description="The field journal of Enzo Muhlinghaus: a Frenchman in Vancouver. Race journal, engineering notes, travels, and a workbench of small running tools."
 >
-  <div class="page">
-    <!-- hero panorama -->
-    <div class="hero">
-      <img
-        src="/images/vancouver-hero.jpg"
-        alt="Vancouver skyline at golden hour"
-        class="hero-img"
-        fetchpriority="high"
-      />
-      <div class="hero-tint"></div>
-      <div class="hero-nav">
-        <span class="brand">ENZO MUHLINGHAUS 🇫🇷</span>
-        <LangToggle light />
-      </div>
-      <div class="hero-headline">
-        <div class="status-badge">
-          <span><T t={t.home.position} /></span>
-          <span class="sep">·</span>
-          <span id="van-clock"></span>
-          <span class="sep">·</span>
-          <span id="weather-badge"><T t={t.home.loadingWeather} /></span>
-        </div>
-        <h1>
-          <T t={t.home.headline1} /><br /><T t={t.home.headline2} />
-        </h1>
-      </div>
-      <!-- taped snapshot overlapping the edge -->
-      <div class="polaroid">
-        <div class="tape"></div>
-        <div class="polaroid-photo">
-          <img src="/images/moi_slurp.jpg" alt="Enzo, espresso in hand" />
-        </div>
-        <div class="polaroid-caption"><T t={t.home.photoCaption} /></div>
-      </div>
-    </div>
+  <div id="shell">
+    <div id="stage">
+      <!-- Edge tabs live outside the book: the book clips its own fold bleed,
+           and anything inside it would be clipped with it. -->
+      <nav id="tabs" aria-label="Journal sections">
+        {
+          SPREADS.map((slug, i) => (
+            <button type="button" class="tab" data-go={i} style={`--i:${i}`}>
+              <span><T t={t.home.tabs[slug]} /></span>
+            </button>
+          ))
+        }
+      </nav>
 
-    <!-- aged parchment band: intro + toolbox + journal -->
-    <div class="parchment">
-      <div class="foxing"></div>
-      <!-- compass rose -->
-      <div class="rose" aria-hidden="true">
-        <div class="ring r1"></div>
-        <div class="ring r2"></div>
-        <div class="ring r3"></div>
-        <div class="needles">
-          <div class="needle n1"></div>
-          <div class="needle n2"></div>
-          <div class="needle n3"></div>
-          <div class="needle n4"></div>
-        </div>
-        <div class="hub"></div>
-        <div class="dir n">N</div>
-        <div class="dir s">S</div>
-        <div class="dir e">E</div>
-        <div class="dir w">W</div>
-      </div>
-      <!-- marathon route traces -->
-      <img src="/images/paris-trace.svg" alt="" class="trace paris" />
-      <img src="/images/vancouver-trace.svg" alt="" class="trace vancouver" />
-      <!-- scale bar -->
-      <div class="scale-bar" aria-hidden="true">
-        <div class="bar"><div class="f"></div><div></div><div class="f"></div><div></div></div>
-        <div class="ticks"><span>0</span><span>10</span><span>21.1</span><span>42.2 km</span></div>
-      </div>
-      <!-- soft stains -->
-      <div class="stain stain-a"></div>
-      <div class="stain stain-b"></div>
-
-      <div class="content">
-        <div class="intro">
-          <p><T t={t.home.blurb} /></p>
+      <div id="book" data-spread="0">
+      {/* ============ SPREAD 1 — contents ============ */}
+      <Page index={0} side="l" folio="01" label="Home, left page">
+        <div class="head head--home">
+          <div class="eyebrow"><T t={t.home.volume} /></div>
+          <Dateline />
         </div>
 
-        <!-- toolbox -->
-        <section id="toolbox" class="toolbox">
-          <a href="/toolbox/" class="toolbox-title">
-            <T t={t.toolbox.title} />
-            →
-          </a>
-          <div class="tool-grid">
-            {
-              TOOLS.map((tool) => (
-                <a href={tool.href} class="tool-card">
-                  <div class="dot" style={`background:${tool.dot}`} />
-                  <span>
-                    <strong><T t={t.tools[tool.key].homeName} /></strong>
-                    <span class="tool-desc"><T t={t.tools[tool.key].desc} /></span>
-                  </span>
-                </a>
-              ))
-            }
-          </div>
-        </section>
-
-        <!-- race journal + PR blackboard -->
-        <section class="journal-row">
-          <div class="journal">
-            <div class="journal-head">
-              <h2 class="mono-label"><T t={t.home.journalTitle} /></h2>
-              <span class="journal-count">
-                <span class="i18n-en">{t.home.racesCount.en(races.length)}</span>
-                <span class="i18n-fr">{t.home.racesCount.fr(races.length)}</span>
-              </span>
-            </div>
-            <div class="journal-scroll">
-              {
-                races.map((race) =>
-                  race.training ? (
-                    <div class="race-card training">
-                      <div class="race-top">
-                        <strong class="race-name">{race.name}</strong>
-                        <span class="state-label"><T t={t.home.training} /></span>
-                      </div>
-                      <div class="race-meta italic">
-                        {race.day} · {race.type}{race.distance ? ` · ${race.distance}` : ''} · {race.location}
-                      </div>
-                    </div>
-                  ) : (
-                    <div class="race-card">
-                      <div class="race-top">
-                        <strong class="race-name-done">{race.name}</strong>
-                        <span class="race-time-wrap">
-                          {race.pr && <span class="pr-flash">PR!</span>}
-                          <span class="race-time">{race.time}</span>
-                        </span>
-                      </div>
-                      <div class="race-meta split">
-                        <span>
-                          {race.day} · {race.type}{race.distance ? ` · ${race.distance}` : ''} · {race.location}
-                        </span>
-                        <span class="rank">{race.rankLabel}</span>
-                      </div>
-                    </div>
-                  ),
-                )
-              }
+        <div class="hero">
+          <h1 class="display">Enzo</h1>
+          <div class="scrap">
+            <div class="scrap-title"><T t={t.home.sayHi} /></div>
+            <div class="scrap-links">
+              <a href={LINKS.email} class="stamp-link">EMAIL</a>
+              <a href={LINKS.linkedin} target="_blank" rel="noopener" class="stamp-link">LINKEDIN</a>
+              <a href={LINKS.cv} download class="stamp-link">CV ⤓</a>
             </div>
           </div>
+        </div>
+        <p class="tagline"><T t={t.home.tagline} /></p>
 
-          <!-- PR blackboard -->
-          <div class="blackboard">
-            <h3><T t={t.home.prTitle} /></h3>
-            <div class="chalk">
-              {
-                prs.map((p) => (
-                  <div class:list={['pr-line', { dim: !p.time }]}>
-                    <span><T t={t.home.prDistances[p.distance]} /></span>
-                    {p.time ? (
-                      <strong>{p.time}</strong>
+        <figure class="print">
+          <div class="mount print-mount">
+            <div class="print-frame">
+              <Image src={moi} alt="Enzo, mid-adventure" width={900} fetchpriority="high" />
+            </div>
+          </div>
+          <div class="tape" style="top:-13px;left:44px;width:110px;height:30px;transform:rotate(-6deg)"></div>
+          <div class="tape" style="bottom:-11px;right:56px;width:110px;height:30px;transform:rotate(5deg)"></div>
+          <figcaption class="me">
+            <span><T t={t.home.meLabel} /></span>
+            <svg width="34" height="46" viewBox="0 0 34 46" aria-hidden="true">
+              <path d="M26 2 C16 14, 12 26, 15 40" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path>
+              <path d="M8 32 L15 40 L22 33" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </figcaption>
+        </figure>
+      </Page>
+
+      <Page index={0} side="r" folio="02" label="Home, right page">
+        <div class="entries">
+          {
+            JOURNAL_ROWS.map((row) => (
+              <button type="button" class="entry" data-go={SPREADS.indexOf(row.target)}>
+                <div class="thumb" style={`transform:rotate(${row.rot}deg)`}>
+                  <div class="thumb-frame">
+                    {row.photo ? (
+                      <Image
+                        src={row.photo}
+                        alt={row.alt}
+                        width={320}
+                        loading="lazy"
+                        style={[
+                          `object-position:${row.crop.position}`,
+                          row.crop.scale
+                            ? `transform:scale(${row.crop.scale});transform-origin:${row.crop.origin ?? row.crop.position}`
+                            : '',
+                        ]
+                          .filter(Boolean)
+                          .join(';')}
+                      />
                     ) : (
-                      <span><T t={t.home.soon} /></span>
+                      <div class="photo-empty" aria-hidden="true" />
                     )}
                   </div>
-                ))
-              }
+                  {row.tapes.map((s) => (
+                    <div class="tape" style={s} />
+                  ))}
+                </div>
+                <div class="entry-text">
+                  <div class="entry-no">{row.no}</div>
+                  <div class="entry-title">{row.title}</div>
+                  <div class="entry-kicker">{row.kicker}</div>
+                  <div class="entry-blurb" style={`transform:rotate(${row.blurbRot}deg)`}>
+                    {row.blurb}
+                  </div>
+                </div>
+              </button>
+            ))
+          }
+          <div class="entry entry--todo">
+            <div class="thumb thumb--todo"><span>?</span></div>
+            <div class="entry-text">
+              <div class="entry-no">entry 04</div>
+              <div class="entry-title entry-title--todo">to be continued…</div>
+              <div class="entry-blurb entry-blurb--todo">more entries still in the works</div>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+        <div class="page-nav page-nav--end">
+          <button type="button" class="hand-link" data-go="1"><T t={t.home.turnPage} /></button>
+        </div>
+      </Page>
 
-      <Footer />
+      {/* ============ SPREAD 2 — Endurance ============ */}
+      <Page index={1} side="l" folio="03" label="Endurance, left page">
+        <div class="head">
+          <div class="eyebrow"><T t={t.endurance.eyebrow} /></div>
+          <div class="kicker"><T t={t.endurance.kicker} /></div>
+        </div>
+        <div class="title-row">
+          <h2 class="display display--spread"><T t={t.endurance.title} /></h2>
+          <a href={STRAVA_URL} target="_blank" rel="noopener" class="stamp-link">STRAVA ↗</a>
+        </div>
+        <p class="lede lede--endurance"><T t={t.endurance.blurb} /></p>
+
+        <p class="km">
+          <span class="km-figure"
+            >{KM_THIS_YEAR} km<svg class="km-circle" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"
+              ><ellipse cx="50" cy="50" rx="48" ry="42" fill="none" stroke="var(--red)" stroke-width="3" opacity=".8" transform="rotate(-2 50 50)"
+              ></ellipse></svg
+            ></span
+          >
+          <span class="i18n-en">{t.endurance.kmSuffix.en(KM_YEAR_LABEL)}</span>
+          <span class="i18n-fr">{t.endurance.kmSuffix.fr(KM_YEAR_LABEL)}</span>
+        </p>
+
+        <div class="pbs">
+          <div class="label"><T t={t.endurance.pbTitle} /></div>
+          {
+            prs.map((p) => (
+              <div class:list={['leader', 'pb', { 'pb--soon': !p.time }]}>
+                <span class="pb-event">
+                  <T t={t.endurance.prDistances[p.distance]} />
+                </span>
+                <span class="leader__fill" />
+                <span class="pb-time">{p.time ?? <T t={t.endurance.soon} />}</span>
+              </div>
+            ))
+          }
+        </div>
+
+        <a href="/toolbox/" class="wbcard">
+          <div class="tape" style="top:-12px;left:50%;margin-left:-55px;width:110px;height:28px;transform:rotate(-2deg)"></div>
+          <div class="wbcard-head">
+            <span><T t={t.endurance.workbenchTitle} /></span>
+            <span class="wbarrow">➝</span>
+          </div>
+          <div class="wbcard-list">
+            <div><strong>Pace Calculator</strong> <span>splits &amp; race pace</span></div>
+            <div><strong>Race Predictor</strong> <span>one result, the rest</span></div>
+            <div><strong>MAS / VO₂max</strong> <span>measure the engine</span></div>
+            <div><strong>Strava Namer</strong> <span>names &amp; blurbs</span></div>
+          </div>
+        </a>
+
+        <figure class="race-shot">
+          <figcaption class="race-shot-note">
+            <span><T t={t.endurance.firstHalfIron} /> <Flag country="IT" width={30} class="inline-flag" /></span>
+            <svg width="44" height="30" viewBox="0 0 52 34" aria-hidden="true">
+              <path d="M4 6 C16 18, 30 23, 46 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path>
+              <path d="M38 13 L46 20 L38 27" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </figcaption>
+          <div class="race-shot-frame">
+            <div class="mount">
+              <Image
+                src={race703}
+                alt="Crossing the line at IRONMAN 70.3 Emilia-Romagna"
+                width={400}
+                loading="lazy"
+                class="race-shot-img"
+              />
+            </div>
+            <div class="tape" style="top:-11px;left:8px;width:72px;height:24px;transform:rotate(-5deg)"></div>
+          </div>
+        </figure>
+
+        <div class="page-nav">
+          <button type="button" class="hand-link hand-link--back" data-go="0"><T t={t.home.back} /></button>
+        </div>
+      </Page>
+
+      <Page index={1} side="r" folio="04" label="Endurance, right page">
+        <div class="head head--journal">
+          <div class="eyebrow"><T t={t.endurance.journalTitle} /></div>
+          <div class="count">
+            <span class="i18n-en">{t.endurance.racesCount.en(races.length)}</span>
+            <span class="i18n-fr">{t.endurance.racesCount.fr(races.length)}</span>
+          </div>
+        </div>
+        <div class="race-scroll">
+          {
+            races.map((race) => (
+              <div class="race">
+                <div class="race-day">{race.day}</div>
+                <div class="race-main">
+                  <div class="race-name">{race.name}</div>
+                  <div class="race-meta">
+                    {race.meta}
+                    {race.country && <Flag country={race.country} width={18} />}
+                  </div>
+                </div>
+                <div class="race-result">
+                  {race.training ? (
+                    <span class="up-next">
+                      <T t={t.endurance.upNext} />
+                    </span>
+                  ) : (
+                    <span class="race-time">
+                      {race.time}
+                      {race.pr && <span class="pr">PR!</span>}
+                    </span>
+                  )}
+                  {race.rankLabel && <div class="race-rank">{race.rankLabel}</div>}
+                </div>
+              </div>
+            ))
+          }
+        </div>
+        <div class="page-nav page-nav--end">
+          <button type="button" class="hand-link" data-go="2"><T t={t.home.turnPage} /></button>
+        </div>
+      </Page>
+
+      {/* ============ SPREAD 3 — Work ============ */}
+      <Page index={2} side="l" folio="05" label="Work, left page">
+        <div class="head">
+          <div class="eyebrow"><T t={t.work.eyebrow} /></div>
+          <div class="kicker"><T t={t.work.kicker} /></div>
+        </div>
+        <div class="title-row">
+          <h2 class="display display--spread"><T t={t.work.title} /></h2>
+          <span class="title-links">
+            <a href={LINKS.github} target="_blank" rel="noopener" class="stamp-link">GITHUB ↗</a>
+            <a href={LINKS.linkedin} target="_blank" rel="noopener" class="stamp-link">LINKEDIN ↗</a>
+            <a href={LINKS.email} class="stamp-link">EMAIL ✉</a>
+          </span>
+        </div>
+        <p class="lede lede--work"><T t={t.work.blurb} /></p>
+
+        <a href={LINKS.cv} download class="cvcard">
+          <div class="tape" style="top:-16px;right:24px;width:90px;height:26px;transform:rotate(3deg)"></div>
+          <div class="cvcard-title"><T t={t.work.resumeTitle} /></div>
+          <div class="cvcard-blurb"><T t={t.work.resumeBlurb} /> <span class="dl">⤓</span></div>
+        </a>
+
+        <div class="career">
+          <div class="label"><T t={t.work.careerTitle} /></div>
+          {
+            JOBS.map((job) => (
+              <div class="job">
+                <span class="job-years">{job.years}</span>
+                <span class="job-main">
+                  <span class="job-role">{job.role}</span>
+                  <span class="job-place">{job.place}</span>
+                </span>
+              </div>
+            ))
+          }
+        </div>
+
+        <p class="toolbelt"><T t={t.work.toolbeltLabel} /> <strong>{TOOLBELT}</strong></p>
+
+        <div class="page-nav">
+          <button type="button" class="hand-link hand-link--back" data-go="1"><T t={t.home.back} /></button>
+        </div>
+      </Page>
+
+      <Page index={2} side="r" folio="06" label="Work, right page">
+        <div class="head head--tight">
+          <div class="eyebrow"><T t={t.work.fieldNotes} /></div>
+        </div>
+
+        <figure class="note-photo">
+          <figcaption class="note-caption">
+            <span><T t={t.work.photoCaption} /></span>
+            <svg width="64" height="44" viewBox="0 0 52 34" aria-hidden="true">
+              <path d="M4 6 C16 18, 30 23, 46 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path>
+              <path d="M38 13 L46 20 L38 27" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </figcaption>
+          <div class="note-shot">
+            <div class="mount">
+              <Image
+                src={captainWallet}
+                alt="The Captain Wallet office in Paris, 2019"
+                width={600}
+                loading="lazy"
+                class="note-frame"
+              />
+            </div>
+            <div class="tape" style="top:-11px;left:12px;width:72px;height:24px;transform:rotate(-5deg)"></div>
+            <div class="tape" style="bottom:-9px;right:16px;width:72px;height:24px;transform:rotate(4deg)"></div>
+          </div>
+        </figure>
+
+        {/* A faded pencil sketch of a generic event pipeline — deliberately not a
+            real system diagram, just the shape of the work. */}
+        <div class="doodle" aria-hidden="true">
+          {
+            DOODLE_BOXES.map((b) => (
+              <div class:list={['dbox', `dbox--${b.shape}`]} style={b.style}>
+                <div class="dbox-title">{b.title}</div>
+                <div class="dbox-sub">{b.sub}</div>
+              </div>
+            ))
+          }
+          <svg class="darrow" style="top:34px;left:41%;transform:rotate(3deg)" width="72" height="34" viewBox="0 0 72 34">
+            <path d="M4 12 C24 22, 44 22, 62 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path>
+            <path d="M54 10 L62 16 L53 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <svg class="darrow" style="top:122px;right:26%" width="40" height="50" viewBox="0 0 40 52">
+            <path d="M20 4 C14 18, 15 32, 20 44" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path>
+            <path d="M12 37 L20 44 L27 36" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <svg class="darrow" style="top:222px;left:22%;transform:rotate(-6deg)" width="66" height="38" viewBox="0 0 70 40">
+            <path d="M64 10 C44 22, 28 26, 10 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path>
+            <path d="M18 17 L10 24 L19 31" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <svg class="darrow" style="top:256px;right:24%;transform:rotate(8deg)" width="42" height="52" viewBox="0 0 44 56">
+            <path d="M14 4 C24 18, 28 32, 24 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path>
+            <path d="M15 41 L24 48 L31 39" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <div class="dnote dnote--rust" style="top:90px;right:2px;transform:rotate(-4deg)">at-least-once ⇒ idempotent</div>
+          <div class="dnote dnote--dlq" style="top:180px;left:394px;right:0;transform:rotate(2deg)">failed? → DLQ, replay later</div>
+          <div class="dcross" style="top:356px;left:2px;transform:rotate(-3deg)">
+            <span class="dcross-box">
+              cron polling
+              <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+                <path d="M4 6 L96 34 M96 6 L4 34" fill="none" stroke="var(--rust)" stroke-width="3" stroke-linecap="round"></path>
+              </svg>
+            </span>
+            <span class="dcross-nope">nope.</span>
+          </div>
+        </div>
+
+        <div class="page-nav page-nav--end">
+          <button type="button" class="hand-link" data-go="3"><T t={t.home.turnPage} /></button>
+        </div>
+      </Page>
+
+      {/* ============ SPREAD 4 — Travel ============ */}
+      <Page index={3} side="l" folio="07" label="Travel, left page">
+        <div class="head head--travel">
+          <div class="eyebrow"><T t={t.travel.eyebrow} /></div>
+          <div class="kicker"><T t={t.travel.kicker} /></div>
+        </div>
+        <div class="title-row title-row--travel">
+          <h2 class="display display--travel"><T t={t.travel.title} /></h2>
+          <a href={LINKS.instagram} target="_blank" rel="noopener" class="stamp-link">INSTAGRAM ↗</a>
+        </div>
+        <p class="lede lede--travel"><T t={t.travel.blurb} /></p>
+        <p class="lede lede--sub"><T t={t.travel.subBlurb} /></p>
+
+        <div class="stack">
+          {POLAROIDS_LEFT.map((p) => <Polaroid polaroid={p} />)}
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="hand-link hand-link--back" data-go="2"><T t={t.home.back} /></button>
+        </div>
+      </Page>
+
+      <Page index={3} side="r" folio="08" label="Travel, right page">
+        <div class="stack stack--full">
+          {POLAROIDS_RIGHT.map((p) => <Polaroid polaroid={p} />)}
+        </div>
+        <div class="page-nav page-nav--end">
+          <button type="button" class="hand-link" data-go="0"><T t={t.home.backHome} /></button>
+        </div>
+      </Page>
+      </div>
     </div>
   </div>
 </Layout>
 
 <script>
-  // Live Vancouver clock + Open-Meteo weather for the hero status badge.
-  const clockEl = document.getElementById('van-clock')!;
-  const weatherEl = document.getElementById('weather-badge')!;
+  // From data/spreads.ts, not data/journal.ts: importing the latter here would
+  // pull its astro:assets image imports into the client bundle.
+  import { SPREADS } from '../data/spreads';
 
-  const currentLang = () => (document.documentElement.dataset.lang === 'fr' ? 'fr' : 'en');
+  const book = document.getElementById('book');
+  const pages = [...document.querySelectorAll<HTMLElement>('.page')];
+  const tabs = [...document.querySelectorAll<HTMLElement>('.tab')];
 
-  function renderClock() {
-    const fr = currentLang() === 'fr';
-    const now = new Date();
-    const time = now.toLocaleTimeString(fr ? 'fr-CA' : 'en-US', {
-      timeZone: 'America/Vancouver',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: !fr,
-    });
-    const date = now.toLocaleDateString(fr ? 'fr-CA' : 'en-US', {
-      timeZone: 'America/Vancouver',
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    });
-    clockEl.textContent = `${time} · ${date}`;
-  }
+  if (book && pages.length) {
+    const LAST = SPREADS.length - 1;
+    // Phase 1 folds the outgoing page away; at PHASE_MS the spread flips and
+    // phase 2 folds the incoming one in. Matches the two CSS animations.
+    const PHASE_MS = 275;
+    const SETTLE_MS = 580;
 
-  function weatherIcon(code: number): string {
-    if (code === 0) return '☀️';
-    if ([1, 2, 3].includes(code)) return '☁️';
-    if ([45, 48].includes(code)) return '🌫️';
-    if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return '🌧️';
-    if ([71, 73, 75, 77, 85, 86].includes(code)) return '❄️';
-    if ([95, 96, 99].includes(code)) return '⛈️';
-    return '🌤️';
-  }
+    let spread = 0;
+    let turning: 'fwd' | 'back' | null = null;
+    let timers: ReturnType<typeof setTimeout>[] = [];
 
-  async function fetchWeather() {
-    try {
-      const r = await fetch(
-        'https://api.open-meteo.com/v1/forecast?latitude=49.28&longitude=-123.12&current_weather=true&temperature_unit=celsius',
-      );
-      const d = await r.json();
-      const w = d.current_weather;
-      if (w) {
-        weatherEl.textContent = `${weatherIcon(w.weathercode)} ${Math.round(w.temperature)}°C`;
+    /** Which visual role each page plays right now. CSS does the rest. */
+    function paint(from: number, to: number, phase: 0 | 1 | 2) {
+      for (const page of pages) {
+        const i = Number(page.dataset.index);
+        const side = page.dataset.side;
+        let role = '';
+
+        if (phase === 0) {
+          if (i === spread) role = side!;
+        } else if (turning === 'fwd') {
+          if (phase === 1) {
+            if (i === from && side === 'l') role = 'l';
+            else if (i === to && side === 'r') role = 'r-under';
+            else if (i === from && side === 'r') role = 'fold-out-r';
+          } else {
+            if (i === to && side === 'r') role = 'r';
+            else if (i === from && side === 'l') role = 'l-under';
+            else if (i === to && side === 'l') role = 'fold-in-l';
+          }
+        } else {
+          if (phase === 1) {
+            if (i === from && side === 'r') role = 'r';
+            else if (i === to && side === 'l') role = 'l-under';
+            else if (i === from && side === 'l') role = 'fold-out-l';
+          } else {
+            if (i === to && side === 'l') role = 'l';
+            else if (i === from && side === 'r') role = 'r-under';
+            else if (i === to && side === 'r') role = 'fold-in-r';
+          }
+        }
+
+        if (role) page.dataset.role = role;
+        else delete page.dataset.role;
       }
-    } catch {
-      /* keep the loading label */
     }
-  }
 
-  renderClock();
-  setInterval(renderClock, 1000);
-  window.addEventListener('langchange', renderClock);
-  fetchWeather();
-  setInterval(fetchWeather, 10 * 60 * 1000);
+    /** A tab sits on the left spine once its spread has been passed. */
+    function paintTabs() {
+      tabs.forEach((tab, i) => {
+        tab.dataset.pos = i <= spread ? 'l' : 'r';
+        tab.setAttribute('aria-current', i === spread ? 'true' : 'false');
+      });
+      book!.dataset.spread = String(spread);
+    }
+
+    function turn(target: number, fromHash = false) {
+      if (turning || target === spread || target < 0 || target > LAST) return;
+      const from = spread;
+      turning = target > spread ? 'fwd' : 'back';
+      paint(from, target, 1);
+      if (!fromHash) history.pushState(null, '', '#' + SPREADS[target]);
+
+      timers.push(
+        setTimeout(() => {
+          spread = target;
+          paint(from, target, 2);
+          paintTabs();
+        }, PHASE_MS),
+      );
+      timers.push(
+        setTimeout(() => {
+          turning = null;
+          paint(from, target, 0);
+        }, SETTLE_MS),
+      );
+    }
+
+    /** Jump with no animation — used for the initial hash and for reduced motion. */
+    function jump(target: number) {
+      timers.forEach(clearTimeout);
+      timers = [];
+      turning = null;
+      spread = target;
+      paint(target, target, 0);
+      paintTabs();
+    }
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const go = (target: number, fromHash = false) => {
+      if (reduced.matches) {
+        if (target !== spread && !fromHash) history.pushState(null, '', '#' + SPREADS[target]);
+        jump(target);
+      } else {
+        turn(target, fromHash);
+      }
+    };
+
+    const fromHash = () => {
+      const i = SPREADS.indexOf(location.hash.slice(1) as (typeof SPREADS)[number]);
+      return i >= 0 ? i : 0;
+    };
+
+    // Any element carrying data-go navigates: tabs, entry rows, page links.
+    document.addEventListener('click', (e) => {
+      const el = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-go]');
+      if (el) go(Number(el.dataset.go));
+    });
+
+    window.addEventListener('hashchange', () => go(fromHash(), true));
+
+    document.addEventListener('keydown', (e) => {
+      if (/INPUT|TEXTAREA|SELECT/.test((e.target as HTMLElement)?.tagName ?? '')) return;
+      if (e.key === 'ArrowRight') go(Math.min(LAST, spread + 1));
+      else if (e.key === 'ArrowLeft') go(Math.max(0, spread - 1));
+    });
+
+    jump(fromHash());
+  }
 </script>
 
 <style>
-  .page {
-    background: #ecdfc2;
-    color: var(--ink);
-    position: relative;
-    overflow: hidden;
+  /* ================= the desk and the book ================= */
+  #shell {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* ---------- hero ---------- */
-  .hero {
-    position: relative;
-    height: 520px;
-    flex-shrink: 0;
-  }
-
-  .hero-img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .hero-tint {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(38, 48, 42, 0.18) 0%, rgba(38, 48, 42, 0.05) 45%, rgba(38, 48, 42, 0.58) 100%);
-  }
-
-  .hero-nav {
-    position: relative;
+    background: linear-gradient(180deg, var(--desk-top), var(--desk-bottom));
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 20px clamp(20px, 4vw, 44px);
-    color: #f3f1e8;
+    justify-content: center;
+    padding: 24px 40px;
+    box-sizing: border-box;
   }
 
-  .brand {
-    font-family: var(--font-mono);
-    font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-shadow: 0 1px 8px rgba(20, 26, 22, 0.5);
+  /* Sizing lives on the stage so the tabs can hang off the book's edges
+     without being inside (and therefore clipped by) the book. */
+  #stage {
+    position: relative;
+    width: 100%;
+    max-width: 1240px;
   }
 
-  .hero-headline {
+  #book {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 900px;
+    border-radius: 4px 10px 10px 4px;
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.5);
+    perspective: 2600px;
+    /* Mid-turn, perspective projects the folding page ~53px past the book top
+       and bottom, which briefly grew the document and flashed a scrollbar.
+       Clip it to the book's own box — a real book's pages don't spill past its
+       covers anyway. `clip` rather than `hidden` so the book never becomes a
+       scroll container: a book taller than the viewport still scrolls the page
+       normally. */
+    overflow: clip;
+  }
+
+  /* ---- edge tabs ---- */
+  .tab {
     position: absolute;
-    left: clamp(20px, 4vw, 44px);
-    bottom: 44px;
-    right: 400px;
-    color: #f3f1e8;
-  }
-
-  .status-badge {
-    display: inline-flex;
+    top: calc(96px + var(--i) * 128px);
+    height: 112px;
+    width: 41px;
+    padding: 0 0 0 9px;
+    border: 0;
+    cursor: pointer;
+    display: flex;
     align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    font-family: var(--font-mono);
-    font-size: 12.5px;
-    margin-bottom: 16px;
-    text-shadow: 0 1px 10px rgba(20, 26, 22, 0.6);
-    border: 1.5px solid rgba(243, 241, 232, 0.5);
-    border-radius: 4px;
-    padding: 4px 10px;
-    background: rgba(20, 26, 22, 0.25);
-    backdrop-filter: blur(3px);
+    background: #e9ddc0;
+    border-radius: 6px 0 0 6px;
+    box-shadow: -3px 3px 7px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
   }
 
-  .status-badge .sep {
-    opacity: 0.75;
+  .tab span {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: var(--font-label);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    white-space: nowrap;
   }
 
-  #van-clock {
-    opacity: 0.9;
+  .tab[data-pos='l'] {
+    left: -33px;
   }
 
-  #weather-badge {
-    display: inline-block;
-    min-width: 64px;
+  .tab[data-pos='l']:hover {
+    transform: translateX(-5px);
   }
 
-  .hero-headline h1 {
-    font-family: var(--font-serif);
-    font-weight: 400;
-    font-size: clamp(34px, 5.5vw, 70px);
-    line-height: 1.05;
-    letter-spacing: -0.01em;
-    text-shadow: 0 2px 12px rgba(20, 26, 22, 0.55), 0 4px 28px rgba(20, 26, 22, 0.5);
-    margin: 0;
+  .tab[data-pos='r'] {
+    right: -33px;
+    border-radius: 0 6px 6px 0;
+    box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.3);
+    justify-content: flex-end;
+    padding: 0 9px 0 0;
   }
 
-  /* ---------- polaroid ---------- */
-  .polaroid {
-    position: absolute;
-    right: 56px;
-    bottom: -74px;
-    background: var(--cream);
-    padding: 11px 11px 34px;
-    box-shadow: 0 14px 36px rgba(38, 48, 42, 0.3);
-    transform: rotate(3deg);
-    width: 238px;
-    z-index: 2;
-    transition: transform 0.15s ease;
+  .tab[data-pos='r'] span {
+    transform: none;
   }
 
-  .polaroid:hover {
-    transform: rotate(1deg) scale(1.03);
+  .tab[data-pos='r']:hover {
+    transform: translateX(5px);
   }
 
-  .tape {
-    position: absolute;
-    top: -11px;
-    left: 50%;
-    transform: translateX(-50%) rotate(-2deg);
-    width: 82px;
-    height: 24px;
-    background: rgba(214, 204, 176, 0.8);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  .tab[aria-current='true'] {
+    background: var(--paper-r);
   }
 
-  .polaroid-photo {
-    width: 100%;
-    height: 210px;
-    overflow: hidden;
-  }
-
-  .polaroid-photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 30%;
-    transform: scale(1.18);
-    display: block;
-  }
-
-  .polaroid-caption {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    color: rgba(38, 48, 42, 0.78);
-    margin-top: 10px;
-    text-align: center;
-  }
-
-  /* ---------- parchment band ---------- */
-  .parchment {
-    position: relative;
-    overflow: hidden;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background:
-      radial-gradient(ellipse 120% 95% at 50% 45%, transparent 48%, rgba(92, 58, 24, 0.12) 84%, rgba(66, 40, 14, 0.22) 100%),
-      radial-gradient(ellipse 340px 220px at 12% 18%, rgba(110, 72, 30, 0.1) 0%, transparent 70%),
-      radial-gradient(ellipse 300px 200px at 88% 12%, rgba(110, 72, 30, 0.08) 0%, transparent 70%),
-      radial-gradient(ellipse 380px 260px at 78% 82%, rgba(120, 78, 32, 0.11) 0%, transparent 70%),
-      radial-gradient(ellipse 560px 380px at 50% 42%, rgba(240, 222, 186, 0.35) 0%, transparent 75%),
-      var(--parchment);
-  }
-
-  .foxing {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.55;
-    background-image:
-      radial-gradient(circle at 22% 31%, rgba(80, 48, 16, 0.3) 0, rgba(80, 48, 16, 0.3) 1px, transparent 2px),
-      radial-gradient(circle at 71% 64%, rgba(80, 48, 16, 0.24) 0, rgba(80, 48, 16, 0.24) 1.5px, transparent 2.5px);
-    background-size: 137px 113px, 211px 173px;
-  }
-
-  /* compass rose */
-  @keyframes rose-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  .rose {
-    position: absolute;
-    left: -90px;
-    top: 110px;
-    width: 440px;
-    height: 440px;
-    pointer-events: none;
-  }
-
-  .ring {
-    position: absolute;
-    border-radius: 50%;
-  }
-
-  .r1 {
-    inset: 0;
-    border: 1.5px solid rgba(94, 58, 20, 0.28);
-  }
-
-  .r2 {
-    inset: 22px;
-    border: 1px solid rgba(94, 58, 20, 0.2);
-  }
-
-  .r3 {
-    inset: 82px;
-    border: 1px dashed rgba(94, 58, 20, 0.2);
-  }
-
-  .needles {
-    position: absolute;
-    inset: 0;
-    animation: rose-spin 90s linear infinite;
-  }
-
-  .needle {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
-  }
-
-  .n1 {
-    width: 7px;
-    height: 340px;
-    background: linear-gradient(180deg, rgba(94, 58, 20, 0.32) 0%, rgba(94, 58, 20, 0.32) 48%, rgba(94, 58, 20, 0.15) 52%, rgba(94, 58, 20, 0.15) 100%);
-    transform: translate(-50%, -50%);
-  }
-
-  .n2 {
-    width: 7px;
-    height: 340px;
-    background: linear-gradient(180deg, rgba(94, 58, 20, 0.26) 0%, rgba(94, 58, 20, 0.26) 48%, rgba(94, 58, 20, 0.13) 52%, rgba(94, 58, 20, 0.13) 100%);
-    transform: translate(-50%, -50%) rotate(90deg);
-  }
-
-  .n3 {
-    width: 5px;
-    height: 240px;
-    background: rgba(94, 58, 20, 0.18);
-    transform: translate(-50%, -50%) rotate(45deg);
-  }
-
-  .n4 {
-    width: 5px;
-    height: 240px;
-    background: rgba(94, 58, 20, 0.18);
-    transform: translate(-50%, -50%) rotate(-45deg);
-  }
-
-  .hub {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 12px;
-    height: 12px;
-    border: 2px solid rgba(94, 58, 20, 0.28);
-    border-radius: 50%;
-    background: var(--parchment);
-    transform: translate(-50%, -50%);
-  }
-
-  .dir {
-    position: absolute;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 700;
-    color: rgba(94, 58, 20, 0.28);
-  }
-
-  .dir.n {
-    left: 50%;
-    top: 6px;
-    transform: translateX(-50%);
-    font-size: 15px;
-    color: rgba(94, 58, 20, 0.4);
-  }
-
-  .dir.s {
-    left: 50%;
-    bottom: 6px;
-    transform: translateX(-50%);
-  }
-
-  .dir.e {
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  .dir.w {
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  .trace {
-    position: absolute;
-    pointer-events: none;
-  }
-
-  .trace.paris {
-    left: 36%;
-    top: 120px;
-    width: 29%;
-  }
-
-  .trace.vancouver {
-    left: 70%;
-    top: 70px;
-    width: 22%;
-  }
-
-  .scale-bar {
-    position: absolute;
-    right: 48px;
-    bottom: 90px;
-    pointer-events: none;
-  }
-
-  .scale-bar .bar {
-    display: flex;
-    height: 7px;
-    width: 280px;
-    border: 1.5px solid rgba(94, 58, 20, 0.33);
-  }
-
-  .scale-bar .bar > div {
-    flex: 1;
-  }
-
-  .scale-bar .bar > .f {
-    background: rgba(94, 58, 20, 0.33);
-  }
-
-  .scale-bar .ticks {
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: rgba(94, 58, 20, 0.4);
-    margin-top: 4px;
-  }
-
-  .stain {
-    position: absolute;
-    pointer-events: none;
-    filter: blur(3px);
-  }
-
-  .stain-a {
-    right: 10%;
-    top: 44px;
-    width: 200px;
-    height: 150px;
-    background: radial-gradient(ellipse at 42% 45%, rgba(96, 58, 20, 0.08) 0%, transparent 70%);
-    border-radius: 60% 45% 55% 50% / 55% 60% 45% 50%;
-  }
-
-  .stain-b {
-    left: 30%;
-    bottom: 60px;
-    width: 150px;
-    height: 110px;
-    background: radial-gradient(ellipse at 50% 50%, rgba(96, 58, 20, 0.07) 0%, transparent 70%);
-    border-radius: 50% 60% 45% 55% / 60% 45% 55% 50%;
-  }
-
-  .content {
-    max-width: 1331px;
-    margin: 0 auto;
-    width: 100%;
-    flex: 1;
-  }
-
-  .intro {
-    position: relative;
-    padding: 36px clamp(20px, 4vw, 44px) 0;
-    max-width: min(640px, calc(100vw - 340px));
-  }
-
-  .intro p {
-    font-family: var(--font-serif);
-    font-size: 22px;
-    line-height: 1.55;
-    color: rgba(38, 48, 42, 0.75);
-    margin: 0;
-  }
-
-  /* ---------- toolbox ---------- */
-  .toolbox {
-    position: relative;
-    padding: 32px clamp(20px, 4vw, 44px) 0;
-  }
-
-  .toolbox-title {
-    display: inline-block;
-    font-family: var(--font-serif);
-    font-weight: 400;
-    font-size: 32px;
-    margin: 0 0 16px;
-  }
-
-  .tool-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-  }
-
-  .tool-card {
-    background: var(--cream);
-    border: 1.5px solid var(--ink);
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 26px;
-    transition: transform 0.15s ease;
-    box-shadow: 0 2px 8px rgba(66, 40, 14, 0.18);
-  }
-
-  .tool-card:hover {
-    transform: translateY(-4px) rotate(-0.5deg);
-  }
-
-  .tool-card:nth-child(even):hover {
-    transform: translateY(-4px) rotate(0.5deg);
-  }
-
-  .tool-card:focus-visible {
-    outline: 2px solid var(--accent);
+  .tab:focus-visible {
+    outline: 2px solid var(--red);
     outline-offset: 2px;
   }
 
-  .tool-card .dot {
-    width: 11px;
-    height: 11px;
-    transform: rotate(45deg);
+  /* ================= shared page furniture ================= */
+  /* The eyebrow row. Its bottom margin is tuned per page in the design, so the
+     modifiers below aren't decoration — they're the spec. */
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
   }
 
-  .tool-card strong {
-    display: block;
-    font-size: 16px;
+  .head--home {
+    margin-bottom: 36px;
+  }
+
+  .head--travel {
+    margin-bottom: 16px;
+  }
+
+  .head--tight {
+    margin-bottom: 18px;
+  }
+
+  /* Race journal: sits clear of the narrow fore-edge padding. */
+  .head--journal {
+    margin-bottom: 20px;
+    margin-right: 26px;
+  }
+
+  .kicker {
+    font-family: var(--font-label);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+  }
+
+  .display {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 80px;
+    line-height: 0.95;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .display--spread {
+    font-size: 62px;
+  }
+
+  .display--travel {
+    font-size: 60px;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 2px;
+  }
+
+  .title-row--travel {
+    gap: 16px;
     margin-bottom: 4px;
   }
 
-  .tool-desc {
-    font-size: 13px;
-    color: var(--ink-70);
-  }
-
-  /* ---------- journal + blackboard ---------- */
-  .journal-row {
-    position: relative;
-    padding: 32px clamp(20px, 4vw, 44px) 40px;
+  .title-links {
     display: flex;
-    gap: 24px;
-    align-items: flex-start;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
   }
 
-  .journal {
+  .lede {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 1.35;
+    color: var(--ink-2);
+    margin: 0 0 14px;
+    transform: rotate(-0.5deg);
+  }
+
+  /* Each spread sets its own breathing room under the lede. */
+  .lede--endurance {
+    margin-bottom: 10px;
+  }
+
+  .lede--work {
+    margin-bottom: 18px;
+  }
+
+  .lede--travel {
+    font-size: 23px;
+    margin-bottom: 6px;
+  }
+
+  .lede--sub {
+    font-size: 20px;
+    color: var(--muted);
+    transform: rotate(0.3deg);
+    margin-bottom: 20px;
+  }
+
+  /* Pinned to the page's bottom padding rather than pushed there by
+     `margin-top: auto` — content that overruns the page can no longer shove the
+     link down onto the folio. The sheet reserves --nav-band for this strip. */
+  .page-nav {
+    position: absolute;
+    left: var(--pad-l);
+    right: var(--pad-r);
+    bottom: var(--pad-b);
+  }
+
+  .page-nav--end {
+    text-align: right;
+  }
+
+  /* ================= home left ================= */
+  .hero {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 14px;
+  }
+
+  .scrap {
+    position: relative;
+    margin-left: auto;
+    background: rgba(240, 230, 190, 0.7);
+    padding: 14px 18px 12px;
+    transform: rotate(2deg);
+    box-shadow: 0 3px 8px rgba(60, 40, 15, 0.25);
+    align-self: flex-start;
+  }
+
+  .scrap-title {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 26px;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .scrap-links {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+
+  .scrap-links .stamp-link {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+  }
+
+  .tagline {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 32px;
+    line-height: 1.4;
+    color: var(--ink-2);
+    max-width: 480px;
+    margin: 0 0 44px;
+  }
+
+  .print {
+    position: relative;
+    transform: rotate(-1.8deg);
+    max-width: 454px;
+    margin: 0;
+  }
+
+  .print-mount {
+    padding: 12px;
+    box-shadow: 0 5px 12px rgba(60, 40, 15, 0.3);
+  }
+
+  .print-frame {
+    overflow: hidden;
+    height: 363px;
+  }
+
+  .print-frame :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 88% 26%;
+    /* A hair of zoom to crop the frame edge out. */
+    transform: scale(1.02);
+    transform-origin: 75% 30%;
+    display: block;
+  }
+
+  .me {
+    position: absolute;
+    right: 18px;
+    top: -86px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    transform: rotate(4deg);
+    width: 34px;
+    color: var(--ink);
+  }
+
+  .me span {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 30px;
+  }
+
+  .me svg {
+    display: block;
+    margin-top: -2px;
+  }
+
+  /* ================= home right: contents ================= */
+  .entries {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .entry {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    text-align: left;
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 0.25s ease;
+  }
+
+  .entry:hover {
+    transform: translateX(12px);
+  }
+
+  .entry:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 6px;
+  }
+
+  .entry--todo {
+    opacity: 0.72;
+    cursor: default;
+  }
+
+  .entry--todo:hover {
+    transform: none;
+  }
+
+  .thumb {
+    flex-shrink: 0;
+    position: relative;
+    border: 8px solid var(--mount);
+    box-shadow: 0 4px 10px rgba(60, 40, 15, 0.25);
+  }
+
+  .thumb-frame {
+    width: 128px;
+    height: 96px;
+    overflow: hidden;
+  }
+
+  .thumb-frame :global(img),
+  .thumb-frame .photo-empty {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .thumb--todo {
+    width: 128px;
+    height: 96px;
+    border: 2.5px dashed rgba(154, 130, 88, 0.55);
+    border-radius: 6px;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-1.4deg);
+  }
+
+  .thumb--todo span {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 44px;
+    line-height: 1;
+    color: var(--faint);
+  }
+
+  .entry-no {
+    font-family: var(--font-label);
+    font-size: 15px;
+    color: var(--gold);
+    margin-bottom: 2px;
+  }
+
+  .entry-title {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 42px;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .entry-title--todo {
+    font-size: 34px;
+    color: var(--muted);
+    transform: rotate(-0.6deg);
+  }
+
+  .entry-kicker {
+    font-family: var(--font-label);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    margin-top: 6px;
+  }
+
+  .entry-blurb {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 1.3;
+    color: var(--ink-2);
+    margin-top: 5px;
+  }
+
+  .entry-blurb--todo {
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ================= endurance left ================= */
+  .km {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    margin: 0 0 14px;
+    transform: rotate(-0.4deg);
+  }
+
+  .km-figure {
+    position: relative;
+    display: inline-block;
+    font-weight: 700;
+    font-size: 30px;
+    color: var(--ink);
+    padding: 0 10px;
+    white-space: nowrap;
+  }
+
+  .km-circle {
+    position: absolute;
+    inset: -6px -4px;
+    width: calc(100% + 8px);
+    height: calc(100% + 12px);
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .pbs {
+    transform: rotate(-0.8deg);
+    margin-bottom: 18px;
+    max-width: 380px;
+    width: 100%;
+  }
+
+  .pbs .label {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .pb {
+    margin-bottom: 6px;
+  }
+
+  /* 6px sits *between* rows, not after the last one. */
+  .pb:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .pb .leader__fill {
+    transform: translateY(-6px);
+  }
+
+  .pb-event {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .pb-time {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 24px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .pb--soon .pb-event,
+  .pb--soon .pb-time {
+    color: var(--gold);
+  }
+
+  .wbcard {
+    display: block;
+    position: relative;
+    background: var(--mount);
+    padding: 18px 24px 16px;
+    transform: rotate(1.2deg);
+    box-shadow: 0 5px 12px rgba(60, 40, 15, 0.28);
+    max-width: 396px;
+    width: 100%;
+    align-self: center;
+    margin-top: 10px;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+
+  .wbcard:hover {
+    transform: rotate(0deg) translateY(-6px);
+    box-shadow: 0 16px 30px rgba(60, 40, 15, 0.34);
+  }
+
+  .wbcard:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 3px;
+  }
+
+  .wbcard-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    font-family: var(--font-label);
+    font-size: 13px;
+    letter-spacing: 0.24em;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .wbarrow {
+    font-weight: 700;
+    color: var(--red);
+    display: inline-block;
+    transition: transform 0.22s ease;
+  }
+
+  .wbcard:hover .wbarrow {
+    transform: translateX(5px);
+  }
+
+  .wbcard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .wbcard-list div {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+
+  .wbcard-list strong {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .wbcard-list span {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .race-shot {
+    align-self: flex-end;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: auto 16px 0 0;
+  }
+
+  .race-shot-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: rotate(-3deg);
+    color: var(--ink);
+  }
+
+  .race-shot-note span {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.15;
+    max-width: 160px;
+    text-align: right;
+  }
+
+  /* The flag rides in the text flow at the end of the note. */
+  .race-shot-note :global(.inline-flag) {
+    display: inline-block;
+    vertical-align: -4px;
+    transform: rotate(-5deg);
+  }
+
+  .race-shot-note svg {
+    display: block;
+    margin-top: 12px;
+    flex-shrink: 0;
+  }
+
+  .race-shot-frame {
+    position: relative;
+    transform: rotate(1.6deg);
+    width: 162px;
+    flex-shrink: 0;
+  }
+
+  .race-shot-img {
+    width: 100%;
+    height: 162px;
+    object-fit: cover;
+    /* Portrait source in a square frame — hold the crop on him, not the tarmac. */
+    object-position: 50% 18%;
+    display: block;
+  }
+
+  /* ================= endurance right: the race journal ================= */
+  .count {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .race-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    /* The PR! mark hangs outside the result column so the times stay aligned —
+       leave room for it or it clips against the page edge. */
+    padding-right: 38px;
+    scrollbar-width: none;
+  }
+
+  .race-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .race {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+
+  .race-day {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 19px;
+    color: var(--gold);
+    white-space: nowrap;
+    width: 82px;
+    flex-shrink: 0;
+  }
+
+  .race-main {
     flex: 1;
     min-width: 0;
   }
 
-  .journal-head {
+  .race-name {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .race-meta {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 17px;
+    line-height: 1.2;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  /* The flag rides in the meta text, as a mark rather than a column. */
+  .race-meta :global(svg) {
+    display: inline-block;
+    vertical-align: -2px;
+    margin-left: 4px;
+  }
+
+  .race-result {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .race-time {
+    position: relative;
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--ink-2);
+  }
+
+  .pr {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%) rotate(-8deg);
+    margin-left: 6px;
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--red);
+  }
+
+  .up-next {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    color: var(--red);
+    border: 1.5px dashed rgba(193, 68, 46, 0.6);
+    border-radius: 3px;
+    padding: 2px 7px;
+    transform: rotate(-3deg);
+  }
+
+  .race-rank {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.1;
+    color: var(--muted);
+  }
+
+  /* ================= work left ================= */
+  .cvcard {
+    position: relative;
+    display: block;
+    background: var(--mount);
+    padding: 16px 22px;
+    transform: rotate(-1.2deg);
+    box-shadow: 0 5px 12px rgba(60, 40, 15, 0.28);
+    max-width: 380px;
+    align-self: center;
+    margin-bottom: 26px;
+    transition: transform 0.25s ease;
+  }
+
+  .cvcard:hover {
+    transform: rotate(-1.2deg) translateY(-6px);
+  }
+
+  .cvcard:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 3px;
+  }
+
+  .cvcard-title {
+    font-family: var(--font-label);
+    font-size: 14px;
+    letter-spacing: 0.26em;
+    color: var(--ink);
+    margin-bottom: 5px;
+  }
+
+  .cvcard-blurb {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 19px;
+    line-height: 1.3;
+    color: var(--ink-2);
+  }
+
+  .dl {
+    font-weight: 700;
+    color: var(--red);
+  }
+
+  .career {
+    transform: rotate(-0.6deg);
+    margin-bottom: 22px;
+    max-width: 420px;
+    width: 100%;
+  }
+
+  .career .label {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .job {
     display: flex;
     align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 16px;
+    gap: 12px;
+    margin-bottom: 13px;
   }
 
-  .journal-head h2 {
-    font-weight: 400;
-    margin: 0;
+  .job:last-of-type {
+    margin-bottom: 0;
   }
 
-  .journal-count {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    color: rgba(38, 48, 42, 0.45);
-  }
-
-  .journal-scroll {
-    height: 280px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding-right: 6px;
-    scrollbar-width: none;
-  }
-
-  .journal-scroll::-webkit-scrollbar {
-    display: none;
-  }
-
-  .race-card {
-    padding: 14px 18px;
-    background: var(--cream);
-    border: 1.5px solid var(--ink);
-    border-radius: 12px;
+  .job-years {
+    font-family: var(--font-label);
+    font-size: 12px;
+    color: var(--gold);
+    white-space: nowrap;
+    width: 76px;
     flex-shrink: 0;
   }
 
-  .race-card.training {
-    background: transparent;
-    border: 2px dashed var(--accent);
+  .job-main {
+    flex: 1;
+    min-width: 0;
   }
 
-  .race-top {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 4px;
-  }
-
-  .race-name {
-    font-style: italic;
-    font-size: 16px;
-    color: var(--accent);
-  }
-
-  .race-name-done {
-    font-size: 16px;
-  }
-
-  .state-label {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
+  .job-role {
+    display: block;
+    font-family: var(--font-hand);
     font-weight: 700;
-    color: var(--accent);
+    font-size: 25px;
+    line-height: 1;
+    color: var(--ink);
   }
 
-  .race-time-wrap {
+  .job-place {
+    display: block;
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.25;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .toolbelt {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--ink-2);
+    transform: rotate(0.4deg);
+    margin: 0 0 12px;
+  }
+
+  .toolbelt strong {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  /* ================= work right: field notes + doodle ================= */
+  .note-photo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    justify-content: flex-end;
+    margin: 0 0 20px;
+  }
+
+  .note-caption {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: rotate(-2.5deg);
+    color: var(--ink);
+  }
+
+  .note-caption span {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.15;
+    max-width: 130px;
+    text-align: right;
+  }
+
+  .note-caption svg {
+    display: block;
+    margin-top: 12px;
+    flex-shrink: 0;
+  }
+
+  .note-shot {
+    position: relative;
+    transform: rotate(1.8deg);
+    width: 260px;
+    flex-shrink: 0;
+  }
+
+  .note-frame {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    object-position: 50% 45%;
+    display: block;
+  }
+
+  .doodle {
+    position: relative;
+    flex: 1;
+    min-height: 400px;
+    opacity: 0.62;
+    margin-top: 26px;
+    color: var(--desk-top);
+  }
+
+  .dbox {
+    position: absolute;
+    border: 2.2px solid var(--desk-top);
+    padding: 9px 12px;
+    box-sizing: border-box;
+  }
+
+  .dbox--dashed {
+    border-style: dashed;
+  }
+
+  .dbox--blob {
+    border-radius: 50% 46% 52% 48% / 58% 52% 46% 54%;
+    padding: 12px 10px;
+  }
+
+  .dbox-title {
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.05;
+    color: var(--desk-top);
+  }
+
+  .dbox-sub {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--muted);
+  }
+
+  .darrow {
+    position: absolute;
+  }
+
+  .dnote {
+    position: absolute;
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--rust);
+    white-space: nowrap;
+  }
+
+  .dnote--dlq {
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 26%;
+    white-space: normal;
+    line-height: 1.15;
+    text-align: left;
+  }
+
+  .dcross {
+    position: absolute;
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
-  .pr-flash {
+  .dcross-box {
+    position: relative;
+    display: inline-block;
+    border: 2px solid var(--desk-top);
+    border-radius: 6px;
+    padding: 5px 10px;
     font-family: var(--font-hand);
     font-weight: 700;
-    font-size: 21px;
-    line-height: 1;
-    color: var(--accent);
-    padding: 3px 4px;
-    transform: rotate(-4deg);
+    font-size: 18px;
+    color: var(--desk-top);
   }
 
-  .race-time {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    font-weight: 700;
+  .dcross-box svg {
+    position: absolute;
+    inset: -4px;
+    width: calc(100% + 8px);
+    height: calc(100% + 8px);
+    overflow: visible;
   }
 
-  .race-meta {
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    color: var(--ink-70);
-  }
-
-  .race-meta.italic {
-    font-style: italic;
-    margin-top: 2px;
-  }
-
-  .race-meta.split {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  .rank {
-    color: rgba(38, 48, 42, 0.65);
-    font-weight: 700;
-  }
-
-  .blackboard {
-    flex-shrink: 0;
-    width: 200px;
-    margin-top: 60px;
-    background: var(--footer-green);
-    border: 8px solid #6b4a32;
-    border-radius: 4px;
-    padding: 14px 16px 16px;
-    box-shadow: 0 10px 26px rgba(38, 48, 42, 0.35);
-  }
-
-  .blackboard h3 {
+  .dcross-nope {
     font-family: var(--font-hand);
-    font-weight: 500;
-    font-size: 15px;
-    letter-spacing: 0.04em;
-    color: rgba(245, 241, 232, 0.75);
-    margin: 0 0 8px;
-    border-bottom: 1px dashed rgba(245, 241, 232, 0.35);
-    padding-bottom: 6px;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--rust);
   }
 
-  .chalk {
-    font-family: var(--font-hand);
-    font-size: 21px;
-    line-height: 1.5;
-    color: #f5f1e8;
+  /* ================= travel ================= */
+  .stack {
+    flex: 1;
+    min-height: 0;
+    position: relative;
   }
 
-  .pr-line {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
+  .stack--full {
+    margin-top: 0;
   }
 
-  .pr-line.dim {
-    color: rgba(245, 241, 232, 0.5);
-  }
+  /* ================= stacked layout ================= */
+  @media (max-width: 1060px) {
+    #shell {
+      padding: 14px 10px;
+      align-items: flex-start;
+    }
 
-  /* ---------- responsive ---------- */
-  @media (max-width: 900px) {
-    .hero {
-      height: auto;
-      min-height: 520px;
+    #stage {
       display: flex;
       flex-direction: column;
+      max-width: 520px;
     }
 
-    .hero-headline {
-      position: relative;
-      left: auto;
-      right: auto;
-      bottom: auto;
-      padding: 120px clamp(20px, 4vw, 44px) 30px;
-      margin-top: auto;
-    }
-
-    .polaroid {
-      position: relative;
-      right: auto;
-      bottom: auto;
-      margin: 0 auto -60px;
-    }
-
-    .intro {
-      max-width: 640px;
-      padding-top: 90px;
-    }
-
-    .rose {
-      opacity: 0.5;
-    }
-  }
-
-  @media (max-width: 1000px) {
-    .tool-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (max-width: 700px) {
-    .journal-row {
+    #book {
       flex-direction: column;
+      height: auto;
+      border-radius: 4px;
+      perspective: none;
+      /* No fold to clip here, and the stacked pages must not be cut. */
+      overflow: visible;
     }
 
-    .blackboard {
-      margin-top: 0;
-      width: 100%;
-      max-width: 280px;
+    /* Tabs become a horizontal strip above the book — the vertical spine
+       tabs have nowhere to live once the spread is a single column. */
+    #tabs {
+      order: -1;
+      display: flex;
+      gap: 6px;
+      padding: 0 0 12px;
+      justify-content: center;
+      flex-wrap: wrap;
     }
 
-    .scale-bar {
+    .tab,
+    .tab[data-pos='l'],
+    .tab[data-pos='r'] {
+      position: static;
+      height: auto;
+      width: auto;
+      padding: 7px 14px;
+      border-radius: 999px;
+      box-shadow: none;
+      justify-content: center;
+    }
+
+    .tab:hover,
+    .tab[data-pos='l']:hover,
+    .tab[data-pos='r']:hover {
+      transform: translateY(-2px);
+    }
+
+    .tab span,
+    .tab[data-pos='r'] span {
+      writing-mode: horizontal-tb;
+      transform: none;
+    }
+
+    .display {
+      font-size: 54px;
+    }
+
+    .display--spread {
+      font-size: 46px;
+    }
+
+    .hero {
+      flex-wrap: wrap;
+    }
+
+    .scrap {
+      margin-left: 0;
+    }
+
+    .tagline {
+      margin-bottom: 28px;
+    }
+
+    .print-frame {
+      height: 260px;
+    }
+
+    .me {
       display: none;
     }
-  }
 
-  @media (max-width: 560px) {
-    .tool-grid {
-      grid-template-columns: 1fr;
+    .entry {
+      gap: 16px;
+    }
+
+    .race-scroll {
+      max-height: 480px;
+      padding-right: 8px;
+    }
+
+    .km {
+      white-space: normal;
+    }
+
+    .doodle {
+      display: none;
+    }
+
+    /* Stacked pages have no fixed height to pin against. */
+    .page-nav {
+      position: static;
+      margin-top: 24px;
+    }
+
+    /* The note + photo sit side by side on a full page; stacked, that row is
+       wider than the phone, so let it wrap. */
+    .race-shot {
+      margin: 24px 0 0;
+      align-self: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .race-shot-note span {
+      text-align: left;
+    }
+
+    .note-photo {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+
+    /* Polaroids fall out of their absolute stack into a plain column. */
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+      align-items: center;
+      padding: 8px 0 4px;
     }
   }
 </style>
