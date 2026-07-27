@@ -7,17 +7,29 @@ import Page from '../components/journal/Page.astro';
 import Dateline from '../components/journal/Dateline.astro';
 import Polaroid from '../components/journal/Polaroid.astro';
 import { journalEntries, prEntries } from '../lib/races';
+import { kmThisYear } from '../lib/strava';
 import { JOURNAL_ROWS, LINKS, SPREADS } from '../data/journal';
 import { JOBS, TOOLBELT, DOODLE_BOXES } from '../data/work';
 import { POLAROIDS_LEFT, POLAROIDS_RIGHT } from '../data/travel';
-import { KM_THIS_YEAR, KM_YEAR_LABEL, STRAVA_URL } from '../data/endurance';
+import { STRAVA_URL } from '../data/endurance';
 import { t } from '../i18n';
 import moi from '../assets/photos/moi.jpg';
 import race703 from '../assets/photos/race-703-finish.jpeg';
 import captainWallet from '../assets/photos/captain-wallet.jpg';
 
-const races = await journalEntries();
+// The only on-demand page on the site: the Endurance spread renders live Notion
+// races and a live Strava distance. Everything else stays prerendered.
+export const prerender = false;
+
+// Notion and Strava are separate upstreams, so those two go in parallel. prEntries()
+// deliberately follows journalEntries() rather than joining the race: both read the
+// same KV key, and going second means it finds the cache warm instead of triggering
+// a duplicate Notion query on a miss.
+const [races, km] = await Promise.all([journalEntries(), kmThisYear()]);
 const prs = await prEntries();
+
+// Let Cloudflare's edge hold the rendered page too, not just the data behind it.
+Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=900');
 ---
 
 <Layout
@@ -146,13 +158,13 @@ const prs = await prEntries();
 
         <p class="km">
           <span class="km-figure"
-            >{KM_THIS_YEAR} km<svg class="km-circle" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"
+            >{km.figure} km<svg class="km-circle" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"
               ><ellipse cx="50" cy="50" rx="48" ry="42" fill="none" stroke="var(--red)" stroke-width="3" opacity=".8" transform="rotate(-2 50 50)"
               ></ellipse></svg
             ></span
           >
-          <span class="i18n-en">{t.endurance.kmSuffix.en(KM_YEAR_LABEL)}</span>
-          <span class="i18n-fr">{t.endurance.kmSuffix.fr(KM_YEAR_LABEL)}</span>
+          <span class="i18n-en">{t.endurance.kmSuffix.en(km.year)}</span>
+          <span class="i18n-fr">{t.endurance.kmSuffix.fr(km.year)}</span>
         </p>
 
         <div class="pbs">

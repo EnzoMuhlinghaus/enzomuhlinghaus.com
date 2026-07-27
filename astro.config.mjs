@@ -8,8 +8,9 @@ export default defineConfig({
   site: 'https://enzomuhlinghaus.com',
   integrations: [vue(), sitemap()],
 
-  // The site is a Cloudflare Worker. Everything is prerendered by default; a page
-  // can opt out with `export const prerender = false` to render on demand.
+  // The site is a Cloudflare Worker. Everything is prerendered by default; only
+  // the homepage opts out (`export const prerender = false`), because it renders
+  // live Notion + Strava data per request. See CLAUDE.md "Live data".
   adapter: cloudflare({
     // NOT optional: astro:assets uses Sharp, which cannot run inside a Worker.
     // 'compile' resizes/encodes at build time and passes through at runtime — which
@@ -17,12 +18,16 @@ export default defineConfig({
     imageService: 'compile',
   }),
 
-  // Build-time secrets for the Notion race-journal fetch (see src/lib/races.ts).
-  // Server-side + secret: never bundled to the client.
+  // Credentials for the request-time Notion + Strava fetches (src/lib/races.ts,
+  // src/lib/strava.ts). Server-side + secret: never bundled to the client. In
+  // production these are Worker secrets (`wrangler secret put`); locally, .env.
   env: {
     schema: {
       NOTION_TOKEN: envField.string({ context: 'server', access: 'secret' }),
       NOTION_DB_ID: envField.string({ context: 'server', access: 'secret' }),
+      STRAVA_CLIENT_ID: envField.string({ context: 'server', access: 'secret' }),
+      STRAVA_CLIENT_SECRET: envField.string({ context: 'server', access: 'secret' }),
+      STRAVA_REFRESH_TOKEN: envField.string({ context: 'server', access: 'secret' }),
     },
   },
 });

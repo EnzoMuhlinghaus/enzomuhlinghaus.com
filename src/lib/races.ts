@@ -1,13 +1,15 @@
 // LIVE DATA — the race journal and PR blackboard are fetched from Enzo's Notion
-// "Race Journal" database at BUILD TIME (this module runs only in Astro's Node
-// frontmatter, never in the browser, so the token is never shipped to the client).
+// "Race Journal" database at REQUEST TIME inside the Cloudflare Worker (this module
+// never runs in the browser, so the token is never shipped to the client).
 // Keep every race/PR fact and its display mapping in this one file.
 //
 // Data flow: fetchRaces() → journalEntries() (homepage journal) and prEntries()
-// (PR blackboard). Editing Notion means re-running `npm run build` + re-uploading dist/.
+// (PR blackboard). Editing Notion shows up within the 30-minute KV cache window;
+// no rebuild, no deploy.
 
 import { NOTION_TOKEN, NOTION_DB_ID } from 'astro:env/server';
 import type { CountryCode } from '../components/Flag.astro';
+import { cached } from './cache';
 
 export interface Race {
   day: string;
@@ -141,14 +143,21 @@ function timeToSeconds(t: string): number | null {
 
 // ---- Notion fetch --------------------------------------------------------------
 
-// Memoize per build: journalEntries() and prEntries() both need the data, but a
-// single `npm run build` should query Notion only once.
-let racesPromise: Promise<Race[]> | null = null;
+const CACHE_KEY = 'notion:races';
+
+// Cache in KV rather than in a module-level promise. Under a Worker, module scope
+// lives for the lifetime of an isolate — unpredictable, and not shared between
+// colos — so memoizing there would pin the journal for an arbitrary stretch.
+// KV gives one explicit 30-minute window that every request agrees on.
+//
+// journalEntries() and prEntries() both call this; on a miss the first query
+// warms the cache for the second, so the page still costs one Notion round trip.
 function fetchRaces(): Promise<Race[]> {
-  return (racesPromise ??= queryRaces());
+  return cached(CACHE_KEY, queryRaces);
 }
 
-/** Fetch all races from Notion, oldest first (build-time only). Throws loudly on failure. */
+/** Fetch all races from Notion, oldest first. Throws on failure; cached() decides
+ *  whether that becomes a stale-but-served page or a real error. */
 async function queryRaces(): Promise<Race[]> {
   if (!NOTION_TOKEN || !NOTION_DB_ID) {
     throw new Error('races.ts: NOTION_TOKEN / NOTION_DB_ID are not set — cannot build the race journal.');
