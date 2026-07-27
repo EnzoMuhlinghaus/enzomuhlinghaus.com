@@ -115,7 +115,7 @@ import { t } from '../../i18n';
           'https://api.open-meteo.com/v1/forecast?latitude=49.2827&longitude=-123.1207' +
             '&current=temperature_2m,weather_code&timezone=America%2FVancouver',
         );
-        const data = await res.json();
+        const data = (await res.json()) as { current?: { temperature_2m: number; weather_code: number } };
         if (data?.current) {
           current = { temp: data.current.temperature_2m, code: data.current.weather_code };
           renderWeather();
