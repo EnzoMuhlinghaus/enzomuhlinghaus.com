@@ -1,9 +1,13 @@
 // French wording. Must mirror en.ts key for key — TypeScript enforces it.
 //
 // TODO(fr): the journal blocks below (`home`, `endurance`, `work`, `travel`)
-// still hold the English v2 copy. They were written for the v2 redesign and
-// have not been translated yet, so the EN/FR toggle shows English for the book.
-// The workbench (`toolbox`, `pace`, `predictor`, `mas`, `namer`) IS translated.
+// still hold the English copy — they were written for the v2 redesign and have
+// not been translated. The workbench (`toolbox`, `pace`, `predictor`, `mas`,
+// `namer`) IS translated.
+//
+// Nothing renders French today: v2 ships no language toggle, so this file is
+// dormant. Translate these blocks before restoring a toggle — see the i18n
+// bullet in CLAUDE.md.
 import type { Messages } from './en';
 
 export const fr: Messages = {
