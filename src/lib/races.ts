@@ -1,17 +1,21 @@
 // LIVE DATA — the race journal and PR blackboard are fetched from Enzo's Notion
-// "Race Journal" database at BUILD TIME (this module runs only in Astro's Node
-// frontmatter, never in the browser, so the token is never shipped to the client).
+// "Race Journal" database at REQUEST TIME inside the Cloudflare Worker (this module
+// never runs in the browser, so the token is never shipped to the client).
 // Keep every race/PR fact and its display mapping in this one file.
 //
 // Data flow: fetchRaces() → journalEntries() (homepage journal) and prEntries()
-// (PR blackboard). Editing Notion means re-running `npm run build` + re-uploading dist/.
+// (PR blackboard). Editing Notion shows up within the 30-minute KV cache window;
+// no rebuild, no deploy.
 
 import { NOTION_TOKEN, NOTION_DB_ID } from 'astro:env/server';
+import type { CountryCode } from '../components/Flag.astro';
+import { cached } from './cache';
 
 export interface Race {
   day: string;
   name: string;
-  location: string; // short display label incl. flag, e.g. "🇫🇷 Annecy"
+  location: string; // short display label, e.g. "Annecy, FR"
+  country: CountryCode | null;
   lat: number | null;
   lon: number | null;
   type: string; // 'Road Running' | 'Trail Running' | 'Triathlon'
@@ -89,25 +93,28 @@ const place = (p: NotionProps, key: string): { name: string; lat: number | null;
 
 // ---- Display helpers -----------------------------------------------------------
 
-const COUNTRY_FLAG: Record<string, string> = {
-  France: '🇫🇷',
-  Italy: '🇮🇹',
-  Canada: '🇨🇦',
+// Country name (last segment of a Notion place name) → ISO-3166 alpha-2, which
+// is what <Flag> keys off. v2 draws its own flag marks rather than using emoji,
+// so the journal needs the code, not a glyph.
+const COUNTRY_CODE: Record<string, CountryCode> = {
+  France: 'FR',
+  Italy: 'IT',
+  Canada: 'CA',
+  Japan: 'JP',
+  'United States': 'US',
+  USA: 'US',
+  Portugal: 'PT',
+  Spain: 'ES',
+  'United Kingdom': 'GB',
 };
 
-/** Flag from a country name (last segment of a Notion place name). */
-function flagFor(country: string): string {
-  return COUNTRY_FLAG[country.trim()] ?? '';
-}
-
-/** "Annecy, Auvergne-Rhone-Alpes, France" → "🇫🇷 Annecy". */
-function displayLocation(placeName: string): string {
+/** "Annecy, Auvergne-Rhone-Alpes, France" → { label: "Annecy, FR", country: "FR" }. */
+function displayLocation(placeName: string): { label: string; country: CountryCode | null } {
   const parts = placeName.split(',').map((s) => s.trim()).filter(Boolean);
-  if (parts.length === 0) return '';
+  if (parts.length === 0) return { label: '', country: null };
   const city = parts[0];
-  const country = parts[parts.length - 1];
-  const flag = flagFor(country);
-  return flag ? `${flag} ${city}` : city;
+  const country = COUNTRY_CODE[parts[parts.length - 1]] ?? null;
+  return { label: country ? `${city}, ${country}` : city, country };
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -136,14 +143,21 @@ function timeToSeconds(t: string): number | null {
 
 // ---- Notion fetch --------------------------------------------------------------
 
-// Memoize per build: journalEntries() and prEntries() both need the data, but a
-// single `npm run build` should query Notion only once.
-let racesPromise: Promise<Race[]> | null = null;
+const CACHE_KEY = 'notion:races';
+
+// Cache in KV rather than in a module-level promise. Under a Worker, module scope
+// lives for the lifetime of an isolate — unpredictable, and not shared between
+// colos — so memoizing there would pin the journal for an arbitrary stretch.
+// KV gives one explicit 30-minute window that every request agrees on.
+//
+// journalEntries() and prEntries() both call this; on a miss the first query
+// warms the cache for the second, so the page still costs one Notion round trip.
 function fetchRaces(): Promise<Race[]> {
-  return (racesPromise ??= queryRaces());
+  return cached(CACHE_KEY, queryRaces);
 }
 
-/** Fetch all races from Notion, oldest first (build-time only). Throws loudly on failure. */
+/** Fetch all races from Notion, oldest first. Throws on failure; cached() decides
+ *  whether that becomes a stale-but-served page or a real error. */
 async function queryRaces(): Promise<Race[]> {
   if (!NOTION_TOKEN || !NOTION_DB_ID) {
     throw new Error('races.ts: NOTION_TOKEN / NOTION_DB_ID are not set — cannot build the race journal.');
@@ -183,11 +197,13 @@ async function queryRaces(): Promise<Race[]> {
       // No Status column in Notion: a race is "training" (upcoming) when it has no
       // recorded time or its date is still in the future.
       const upcoming = time === null || (iso !== null && iso > today);
+      const where = displayLocation(loc.name);
 
       races.push({
         day: iso ? formatDay(iso) : '',
         name: title(p, PROP.name),
-        location: displayLocation(loc.name),
+        location: where.label,
+        country: where.country,
         lat: loc.lat,
         lon: loc.lon,
         type: selectName(p, PROP.type) ?? '',
@@ -217,8 +233,11 @@ export interface JournalEntry {
   day: string;
   name: string;
   location: string;
+  country: CountryCode | null;
   type: string;
   distance: string | null; // display distance: triathlon distance or run distance, when known
+  /** "Road Running · Annecy, FR" — the single meta line under the race name. */
+  meta: string;
   time: string;
   rankLabel: string | null;
   pr: boolean;
@@ -243,8 +262,12 @@ export async function journalEntries(): Promise<JournalEntry[]> {
       day: r.day,
       name: r.name,
       location: r.location,
+      country: r.country,
       type: r.type,
       distance: displayDistance(r),
+      // "Triathlon · 70.3 · Cervia, IT" — distance is dropped for races that
+      // carry neither a run nor a triathlon distance (trails, mostly).
+      meta: [r.type, displayDistance(r), r.location].filter(Boolean).join(' · '),
       time: r.time ?? '—',
       // Only show "place / total" when both are known (older races lack a total).
       rankLabel: r.overallPlace && r.overallTotal ? `${r.overallPlace} / ${r.overallTotal}` : null,

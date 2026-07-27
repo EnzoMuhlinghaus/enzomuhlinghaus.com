@@ -1,194 +1,248 @@
 // French wording. Must mirror en.ts key for key — TypeScript enforces it.
-import { formatTime } from '../lib/time';
+//
+// TODO(fr): the journal blocks below (`home`, `endurance`, `work`, `travel`)
+// still hold the English copy — they were written for the v2 redesign and have
+// not been translated. The workbench (`toolbox`, `pace`, `predictor`, `mas`,
+// `namer`) IS translated.
+//
+// Nothing renders French today: v2 ships no language toggle, so this file is
+// dormant. Translate these blocks before restoring a toggle — see the i18n
+// bullet in CLAUDE.md.
 import type { Messages } from './en';
 
 export const fr: Messages = {
   common: {
     half: 'Semi',
-    yourTime: 'VOTRE TEMPS',
     formatHint: 'Format : mm:ss ou h:mm:ss',
-    editHint: 'Modifiez pour votre propre temps',
-  },
-
-  footer: {
-    sayHi: 'Dites bonjour',
-    resume: 'CV',
   },
 
   home: {
-    position: 'POSITION ACTUELLE : 49.28°N 123.12°O — VANCOUVER, C.-B.',
-    loadingWeather: 'météo…',
-    headline1: "Je m'appelle Enzo. Je bosse dans la tech,",
-    headline2: 'et je cours beaucoup.',
-    blurb: "Français qui aime tout ce qui a une ligne d'arrivée. Je construis de petits outils pour mon entraînement et je les partage ici.",
-    photoCaption: 'ravitaillement, quelque part à Paris',
-    journalTitle: 'JOURNAL DE COURSE',
-    racesCount: (n: number) => `${n} courses · scroll ↓`,
-    training: 'EN PRÉPA',
-    prTitle: 'POUR MÉMOIRE',
-    soon: 'bientôt…',
+    volume: 'FIELD JOURNAL · VOL. I',
+    position: 'current position: 49°16′N, 123°07′W',
+    city: 'Vancouver, BC',
+    loadingWeather: 'checking the sky…',
+    tagline: 'curious about everything.',
+    sayHi: 'say hi',
+    meLabel: 'me',
+    turnPage: 'turn the page ➝',
+    back: '⟵ back',
+    backHome: 'back home ➝',
+    tabs: {
+      home: 'home',
+      endurance: 'endurance',
+      work: 'work',
+      travel: 'travel',
+    },
+    weather: {
+      clear: 'clear skies',
+      partly: 'partly cloudy',
+      overcast: 'overcast',
+      fog: 'foggy',
+      rain: 'rain',
+      snow: 'snowing',
+      storm: 'thunderstorm',
+    },
+  },
+
+  endurance: {
+    eyebrow: 'ENTRY 01',
+    kicker: 'run · tri · ride',
+    title: 'Endurance',
+    blurb: 'Runner, among other things.',
+    kmSuffix: (year: string) => `run so far in ${year}`,
+    pbTitle: 'PERSONAL BESTS',
+    soon: 'soon…',
+    journalTitle: 'RACE JOURNAL',
+    racesCount: (n: number) => `${n} races · scroll ↓`,
+    upNext: 'UP NEXT',
+    workbenchTitle: 'THE WORKBENCH · RUNNING TOOLS',
+    firstHalfIron: 'My first IRONMAN 70.3!',
     prDistances: {
       '5K': '5K',
       '10K': '10K',
-      Half: 'Semi',
+      Half: 'Half Marathon',
       Marathon: 'Marathon',
     },
   },
 
-  tools: {
-    pace: { name: "Calculateur d'Allure", homeName: "Calculateur d'allure", desc: 'Allures et temps de passage.' },
-    mas: { name: 'VMA / VO2max', homeName: 'VMA / VO₂max', desc: 'Mesurer le moteur.' },
-    predictor: { name: 'Prédicteur de Course', homeName: 'Prédicteur de course', desc: 'Du 5 km au marathon.' },
-    namer: { name: 'Nommeur Strava', homeName: 'Nommeur Strava', desc: 'Titres et descriptions.' },
+  work: {
+    eyebrow: 'ENTRY 02',
+    kicker: 'senior software engineer',
+    title: 'Work',
+    blurb:
+      '9+ years of experience designing and operating high-scale distributed systems in enterprise SaaS environments',
+    resumeTitle: 'THE RÉSUMÉ / CV',
+    resumeBlurb: 'grab the full copy, one page, PDF',
+    careerTitle: 'CAREER LOG',
+    toolbeltLabel: 'in the toolbelt:',
+    fieldNotes: 'FIELD NOTES',
+    photoCaption: 'the Captain Wallet loft, Paris 2019 - startup years',
+  },
+
+  travel: {
+    eyebrow: 'ENTRY 03',
+    kicker: 'home is a moving target',
+    title: 'Travel',
+    blurb: 'Born in France, currently parked in Vancouver',
+    subBlurb: 'the places that left a mark on me.',
   },
 
   toolbox: {
-    breadcrumb: 'BOÎTE À OUTILS',
-    title: 'La Boîte à Outils',
+    eyebrow: "L'ÉTABLI",
+    title: 'Outils de Course',
     blurb: 'De petits outils construits pour mon entraînement, partagés ici.',
+    unitsLabel: 'UNITÉS — TOUS LES OUTILS',
+    builtBy: 'Fait par Enzo Muhlinghaus —',
+    readJournal: 'venez lire mon journal ↗',
+    disclaimer:
+      'estimations seulement · temps au format mm:ss ou h:mm:ss · basé sur le modèle VDOT de Jack Daniels',
   },
 
   pace: {
-    breadcrumb: 'BOÎTE À OUTILS / ALLURE',
     title: "Calculateur d'Allure",
     blurb: 'Deux valeurs suffisent, la troisième suit.',
-    disclaimer: "Formats acceptés : mm:ss ou h:mm:ss pour le temps et l'allure.",
-    solveFor: 'CALCULER',
+    help: "Renseignez deux valeurs parmi distance, temps et allure — la troisième se calcule. Les pastilles insèrent les distances courantes.",
     modes: {
-      pace: "Trouver l'Allure",
-      time: 'Trouver le Temps',
-      distance: 'Trouver la Distance',
+      pace: 'ALLURE',
+      time: 'TEMPS',
+      distance: 'DISTANCE',
     },
     distanceLabel: 'DISTANCE',
     timeLabel: 'TEMPS',
     paceLabel: 'ALLURE',
     resultPace: '→ ALLURE',
     resultTime: '→ TEMPS',
-    resultDistance: '→ DISTANCE',
-  },
-
-  mas: {
-    breadcrumb: 'BOÎTE À OUTILS / VMA · VO2MAX',
-    title: 'Estimateur VMA / VO2max',
-    blurb: 'Mesurer le moteur.',
-    disclaimer: 'Basé sur le modèle VDOT de Jack Daniels. Ce ne sont que des estimations.',
-    estimated: '→ ESTIMÉ',
-    masLabel: 'VMA',
-    zonesTitle: "ALLURES D'ENTRAÎNEMENT",
-    zones: {
-      easy: 'Endurance',
-      marathon: 'Marathon',
-      threshold: 'Seuil',
-      vo2max: 'VO2max',
-    },
+    resultDistance: '→ DIST',
   },
 
   predictor: {
-    breadcrumb: 'BOÎTE À OUTILS / PRÉDICTEUR',
-    title: 'Prédicteur de course',
-    blurb: "Entrez un temps de course récent et découvrez ce qu'il prédit sur d'autres distances.",
-    disclaimer: "Ce ne sont que des estimations — les résultats réels varient selon le terrain, l'affûtage et l'envie du jour.",
-    predicted: '→ PRÉDICTION',
-    addSecondRace: 'Ajouter une autre course récente pour une prédiction plus personnalisée',
-    enterVo2: 'Vous avez un VO2max ou une VMA ? Entrez-le directement',
-    masMode: 'VMA',
-    vo2Caveat: 'montre, labo ou piste — au choix',
-    vo2Placeholder: 'ex. 52',
-    masKmhPlaceholder: 'ex. 18.5',
-    masPacePlaceholder: 'ex. 3:15',
-    tagFromMas: 'VIA MAS',
-    tagFromVo2: 'VIA VO2MAX',
-    tagPersonalized: 'PERSONNALISÉ',
-    tagDefault: 'ESTIMATION',
-    methodFromMas: 'À partir de votre VMA.',
-    methodFromVo2: 'À partir de votre VO2max.',
-    methodPersonalized: (d1: string, d2: string) => `Personnalisé (à partir de vos résultats en ${d1} et ${d2}).`,
-    methodDefault: (d: string) => `Basé sur le VDOT (à partir de votre ${d}).`,
-    methodEmpty: 'Entrez un temps pour commencer.',
-    vdotHint: "VDOT : l'indice de forme de Jack Daniels, calculé à partir de ce résultat de course.",
-    vo2Hint: (masKmh: number | null) => {
-      const intro =
-        "VO2max : consommation maximale d'oxygène (mL/kg/min). VMA : vitesse maximale aérobie, la vitesse à laquelle le VO2max est atteint — les deux sont liés par l'économie de course.";
-      const kmh = masKmh != null ? masKmh : 18;
-      const paceStr = `${formatTime(3600 / kmh)}/km`;
-      const meters = Math.round(kmh * 100);
-      const example =
-        masKmh != null
-          ? ` Une VMA de ${kmh.toFixed(1)} km/h signifie que vous pouvez tenir ${paceStr} pendant ~6 minutes, soit environ ${meters} m.`
-          : ` Par exemple, une VMA de ${kmh} km/h signifie tenir environ ${paceStr} pendant ~6 minutes, soit environ ${meters} m.`;
-      return intro + example;
+    title: 'Prédicteur de Course',
+    blurb: "D'un résultat découlent les autres.",
+    help: "Donnez un résultat de course (ou votre VMA) et l'outil projette les temps équivalents sur les autres distances, via le modèle VDOT de Jack Daniels.",
+    predictFrom: 'PRÉDIRE À PARTIR DE',
+    sourceRace: 'UNE COURSE',
+    sourceMas: 'VMA',
+    yourTimeFor: (d: string) => `VOTRE TEMPS SUR ${d.toUpperCase()}`,
+    masFieldLabel: 'VOTRE VMA (KM/H)',
+    predicted: '→ PRÉDIT',
+    tagVdot: 'VDOT',
+    tagMasVdot: 'VMA→VDOT',
+    vdotHint:
+      "Le VDOT est un indice de forme unique déduit de votre résultat, puis utilisé pour projeter les temps équivalents sur les autres distances (modèle de Jack Daniels).",
+  },
+
+  mas: {
+    title: 'Estimateur VMA / VO₂max',
+    blurb: 'Mesurer le moteur.',
+    help: "Estimez votre Vitesse Maximale Aérobie et votre VO₂max à partir d'une course ou d'un test de terrain, puis lisez vos allures d'entraînement.",
+    measureFrom: 'MESURER À PARTIR DE',
+    sourceRace: 'UNE COURSE',
+    sourceTest: 'TEST DE TERRAIN',
+    yourTimeFor: (d: string) => `VOTRE TEMPS SUR ${d.toUpperCase()}`,
+    whatsThis: "c'est quoi ? ↗",
+    protocols: {
+      demi: 'DEMI-COOPER 6 MIN',
+      cooper: 'COOPER 12 MIN',
+      leger: 'TEST LÉGER',
+    },
+    testLabels: {
+      demi: 'DISTANCE EN 6 MIN (M)',
+      cooper: 'DISTANCE EN 12 MIN (M)',
+      leger: 'VITESSE DU DERNIER PALIER (KM/H)',
+    },
+    testHints: {
+      demi: 'Courez le plus loin possible en 6 minutes ; entrez les mètres parcourus.',
+      cooper: 'Courez le plus loin possible en 12 minutes ; entrez les mètres parcourus.',
+      leger: 'Navette de 20 m au bip ; entrez la vitesse de votre dernier palier complet.',
+    },
+    vo2Label: 'VO₂MAX',
+    vo2Info:
+      "La quantité maximale d'oxygène que votre corps peut utiliser par minute et par kg. Plus le chiffre est élevé, plus le moteur aérobie est gros.",
+    masLabel: 'VMA',
+    masInfo:
+      "Vitesse Maximale Aérobie — l'allure la plus lente à laquelle vous atteignez votre VO₂max. Toutes les allures ci-dessous en découlent.",
+    zonesTitle: "ALLURES D'ENTRAÎNEMENT",
+    zones: {
+      easy: 'Facile',
+      marathon: 'Marathon',
+      threshold: 'Seuil',
+      vo2max: 'VO₂max',
+    },
+    zoneInfo: {
+      easy: "Effort où l'on peut discuter — l'essentiel du volume hebdomadaire. Construit la base aérobie sans fatigue.",
+      marathon: 'Régulier, tenable pendant deux heures. En gros votre effort marathon visé.',
+      threshold: "Confortablement dur, environ un effort d'une heure. Repousse l'allure tenable avant que le lactate ne s'accumule.",
+      vo2max: 'Intervalles durs de 3 à 5 min près du maximum aérobie. Fait grossir le moteur lui-même.',
     },
   },
 
   namer: {
-    breadcrumb: 'BOÎTE À OUTILS / NOMMEUR STRAVA',
     title: 'Nommeur Strava',
-    blurb: 'Parce que « Course du matin » ne suffisait plus.',
-    disclaimer: "Titres et descriptions seulement — connectez votre compte Strava pour l'utiliser en vrai.",
-    activityLabel: "TYPE D'ACTIVITÉ",
+    blurb: '« Course matinale », ça ne suffisait plus.',
+    help: "Choisissez un type d'activité et un ton pour générer un titre et une description Strava. Relancez pour une autre version.",
+    activityLabel: 'ACTIVITÉ',
     toneLabel: 'TON',
-    demoLabel: 'ACTIVITÉ DÉMO',
     copyTitle: 'Copier',
-    shuffleTitle: 'Un autre',
+    shuffleTitle: 'Relancer',
     typeLabels: {
-      Easy: 'Footing',
-      Long: 'Sortie longue',
+      Easy: 'Facile',
+      Long: 'Longue',
       Tempo: 'Tempo',
       Race: 'Course',
     },
     toneLabels: {
-      Deadpan: 'Flegmatique',
+      Deadpan: 'Pince-sans-rire',
       Punny: 'Jeux de mots',
       Poetic: 'Poétique',
     },
     names: {
       'Easy-Deadpan': [
-        { title: 'Footing Tranquille', desc: 'Rythme cardiaque bas, effort plus bas encore.' },
-        { title: 'Récup, en Théorie', desc: 'Les jambes ont dit facile. La montre a validé. Presque.' },
+        { title: 'Footing tranquille', desc: 'Fréquence cardiaque basse, effort encore plus bas.' },
+        { title: 'Allure récup, paraît-il', desc: "Les jambes ont dit facile. La montre était d'accord. À peu près." },
       ],
       'Easy-Punny': [
-        { title: 'Mode Pépère', desc: "Trottiné tranquille, alimenté aux pâtes d'hier." },
-        { title: 'Zen et Kilométrage', desc: 'Effort cool, ambiance encore plus cool.' },
+        { title: 'Petit trot', desc: "Un trottinement doux, propulsé par les pâtes d'hier." },
+        { title: 'Bas régime, gros volume', desc: "L'effort au calme, l'ambiance encore plus." },
       ],
       'Easy-Poetic': [
-        { title: 'Kilomètres Silencieux', desc: 'Rien à prouver, tout à observer.' },
-        { title: 'Lumière Douce, Allure Plus Douce', desc: 'Certaines sorties sont pour les jambes. Celle-ci, pour la tête.' },
+        { title: 'Kilomètres silencieux', desc: 'Rien à prouver, tout à remarquer.' },
+        { title: 'Lumière douce, allure plus douce', desc: "Certaines sorties sont pour les jambes. Celle-ci était pour la tête." },
       ],
       'Long-Deadpan': [
-        { title: 'Sortie Longue', desc: 'Parti loin. Revenu. Tout mangé.' },
-        { title: 'Les Kilomètres du Dimanche', desc: 'Parti fatigué, arrivé plus fatigué encore.' },
+        { title: 'Sortie longue', desc: 'Parti loin. Revenu. Tout mangé.' },
+        { title: 'Kilomètres du dimanche', desc: 'Commencé fatigué, fini plus fatigué.' },
       ],
       'Long-Punny': [
-        { title: 'Les Kilomètres en Rab', desc: 'Inscrit pour long, resté pour plus long encore.' },
-        { title: 'Répétition Marathon', desc: 'Répétition générale, sans le public.' },
+        { title: 'Le kilomètre en trop', desc: 'Inscrit pour du long, resté pour du plus long.' },
+        { title: 'Répétition générale', desc: "Générale avant le vrai jour, sans le public." },
       ],
       'Long-Poetic': [
-        { title: "Les Kilomètres s'Accumulent", desc: 'Chaque kilomètre, une petite négociation avec le doute.' },
-        { title: 'Le Chemin des Écoliers', desc: "Certains jours, la destination c'est juste plus de route." },
+        { title: "Les kilomètres s'additionnent", desc: 'Chaque kilomètre, une petite négociation avec le doute.' },
+        { title: 'Le chemin le plus long', desc: "Certains jours, la destination n'est que plus de route." },
       ],
       'Tempo-Deadpan': [
-        { title: 'Séance Tempo', desc: 'Inconfortable, volontairement.' },
-        { title: 'Seuil Atteint', desc: "La respiration s'est faite entendre au quatrième kilomètre." },
+        { title: 'Séance tempo', desc: 'Inconfortable exprès.' },
+        { title: 'Seuil atteint', desc: 'La respiration est devenue bruyante vers le quatrième kilomètre.' },
       ],
       'Tempo-Punny': [
-        { title: 'Crise de Tempo', desc: "Les jambes ont protesté. La montre s'en fichait." },
-        { title: 'Allure en Dents de Scie', desc: "Départ rapide, milieu honnête, tenu bon jusqu'au bout." },
+        { title: 'Caprice de tempo', desc: "Les jambes ont protesté. La montre s'en fichait." },
+        { title: 'Coup de chaud', desc: 'Départ vite, milieu honnête, fin arrachée.' },
       ],
       'Tempo-Poetic': [
-        { title: "Là où Vit l'Inconfort", desc: 'Trouvé la limite, couru le long.' },
-        { title: 'Allure Tenue, à Peine', desc: 'La discipline se mesure en secondes par kilomètre.' },
+        { title: "Là où vit l'inconfort", desc: "Trouvé la limite et couru le long." },
+        { title: "Allure tenue, de justesse", desc: 'La discipline se mesure en secondes au kilomètre.' },
       ],
       'Race-Deadpan': [
-        { title: 'Jour de Course', desc: "Couru plus loin que ce que l'entraînement suggérait." },
-        { title: 'Record, de Justesse', desc: "Une seconde sous l'ancien record. Je prends." },
+        { title: 'Jour de course', desc: "Couru plus vite que l'entraînement ne le suggérait." },
+        { title: 'Record, de justesse', desc: "Une seconde sous l'ancien. Je prends." },
       ],
       'Race-Punny': [
-        { title: 'Record Perso, Chaos Perso', desc: "Ligne d'arrivée réussie. Tous les choix d'avant, remis en question." },
-        { title: 'Objectif Sub Atteint', desc: 'Barrière franchie. Un peu de moi aussi, au passage.' },
+        { title: 'Record personnel, chaos personnel', desc: "Bien fini. Tout remis en question avant." },
+        { title: 'Objectifs pulvérisés', desc: 'Barrière cassée. Moi un peu aussi.' },
       ],
       'Race-Poetic': [
-        { title: 'Chaque Seconde a Compté', desc: 'Des mois de matins tranquilles, dépensés en dix-neuf minutes.' },
-        { title: "Ligne d'Arrivée, Enfin", desc: "Franchie, en sentant chaque kilomètre qui l'a précédée." },
+        { title: 'Chaque seconde comptait', desc: 'Des mois de matins silencieux, dépensés en dix-neuf minutes.' },
+        { title: 'Ligne, enfin', desc: "Franchie, en sentant chacun des kilomètres derrière." },
       ],
     },
   },

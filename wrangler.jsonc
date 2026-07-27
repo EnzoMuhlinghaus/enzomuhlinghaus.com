@@ -1,0 +1,25 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "enzomuhlinghaus",
+	// The adapter supplies the Worker entry and wires the ASSETS binding itself;
+	// prerendered pages are served straight from the edge and only /  reaches the
+	// Worker. This file only needs the project name, compat settings and bindings.
+	"main": "@astrojs/cloudflare/entrypoints/server",
+	"compatibility_date": "2026-07-01",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	// 30-minute read-through cache for the Notion + Strava payloads, and the store
+	// for Strava's rotating refresh token. See src/lib/cache.ts.
+	"kv_namespaces": [
+		{
+			"binding": "JOURNAL",
+			"id": "69335200c96b4848a63189e570f33395"
+		}
+	],
+	"observability": {
+		"enabled": true
+	}
+	// Secrets (never in this file): NOTION_TOKEN, NOTION_DB_ID, STRAVA_CLIENT_ID,
+	// STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN — set with `wrangler secret put`.
+}

@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { KM_PER_MI, parseTime, formatTime } from '../../lib/time';
+import { useUnit } from '../../lib/units';
 import { useMessages } from '../../i18n';
+import ToolCard from './ToolCard.vue';
 
 const m = useMessages();
+const unit = useUnit();
 
 type Mode = 'pace' | 'time' | 'distance';
 const MODES: Mode[] = ['pace', 'time', 'distance'];
@@ -22,13 +25,13 @@ const QUICK_DIST_KM: Record<string, number> = {
 };
 
 const mode = ref<Mode>('pace');
-const unit = ref<'km' | 'mi'>('km');
-const distanceValue = ref('10');
-const timeValue = ref('40:00');
-const paceValue = ref('4:00');
+const distanceValue = ref('21.10');
+const timeValue = ref('1:27:42');
+const paceValue = ref('4:09');
 
-function setUnit(u: 'km' | 'mi') {
-  if (unit.value === u) return;
+// The masthead owns the unit, so convert the entered values when it flips —
+// otherwise "21.10" would silently change meaning.
+function convertTo(u: 'km' | 'mi') {
   const distNum = parseFloat(distanceValue.value);
   if (Number.isFinite(distNum)) {
     distanceValue.value = (u === 'mi' ? distNum / KM_PER_MI : distNum * KM_PER_MI).toFixed(2);
@@ -37,13 +40,12 @@ function setUnit(u: 'km' | 'mi') {
   if (paceSec != null) {
     paceValue.value = formatTime(u === 'mi' ? paceSec * KM_PER_MI : paceSec / KM_PER_MI);
   }
-  unit.value = u;
 }
+defineExpose({ convertTo });
 
 function setQuickDist(key: string) {
   const km = QUICK_DIST_KM[key]!;
-  const val = unit.value === 'km' ? km : km / KM_PER_MI;
-  distanceValue.value = val.toFixed(2);
+  distanceValue.value = (unit.value === 'km' ? km : km / KM_PER_MI).toFixed(2);
 }
 
 const result = computed(() => {
@@ -58,7 +60,7 @@ const result = computed(() => {
       const paceResultSec = timeSec / distanceNum;
       const speedPerUnit = 3600 / paceResultSec;
       const speedKmh = u === 'km' ? speedPerUnit : speedPerUnit * KM_PER_MI;
-      return { value: `${formatTime(paceResultSec)} /${u}`, sub: `≈ ${speedKmh.toFixed(1)} km/h` };
+      return { value: `${formatTime(paceResultSec)}/${u}`, sub: `≈ ${speedKmh.toFixed(1)} km/h` };
     }
     return { value: '—', sub: '' };
   }
@@ -79,135 +81,122 @@ const resultLabel = computed(() => {
 </script>
 
 <template>
-  <div class="head-row">
-    <div class="mono-label">{{ m.pace.solveFor }}</div>
-    <div class="unit-row">
+  <ToolCard no="01" tone="l" :title="m.pace.title" :subtitle="m.pace.blurb" :help="m.pace.help">
+    <div class="pill-row">
       <button
-        v-for="u in ['km', 'mi'] as const"
-        :key="u"
-        class="chip chip--small"
-        :class="{ active: unit === u }"
-        @click="setUnit(u)"
+        v-for="k in MODES"
+        :key="k"
+        class="pill"
+        :class="{ active: mode === k }"
+        :aria-pressed="mode === k"
+        @click="mode = k"
       >
-        {{ u.toUpperCase() }}
+        {{ m.pace.modes[k] }}
       </button>
     </div>
-  </div>
 
-  <div class="mode-row">
-    <button
-      v-for="k in MODES"
-      :key="k"
-      class="chip"
-      :class="{ active: mode === k }"
-      @click="mode = k"
-    >
-      {{ m.pace.modes[k] }}
-    </button>
-  </div>
-
-  <div class="fields">
-    <div v-if="mode !== 'distance'">
-      <div class="mono-label field-label">{{ m.pace.distanceLabel }} ({{ unit.toUpperCase() }})</div>
-      <input
-        v-model="distanceValue"
-        type="text"
-        class="text-input"
-        :placeholder="unit === 'km' ? '10' : '6.2'"
-      />
-      <div class="quick-row">
-        <button v-for="(km, k) in QUICK_DIST_KM" :key="k" class="chip chip--ghost" @click="setQuickDist(String(k))">
-          {{ k === 'Half' ? m.common.half : k }}
-        </button>
+    <div class="fields">
+      <div v-if="mode !== 'distance'">
+        <div class="field-label">{{ m.pace.distanceLabel }} ({{ unit.toUpperCase() }})</div>
+        <input v-model="distanceValue" type="text" class="wf" placeholder="10" />
+      </div>
+      <div v-if="mode !== 'time'">
+        <div class="field-label">{{ m.pace.timeLabel }}</div>
+        <input v-model="timeValue" type="text" class="wf" placeholder="40:00" />
+      </div>
+      <div v-if="mode !== 'pace'">
+        <div class="field-label">{{ m.pace.paceLabel }} (/{{ unit.toUpperCase() }})</div>
+        <input v-model="paceValue" type="text" class="wf" placeholder="4:00" />
       </div>
     </div>
-    <div v-if="mode !== 'time'">
-      <div class="mono-label field-label">{{ m.pace.timeLabel }}</div>
-      <input v-model="timeValue" type="text" class="text-input" placeholder="40:00" />
-    </div>
-    <div v-if="mode !== 'pace'">
-      <div class="mono-label field-label">{{ m.pace.paceLabel }} (/{{ unit.toUpperCase() }})</div>
-      <input v-model="paceValue" type="text" class="text-input" placeholder="4:00" />
-    </div>
-  </div>
 
-  <div class="dashed-panel result">
-    <div class="mono-label">{{ resultLabel }}</div>
-    <div class="result-value-wrap">
-      <div class="result-value">{{ result.value }}</div>
-      <div v-if="result.sub" class="result-sub">{{ result.sub }}</div>
+    <div v-if="mode !== 'distance'" class="chip-row">
+      <button v-for="(km, k) in QUICK_DIST_KM" :key="k" class="chip" @click="setQuickDist(String(k))">
+        {{ k === 'Half' ? m.common.half : k }}
+      </button>
     </div>
-  </div>
+
+    <div class="result result-rule">
+      <span class="result-label">{{ resultLabel }}</span>
+      <span class="result-value">{{ result.value }}</span>
+    </div>
+    <div v-if="result.sub" class="result-sub">{{ result.sub }}</div>
+  </ToolCard>
 </template>
 
 <style scoped>
-.head-row {
+.pill-row {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-
-.unit-row {
-  display: flex;
-  gap: 8px;
-}
-
-.mode-row {
-  display: flex;
-  gap: 12px;
+  gap: 6px;
   flex-wrap: wrap;
-  margin-bottom: 32px;
+  margin-bottom: 16px;
+}
+
+.pill-row .pill {
+  font-size: 9.5px;
+  padding: 6px 11px;
 }
 
 .fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
 .field-label {
-  letter-spacing: 0.1em;
-  margin-bottom: 8px;
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  margin-bottom: 6px;
 }
 
-.quick-row {
+.wf {
+  font-size: 20px;
+  width: 100%;
+}
+
+.chip-row {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
-  margin-top: 8px;
+  margin-bottom: 18px;
 }
 
 .result {
-  border-radius: 14px;
-  padding: 24px 28px;
-  margin-bottom: 28px;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
   gap: 10px;
+  padding-top: 14px;
 }
 
-.result-value-wrap {
-  text-align: right;
+.result-label {
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--red);
 }
 
 .result-value {
   font-family: var(--font-mono);
-  font-size: 38px;
+  font-size: 30px;
   font-weight: 700;
+  color: var(--red);
+  white-space: nowrap;
 }
 
 .result-sub {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--ink-50);
-  margin-top: 2px;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--on-desk-3);
+  text-align: right;
+  margin-top: 6px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 560px) {
   .fields {
     grid-template-columns: 1fr;
   }

@@ -1,0 +1,207 @@
+---
+// One page of the open journal. Eight of these exist (four spreads × two
+// sides); the page-turn script decides which are visible by setting
+// `data-role` — see the roles table in src/pages/index.astro.
+interface Props {
+  /** Spread index, 0–3. */
+  index: number;
+  side: 'l' | 'r';
+  /** Printed page number in the outer bottom corner. */
+  folio: string;
+  label: string;
+}
+
+const { index, side, folio, label } = Astro.props;
+---
+
+<div class="page" data-index={index} data-side={side} aria-label={label}>
+  <div class="sheet">
+    <slot />
+    <div class="folio">{folio}</div>
+  </div>
+</div>
+
+<style>
+  .page {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: none;
+    backface-visibility: hidden;
+  }
+
+  .sheet {
+    /* Paddings are custom properties so the pinned page-nav can line up with
+       them without restating the per-page values. --nav-band reserves the
+       strip the nav occupies, since it is out of flow. */
+    --pad-t: 52px;
+    --pad-r: 48px;
+    --pad-b: 40px;
+    --pad-l: 56px;
+    --nav-band: 46px;
+
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: var(--pad-t) var(--pad-r) calc(var(--pad-b) + var(--nav-band)) var(--pad-l);
+    box-sizing: border-box;
+    background:
+      repeating-linear-gradient(180deg, transparent, transparent 41px, var(--rule) var(--rule-step)),
+      var(--paper-l);
+    border-radius: 4px 0 0 4px;
+    box-shadow: inset -18px 0 24px -14px rgba(60, 40, 15, 0.35);
+  }
+
+  .page[data-side='r'] .sheet {
+    --pad-r: 56px;
+    --pad-l: 48px;
+    background:
+      repeating-linear-gradient(180deg, transparent, transparent 41px, var(--rule) var(--rule-step)),
+      var(--paper-r);
+    border-radius: 0 10px 10px 0;
+    box-shadow: inset 18px 0 24px -14px rgba(60, 40, 15, 0.3);
+  }
+
+  /* Per-page padding overrides — the design tunes these individually rather
+     than sharing one left/right value. */
+  .page[data-index='0'][data-side='l'] .sheet {
+    --pad-b: 56px;
+    /* No nav on the Home left page. */
+    --nav-band: 0px;
+  }
+
+  .page[data-index='0'][data-side='r'] .sheet {
+    --pad-b: 48px;
+  }
+
+  /* The race journal runs closer to the fore-edge so the hanging PR! mark and
+     the scroll gutter both fit. */
+  .page[data-index='1'][data-side='r'] .sheet {
+    --pad-r: 30px;
+  }
+
+  /* Travel's polaroids are hand-placed and deliberately overrun the page. */
+  .page[data-index='3'] .sheet {
+    overflow: hidden;
+  }
+
+  .folio {
+    position: absolute;
+    bottom: 18px;
+    left: 56px;
+    font-family: var(--font-label);
+    font-size: 12px;
+    color: var(--faint);
+  }
+
+  .page[data-side='r'] .folio {
+    left: auto;
+    right: 56px;
+  }
+
+  /* ---- roles assigned by the page-turn script ---- */
+  .page[data-role] {
+    display: flex;
+  }
+
+  .page[data-role='l'],
+  .page[data-role='l-under'],
+  .page[data-role='fold-out-l'],
+  .page[data-role='fold-in-l'] {
+    left: 0;
+    right: 50%;
+  }
+
+  .page[data-role='r'],
+  .page[data-role='r-under'],
+  .page[data-role='fold-out-r'],
+  .page[data-role='fold-in-r'] {
+    left: 50%;
+    right: 0;
+  }
+
+  .page[data-role='l-under'],
+  .page[data-role='r-under'] {
+    z-index: 1;
+  }
+
+  .page[data-role^='fold-'] {
+    z-index: 2;
+  }
+
+  .page[data-role='fold-out-r'],
+  .page[data-role='fold-in-r'] {
+    transform-origin: left center;
+  }
+
+  .page[data-role='fold-out-l'],
+  .page[data-role='fold-in-l'] {
+    transform-origin: right center;
+  }
+
+  .page[data-role='fold-out-r'] {
+    animation: fold-out-r 0.275s cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards;
+  }
+
+  .page[data-role='fold-out-l'] {
+    animation: fold-out-l 0.275s cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards;
+  }
+
+  .page[data-role='fold-in-l'] {
+    animation: fold-in-l 0.3s cubic-bezier(0.25, 0.7, 0.4, 1) forwards;
+  }
+
+  .page[data-role='fold-in-r'] {
+    animation: fold-in-r 0.3s cubic-bezier(0.25, 0.7, 0.4, 1) forwards;
+  }
+
+  @keyframes fold-out-r {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(-90deg); }
+  }
+
+  @keyframes fold-in-l {
+    from { transform: rotateY(90deg); }
+    to { transform: rotateY(0deg); }
+  }
+
+  @keyframes fold-out-l {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(90deg); }
+  }
+
+  @keyframes fold-in-r {
+    from { transform: rotateY(-90deg); }
+    to { transform: rotateY(0deg); }
+  }
+
+  /* ---- stacked layout: no fold, both pages of the spread flow vertically ---- */
+  @media (max-width: 1060px) {
+    .page[data-role] {
+      position: static;
+      inset: auto;
+      transform: none;
+      animation: none;
+      z-index: auto;
+    }
+
+    .sheet,
+    .page[data-side='r'] .sheet {
+      /* The nav returns to normal flow when stacked, so reserve nothing. */
+      --nav-band: 0px;
+      /* Let the sheet shrink below its content's min-content width; the wide
+         rows inside opt into wrapping at this breakpoint. */
+      min-width: 0;
+      padding: 34px 22px 52px;
+      box-shadow: none;
+      border-radius: 0;
+    }
+
+    .folio,
+    .page[data-side='r'] .folio {
+      left: auto;
+      right: 22px;
+    }
+  }
+</style>

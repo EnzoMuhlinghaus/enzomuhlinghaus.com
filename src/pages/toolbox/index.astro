@@ -1,108 +1,35 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import Nav from '../../components/Nav.astro';
-import Footer from '../../components/Footer.astro';
-import T from '../../components/T.astro';
-import { TOOLS } from '../../lib/tools';
-import { t } from '../../i18n';
+import Workbench from '../../components/tools/Workbench.vue';
 ---
 
 <Layout
-  title="The Toolbox — Enzo Muhlinghaus"
-  description="Small running tools built for my own training: pace calculator, MAS/VO2max estimator, race predictor, Strava namer."
+  title="The Workbench — Enzo Muhlinghaus"
+  description="Small running tools built for my own training: pace calculator, race predictor and MAS/VO2max estimator. All on one bench."
 >
-  <div class="parchment-page">
-    <Nav breadcrumb={t.toolbox.breadcrumb} />
-
-    <main class="main">
-      <h1 class="page-title"><T t={t.toolbox.title} /></h1>
-      <p class="page-blurb"><T t={t.toolbox.blurb} /></p>
-
-      <div class="tool-grid">
-        {
-          TOOLS.map((tool) => (
-            <a href={tool.href} class="tool-card">
-              <div class="dot" style={`background:${tool.dot}`} />
-              <span>
-                <strong><T t={t.tools[tool.key].name} /></strong>
-                <span class="tool-desc"><T t={t.tools[tool.key].desc} /></span>
-              </span>
-            </a>
-          ))
-        }
-      </div>
-    </main>
-
-    <Footer />
+  <div class="bench-page">
+    <Workbench client:load />
   </div>
 </Layout>
 
-<style>
-  .main {
-    position: relative;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 24px clamp(20px, 4vw, 44px) 64px;
-    width: 100%;
-    flex: 1;
+<style is:global>
+  /* One dark bench holding the whole toolbox — no page-turns, no nav chrome.
+     Global rather than scoped so it also reaches the Vue island's links;
+     `.bench-page` only exists on this page, so nothing else is touched. */
+  .bench-page {
+    min-height: 100vh;
+    background: radial-gradient(ellipse 120% 80% at 50% -10%, var(--bench-top), var(--bench-bottom));
+    padding: 34px 30px 64px;
+    box-sizing: border-box;
   }
 
-  .page-blurb {
-    margin-bottom: 40px;
+  /* Every link on the bench nudges right on hover. */
+  .bench-page a {
+    display: inline-block;
+    transition: transform 0.2s ease;
   }
 
-  .tool-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
-
-  .tool-card {
-    background: var(--cream);
-    border: 1.5px solid var(--ink);
-    border-radius: 14px;
-    padding: 26px;
-    display: flex;
-    flex-direction: column;
-    gap: 34px;
-    transition: transform 0.15s ease;
-    box-shadow: 0 2px 8px rgba(66, 40, 14, 0.18);
-  }
-
-  .tool-card:hover {
-    transform: translateY(-4px) rotate(-0.4deg);
-  }
-
-  .tool-card:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  .dot {
-    width: 13px;
-    height: 13px;
-    transform: rotate(45deg);
-  }
-
-  .tool-card strong {
-    display: block;
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 400;
-    font-size: 24px;
-    margin-bottom: 8px;
-  }
-
-  .tool-desc {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    color: var(--ink-70);
-    line-height: 1.5;
-  }
-
-  @media (max-width: 640px) {
-    .tool-grid {
-      grid-template-columns: 1fr;
-    }
+  .bench-page a:hover {
+    transform: translateX(4px);
   }
 </style>
