@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.1.5",
-    "@astrojs/sitemap": "^3.7.3",
     "@astrojs/vue": "^7.0.1",
     "@fontsource/caveat": "^5.2.5",
     "@fontsource/jetbrains-mono": "^5.2.5",

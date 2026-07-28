@@ -4,6 +4,7 @@
 // (Design System v2 §08).
 import { ref } from 'vue';
 import { useUnit, type Unit } from '../../lib/units';
+import { SITE_ORIGIN } from '../../data/site';
 import { useMessages } from '../../i18n';
 import PaceCalculator from './PaceCalculator.vue';
 import RacePredictor from './RacePredictor.vue';
@@ -59,7 +60,9 @@ function setUnit(u: Unit) {
     <footer class="bench-foot">
       <p class="foot-line">
         {{ m.toolbox.builtBy }}
-        <a href="/">{{ m.toolbox.readJournal }}</a>
+        <!-- Absolute: the bench is served from its own hostname, so "/" here
+             would loop back to the bench rather than reach the journal. -->
+        <a :href="SITE_ORIGIN">{{ m.toolbox.readJournal }}</a>
       </p>
       <p class="foot-note">{{ m.toolbox.disclaimer }}</p>
     </footer>

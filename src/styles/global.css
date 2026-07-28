@@ -68,15 +68,6 @@ a {
   text-decoration: none;
 }
 
-/* ---- i18n: paired EN/FR elements toggled by <html data-lang> ---- */
-html[data-lang='en'] .i18n-fr {
-  display: none !important;
-}
-
-html[data-lang='fr'] .i18n-en {
-  display: none !important;
-}
-
 /* ================================================================
    MATERIALS  (Design System v2 §04)
    ================================================================ */

@@ -6,6 +6,14 @@ import { useLang } from '../lib/lang';
 export { en, fr };
 export type { Messages };
 
+/**
+ * The language the server renders. v2 has no toggle and `<html lang>` is
+ * hard-coded in Layout.astro, so this is the single place that decides which
+ * half of every `{ en, fr }` pair reaches the HTML (see `<T>`). Restoring French
+ * means routing on it, not flipping it globally.
+ */
+export const SITE_LANG: 'en' | 'fr' = 'en';
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Pairable = string | ((...args: any[]) => any) | readonly unknown[];
 
@@ -23,9 +31,9 @@ function zip(a: any, b: any): any {
 }
 
 /**
- * Both languages side by side: every leaf is `{ en, fr }`.
- * Used by Astro templates to render the paired .i18n-en/.i18n-fr spans
- * (usually via the <T> component).
+ * Both languages side by side: every leaf is `{ en, fr }`. Astro templates pick
+ * one with `[SITE_LANG]`, usually via the <T> component; leaves that take
+ * arguments are called directly at the call site.
  */
 export const t: DeepPair<Messages> = zip(en, fr);
 

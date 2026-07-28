@@ -62,7 +62,14 @@ const predictions = computed(() => {
 </script>
 
 <template>
-  <ToolCard no="02" tone="r" :title="m.predictor.title" :subtitle="m.predictor.blurb" :help="m.predictor.help">
+  <ToolCard
+    no="02"
+    tone="r"
+    anchor="race-predictor"
+    :title="m.predictor.title"
+    :subtitle="m.predictor.blurb"
+    :help="m.predictor.help"
+  >
     <div class="field-label">{{ m.predictor.predictFrom }}</div>
     <div class="pill-row">
       <button class="pill" :class="{ active: source === 'race' }" :aria-pressed="source === 'race'" @click="source = 'race'">

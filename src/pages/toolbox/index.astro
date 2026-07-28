@@ -1,11 +1,66 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Workbench from '../../components/tools/Workbench.vue';
+import { SITE_ORIGIN, WORKBENCH_ORIGIN } from '../../data/site';
+
+// Canonical is the subdomain root, not this path: the workbench's home is
+// workbench.enzomuhlinghaus.com, which a Cloudflare URL rewrite maps onto
+// /toolbox/. That makes this one page reachable at three URLs (apex /toolbox/,
+// subdomain /, subdomain /toolbox/) — the apex one 301s away, and canonical
+// collapses the rest. See CLAUDE.md "The workbench subdomain".
+const canonical = `${WORKBENCH_ORIGIN}/`;
+
+// There are no per-tool pages, by choice — so the per-tool signal has to come
+// from structured data. Each name matches the visible <h2> on its card.
+const TOOLS = [
+  {
+    name: 'Pace Calculator',
+    anchor: 'pace-calculator',
+    description:
+      'Work out running pace, finish time or distance from the other two, with per-kilometre and per-mile splits.',
+  },
+  {
+    name: 'Race Predictor',
+    anchor: 'race-predictor',
+    description:
+      'Predict finish times at 5K, 10K, half marathon and marathon from one recent race result, using Jack Daniels’ VDOT model.',
+  },
+  {
+    name: 'MAS / VO₂max Estimator',
+    anchor: 'mas-vo2max',
+    description:
+      'Estimate maximal aerobic speed and VO₂max from a race result, and read off the training paces that follow from them.',
+  },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Running tools on Enzo’s workbench',
+  itemListElement: TOOLS.map((tool, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'WebApplication',
+      name: tool.name,
+      description: tool.description,
+      url: `${canonical}#${tool.anchor}`,
+      applicationCategory: 'HealthApplication',
+      operatingSystem: 'Any',
+      browserRequirements: 'Requires JavaScript',
+      isAccessibleForFree: true,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      author: { '@type': 'Person', name: 'Enzo Muhlinghaus', url: SITE_ORIGIN },
+    },
+  })),
+};
 ---
 
 <Layout
-  title="The Workbench — Enzo Muhlinghaus"
-  description="Small running tools built for my own training: pace calculator, race predictor and MAS/VO2max estimator. All on one bench."
+  title="Pace Calculator, Race Predictor & MAS/VO₂max Estimator — Enzo’s Workbench"
+  description="Three free running calculators on one bench: work out pace and splits, predict your 5K to marathon times from one result, and estimate MAS and VO₂max. No sign-up, km or miles."
+  canonical={canonical}
+  jsonLd={jsonLd}
 >
   <div class="bench-page">
     <Workbench client:load />

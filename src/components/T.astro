@@ -1,6 +1,18 @@
 ---
-// Renders one translated string as the standard EN/FR span pair toggled by
-// CSS via <html data-lang> (see global.css). Usage: <T t={t.home.blurb} />
+// Renders one translated string in the site's current language.
+//
+// This used to emit both languages as a paired .i18n-en/.i18n-fr span and let
+// CSS hide one. That is why every visible phrase appeared twice in the HTML —
+// and since fr.ts still holds English for the journal blocks, twice *identically*,
+// which reads to a crawler as repetition rather than translation. It now emits
+// one string and no wrapper element.
+//
+// The `{ en, fr }` pair structure, both dictionaries and useMessages() all stay.
+// When French comes back it should come back as real /fr/ routes with hreflang
+// (see CLAUDE.md) — separate URLs are what search engines want anyway, and this
+// component then just reads the active route's language.
+import { SITE_LANG } from '../i18n';
+
 interface Props {
   t: { en: string; fr: string };
 }
@@ -8,4 +20,4 @@ interface Props {
 const { t } = Astro.props;
 ---
 
-<span class="i18n-en">{t.en}</span><span class="i18n-fr">{t.fr}</span>
+{t[SITE_LANG]}
