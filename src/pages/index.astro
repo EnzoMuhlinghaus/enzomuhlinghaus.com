@@ -431,10 +431,13 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=900');
     // phase 2 folds the incoming one in. Matches the two CSS animations.
     const PHASE_MS = 275;
     const SETTLE_MS = 580;
+    // How long the book rests on Home before turning to a deep-linked spread.
+    const INTRO_MS = 420;
 
     let spread = 0;
     let turning: 'fwd' | 'back' | null = null;
     let timers: ReturnType<typeof setTimeout>[] = [];
+    let intro: ReturnType<typeof setTimeout> | null = null;
 
     /** Which visual role each page plays right now. CSS does the rest. */
     function paint(from: number, to: number, phase: 0 | 1 | 2) {
@@ -514,7 +517,20 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=900');
     }
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    // Mirrors the stacked breakpoint in Page.astro, below which the fold is
+    // switched off and a turn is a bare content swap.
+    const folds = window.matchMedia('(min-width: 1061px)');
+
+    /** Drop the pending opening turn — any real navigation outranks it. */
+    function cancelIntro() {
+      if (intro !== null) {
+        clearTimeout(intro);
+        intro = null;
+      }
+    }
+
     const go = (target: number, fromHash = false) => {
+      cancelIntro();
       if (reduced.matches) {
         if (target !== spread && !fromHash) history.pushState(null, '', '#' + SPREADS[target]);
         jump(target);
@@ -542,7 +558,21 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=900');
       else if (e.key === 'ArrowLeft') go(Math.max(0, spread - 1));
     });
 
-    jump(fromHash());
+    // A deep link (#endurance) should still open like a book rather than
+    // already being held open: land on Home, let it settle, then turn to the
+    // requested spread. Skipped when there is no fold to watch — reduced
+    // motion, or the stacked layout, where it would only flash Home's content.
+    const landing = fromHash();
+    const opening = landing !== 0 && !reduced.matches && folds.matches;
+
+    jump(opening ? 0 : landing);
+
+    if (opening) {
+      intro = setTimeout(() => {
+        intro = null;
+        turn(landing, true);
+      }, INTRO_MS);
+    }
   }
 </script>
 
