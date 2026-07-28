@@ -62,7 +62,7 @@ function setUnit(u: Unit) {
         {{ m.toolbox.builtBy }}
         <!-- Absolute: the bench is served from its own hostname, so "/" here
              would loop back to the bench rather than reach the journal. -->
-        <a :href="SITE_ORIGIN">{{ m.toolbox.readJournal }}</a>
+        <a :href="SITE_ORIGIN">{{ m.toolbox.readJournal }} <span class="arrow-ne">→</span></a>
       </p>
       <p class="foot-note">{{ m.toolbox.disclaimer }}</p>
     </footer>
