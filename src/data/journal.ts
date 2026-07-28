@@ -2,9 +2,9 @@
 // that link to them from the Home right-hand page.
 import type { ImageMetadata } from 'astro';
 
-import desk from '../assets/photos/desk.jpeg';
-import race703 from '../assets/photos/race-703-finish.jpeg';
-import vancouver from '../assets/photos/vancouver.jpeg';
+import desk from '../assets/photos/desk.webp';
+import race703 from '../assets/photos/race-703-finish.webp';
+import vancouver from '../assets/photos/vancouver.webp';
 import type { Spread } from './spreads';
 
 export { SPREADS, type Spread } from './spreads';

@@ -7,7 +7,7 @@
     "dev": "astro dev --port ${PORT:-4321}",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check",
+    "check": "astro check && node scripts/check-framing.mjs",
     "astro": "astro"
   },
   "dependencies": {

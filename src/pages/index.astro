@@ -13,9 +13,9 @@ import { JOBS, TOOLBELT, DOODLE_BOXES } from '../data/work';
 import { POLAROIDS_LEFT, POLAROIDS_RIGHT } from '../data/travel';
 import { STRAVA_URL } from '../data/endurance';
 import { t } from '../i18n';
-import moi from '../assets/photos/moi.jpg';
-import race703 from '../assets/photos/race-703-finish.jpeg';
-import captainWallet from '../assets/photos/captain-wallet.jpg';
+import moi from '../assets/photos/moi.webp';
+import race703 from '../assets/photos/race-703-finish.webp';
+import captainWallet from '../assets/photos/captain-wallet.webp';
 
 // The only on-demand page on the site: the Endurance spread renders live Notion
 // races and a live Strava distance. Everything else stays prerendered.
@@ -74,7 +74,15 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=900');
         <figure class="print">
           <div class="mount print-mount">
             <div class="print-frame">
-              <Image src={moi} alt="Enzo, mid-adventure" width={900} fetchpriority="high" />
+              {/* Above the fold and the LCP element: `eager` is load-bearing, not
+                  decoration — Astro defaults to lazy, which cancels fetchpriority. */}
+              <Image
+                src={moi}
+                alt="Enzo, mid-adventure"
+                width={900}
+                fetchpriority="high"
+                loading="eager"
+              />
             </div>
           </div>
           <div class="tape" style="top:-13px;left:44px;width:110px;height:30px;transform:rotate(-6deg)"></div>
@@ -862,6 +870,9 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=900');
     width: 100%;
     height: 100%;
     object-fit: cover;
+    /* Framing is the design's, verbatim — moi.webp is the full uncropped 3:4
+       frame and these three values do the cropping. Do not retune them to suit
+       a re-exported photo: re-cut the photo instead. See scripts/check-framing.mjs. */
     object-position: 88% 26%;
     /* A hair of zoom to crop the frame edge out. */
     transform: scale(1.02);

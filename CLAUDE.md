@@ -54,6 +54,27 @@ Any other page file in that project is from a superseded design — ignore it.
   The adapter must stay on `imageService: 'compile'`: `astro:assets` uses Sharp, which cannot
   run inside a Worker, so images are processed at build time and passed through at runtime.
   This works only because every `<Image>` source is a local ESM import.
+  **Corollary — the homepage gets no image processing at all.** "Build time" means *prerender*
+  time, and `/` is the one page that opts out, so its `<Image>`s emit `/_image?…&f=webp` URLs
+  that the Worker answers by streaming the source file back **unresized and unconverted** —
+  the `w`/`h`/`f` params are ignored. Whatever is committed in `src/assets/photos/` is byte-for-byte
+  what a visitor downloads. So the photos are pre-cut to their final size by hand: **WebP,
+  q80, long edge ≤ 1280** (≈2× the largest CSS box any of them occupies), EXIF stripped:
+  `cwebp -q 80 -m 6 -metadata none -resize 0 1280 in.jpeg -o out.webp`.
+  Dropping a fresh 1.4 MB photo in here ships 1.4 MB to every visitor — dev will look fine
+  and lie to you, because the Vite dev server *does* have Sharp. `og-card.jpg` is the one
+  deliberate JPEG (1200×630, social scrapers prefer JPEG) and is not rendered through `<Image>`.
+  **Resize and recompress freely; never crop.** Every photo is the full uncropped frame, and
+  the design does its framing in CSS (`object-position` + `transform-origin`) — so a crop
+  silently moves the framing of an image whose CSS nobody touched. `npm run check` enforces
+  both halves; see below.
+- **Image framing is the design's, verbatim.** `object-position`, `transform: scale()`,
+  `transform-origin` and the frame box heights are transcribed from
+  `Homepage v2: Field Journal.dc.html` and must not be retuned to suit a re-exported photo —
+  re-cut the photo instead. `scripts/check-framing.mjs` (wired into `npm run check`) holds the
+  design's values verbatim alongside each photo's expected aspect ratio and fails on either
+  kind of drift. When the design genuinely changes, re-read it with the claude_design MCP
+  (`DesignSync` → `get_file`) and update that script **in the same commit** as the CSS.
 - **Hosting**: **Cloudflare Workers** at `enzomuhlinghaus.com`, via `@astrojs/cloudflare` +
   `wrangler.jsonc`. Prerendered pages are served from the edge; only `/` invokes the Worker.
   **Deploys are Cloudflare Workers Builds**, configured in the Cloudflare dashboard (Worker →
