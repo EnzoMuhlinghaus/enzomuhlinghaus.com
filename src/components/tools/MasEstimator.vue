@@ -109,7 +109,14 @@ const zones = computed(() =>
 </script>
 
 <template>
-  <ToolCard no="03" tone="r" :title="m.mas.title" :subtitle="m.mas.blurb" :help="m.mas.help">
+  <ToolCard
+    no="03"
+    tone="r"
+    anchor="mas-vo2max"
+    :title="m.mas.title"
+    :subtitle="m.mas.blurb"
+    :help="m.mas.help"
+  >
     <div class="field-label">{{ m.mas.measureFrom }}</div>
     <div class="pill-row">
       <button class="pill" :class="{ active: source === 'race' }" :aria-pressed="source === 'race'" @click="source = 'race'">

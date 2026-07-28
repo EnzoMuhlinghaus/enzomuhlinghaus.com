@@ -9,11 +9,13 @@ defineProps<{
   help: string;
   /** Cards alternate the two page creams across the grid. */
   tone: 'l' | 'r';
+  /** Anchor slug, so each tool is linkable and citable without its own page. */
+  anchor?: string;
 }>();
 </script>
 
 <template>
-  <section class="card" :data-tone="tone">
+  <section class="card" :data-tone="tone" :id="anchor">
     <div class="card-head">
       <span class="card-no">No. {{ no }}</span>
       <span class="info" tabindex="0" role="note" :aria-label="help">?<span class="tip">{{ help }}</span></span>

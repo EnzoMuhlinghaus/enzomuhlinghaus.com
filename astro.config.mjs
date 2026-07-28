@@ -2,11 +2,13 @@
 import { defineConfig, envField } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 import vue from '@astrojs/vue';
-import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://enzomuhlinghaus.com',
-  integrations: [vue(), sitemap()],
+  // No sitemap integration: the site spans two hostnames (the journal and the
+  // workbench), and @astrojs/sitemap emits every route under this one `site`.
+  // src/pages/sitemap.xml.ts serves the right URLs per host instead.
+  integrations: [vue()],
 
   // The site is a Cloudflare Worker. Everything is prerendered by default; only
   // the homepage opts out (`export const prerender = false`), because it renders

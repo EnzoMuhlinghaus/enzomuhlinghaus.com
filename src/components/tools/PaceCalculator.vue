@@ -81,7 +81,14 @@ const resultLabel = computed(() => {
 </script>
 
 <template>
-  <ToolCard no="01" tone="l" :title="m.pace.title" :subtitle="m.pace.blurb" :help="m.pace.help">
+  <ToolCard
+    no="01"
+    tone="l"
+    anchor="pace-calculator"
+    :title="m.pace.title"
+    :subtitle="m.pace.blurb"
+    :help="m.pace.help"
+  >
     <div class="pill-row">
       <button
         v-for="k in MODES"

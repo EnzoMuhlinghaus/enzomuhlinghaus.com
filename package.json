@@ -7,12 +7,11 @@
     "dev": "astro dev --port ${PORT:-4321}",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check",
+    "check": "astro check && node scripts/check-framing.mjs",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.1.5",
-    "@astrojs/sitemap": "^3.7.3",
     "@astrojs/vue": "^7.0.1",
     "@fontsource/caveat": "^5.2.5",
     "@fontsource/jetbrains-mono": "^5.2.5",

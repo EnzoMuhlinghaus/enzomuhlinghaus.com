@@ -12,10 +12,11 @@ import { JOURNAL_ROWS, LINKS, SPREADS } from '../data/journal';
 import { JOBS, TOOLBELT, DOODLE_BOXES } from '../data/work';
 import { POLAROIDS_LEFT, POLAROIDS_RIGHT } from '../data/travel';
 import { STRAVA_URL } from '../data/endurance';
-import { t } from '../i18n';
-import moi from '../assets/photos/moi.jpg';
-import race703 from '../assets/photos/race-703-finish.jpeg';
-import captainWallet from '../assets/photos/captain-wallet.jpg';
+import { SITE_ORIGIN, WORKBENCH_ORIGIN } from '../data/site';
+import { t, SITE_LANG } from '../i18n';
+import moi from '../assets/photos/moi.webp';
+import race703 from '../assets/photos/race-703-finish.webp';
+import captainWallet from '../assets/photos/captain-wallet.webp';
 
 // The only on-demand page on the site: the Endurance spread renders live Notion
 // races and a live Strava distance. Everything else stays prerendered.
@@ -30,11 +31,38 @@ const prs = await prEntries();
 
 // Let Cloudflare's edge hold the rendered page too, not just the data behind it.
 Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=900');
+
+// The journal is the page a search for Enzo by name should land on, so it carries
+// the Person. `sameAs` reuses LINKS rather than restating the profile URLs.
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Enzo Muhlinghaus',
+    url: SITE_ORIGIN,
+    jobTitle: 'Senior Software Engineer',
+    description:
+      'Senior software engineer with 9+ years designing and scaling distributed systems, and an endurance athlete — running, triathlon and cycling.',
+    homeLocation: { '@type': 'Place', name: 'Vancouver, BC, Canada' },
+    nationality: { '@type': 'Country', name: 'France' },
+    sameAs: [LINKS.linkedin, LINKS.github, LINKS.instagram, STRAVA_URL],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Enzo Muhlinghaus — Field Journal',
+    url: SITE_ORIGIN,
+    inLanguage: 'en',
+    author: { '@type': 'Person', name: 'Enzo Muhlinghaus' },
+  },
+];
 ---
 
 <Layout
   title="Enzo Muhlinghaus — Field Journal"
   description="The field journal of Enzo Muhlinghaus: a Frenchman in Vancouver. Race journal, engineering notes, travels, and a workbench of small running tools."
+  canonical={`${SITE_ORIGIN}/`}
+  jsonLd={jsonLd}
 >
   <div id="shell">
     <div id="stage">
@@ -74,7 +102,15 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=900');
         <figure class="print">
           <div class="mount print-mount">
             <div class="print-frame">
-              <Image src={moi} alt="Enzo, mid-adventure" width={900} fetchpriority="high" />
+              {/* Above the fold and the LCP element: `eager` is load-bearing, not
+                  decoration — Astro defaults to lazy, which cancels fetchpriority. */}
+              <Image
+                src={moi}
+                alt="Enzo, mid-adventure"
+                width={900}
+                fetchpriority="high"
+                loading="eager"
+              />
             </div>
           </div>
           <div class="tape" style="top:-13px;left:44px;width:110px;height:30px;transform:rotate(-6deg)"></div>
@@ -163,8 +199,8 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=900');
               ></ellipse></svg
             ></span
           >
-          <span class="i18n-en">{t.endurance.kmSuffix.en(km.year)}</span>
-          <span class="i18n-fr">{t.endurance.kmSuffix.fr(km.year)}</span>
+          {/* Interpolated, so it takes the language directly rather than <T>. */}
+          {t.endurance.kmSuffix[SITE_LANG](km.year)}
         </p>
 
         <div class="pbs">
@@ -182,7 +218,10 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=900');
           }
         </div>
 
-        <a href="/toolbox/" class="wbcard">
+        {/* The workbench is its own site now, so this leaves the journal — hence
+            absolute, and a new tab, matching how the design treats every other
+            off-site link (Strava, GitHub, LinkedIn, Instagram). */}
+        <a href={WORKBENCH_ORIGIN} target="_blank" rel="noopener" class="wbcard">
           <div class="tape" style="top:-12px;left:50%;margin-left:-55px;width:110px;height:28px;transform:rotate(-2deg)"></div>
           <div class="wbcard-head">
             <span><T t={t.endurance.workbenchTitle} /></span>
@@ -226,8 +265,7 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=900');
         <div class="head head--journal">
           <div class="eyebrow"><T t={t.endurance.journalTitle} /></div>
           <div class="count">
-            <span class="i18n-en">{t.endurance.racesCount.en(races.length)}</span>
-            <span class="i18n-fr">{t.endurance.racesCount.fr(races.length)}</span>
+            {t.endurance.racesCount[SITE_LANG](races.length)}
           </div>
         </div>
         <div class="race-scroll">
@@ -862,6 +900,9 @@ Astro.response.headers.set('Cache-Control', 'public, max-age=0, s-maxage=900');
     width: 100%;
     height: 100%;
     object-fit: cover;
+    /* Framing is the design's, verbatim — moi.webp is the full uncropped 3:4
+       frame and these three values do the cropping. Do not retune them to suit
+       a re-exported photo: re-cut the photo instead. See scripts/check-framing.mjs. */
     object-position: 88% 26%;
     /* A hair of zoom to crop the frame edge out. */
     transform: scale(1.02);

@@ -6,15 +6,15 @@
 import type { ImageMetadata } from 'astro';
 import type { CountryCode } from '../components/Flag.astro';
 
-import annecy from '../assets/photos/annecy.jpeg';
-import boston from '../assets/photos/boston.jpeg';
-import crest from '../assets/photos/crest.jpeg';
-import edinburgh from '../assets/photos/edinburgh.jpeg';
-import newYork from '../assets/photos/new-york.jpeg';
-import paris from '../assets/photos/paris.jpeg';
-import ramen from '../assets/photos/ramen.jpeg';
-import tokyo from '../assets/photos/tokyo.jpeg';
-import vancouver from '../assets/photos/vancouver.jpeg';
+import annecy from '../assets/photos/annecy.webp';
+import boston from '../assets/photos/boston.webp';
+import crest from '../assets/photos/crest.webp';
+import edinburgh from '../assets/photos/edinburgh.webp';
+import newYork from '../assets/photos/new-york.webp';
+import paris from '../assets/photos/paris.webp';
+import ramen from '../assets/photos/ramen.webp';
+import tokyo from '../assets/photos/tokyo.webp';
+import vancouver from '../assets/photos/vancouver.webp';
 
 /** Which corners the washi tape holds the polaroid by. */
 export type TapeVariant = 'tc' | 'tl' | 'tr' | 'two';
