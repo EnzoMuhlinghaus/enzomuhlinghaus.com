@@ -93,7 +93,7 @@ export const fr: Messages = {
     blurb: 'De petits outils construits pour mon entraînement, partagés ici.',
     unitsLabel: 'UNITÉS — TOUS LES OUTILS',
     builtBy: 'Fait par Enzo Muhlinghaus —',
-    readJournal: 'venez lire mon journal ↗',
+    readJournal: 'venez lire mon journal',
     disclaimer:
       'estimations seulement · temps au format mm:ss ou h:mm:ss · basé sur le modèle VDOT de Jack Daniels',
   },

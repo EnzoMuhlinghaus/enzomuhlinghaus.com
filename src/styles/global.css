@@ -337,6 +337,18 @@ a {
   outline-offset: 3px;
 }
 
+/* A north-east arrow built from the plain typographic → rather than the ↗
+   glyph, which many platforms render with emoji presentation and which no
+   font here draws in the site's own hand. Straight from the design's toolbox
+   footer: `<span style="display:inline-block;transform:rotate(-45deg)">&rarr;</span>`.
+   inline-block is load-bearing — transforms don't apply to inline elements.
+   Note the journal's stamp-links (STRAVA ↗, GITHUB ↗ …) and the MAS card's
+   "what's this? ↗" use the literal ↗ *in the design*, so they stay as they are. */
+.arrow-ne {
+  display: inline-block;
+  transform: rotate(-45deg);
+}
+
 /* Typewriter link with the gold underline (STRAVA ↗, EMAIL, CV ⤓). */
 .stamp-link {
   font-family: var(--font-label);

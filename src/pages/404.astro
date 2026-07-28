@@ -18,12 +18,11 @@ import { SITE_ORIGIN, WORKBENCH_ORIGIN } from '../data/site';
       <div class="eyebrow">ENTRY NOT FOUND</div>
       <h1>This page got torn out.</h1>
       <p class="blurb">
-        Nothing lives at that address — a stale link, or a typo somewhere. The rest of the
-        journal is still bound.
+        Nothing lives at that address.
       </p>
       <nav class="ways" aria-label="Where to go instead">
         <a class="hand-link" href={SITE_ORIGIN}>← back to the journal</a>
-        <a class="hand-link" href={WORKBENCH_ORIGIN}>the workbench ↗</a>
+        <a class="hand-link" href={WORKBENCH_ORIGIN}>the workbench <span class="arrow-ne">→</span></a>
       </nav>
       <div class="folio">404</div>
     </div>

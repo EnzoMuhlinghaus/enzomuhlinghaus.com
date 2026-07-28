@@ -92,7 +92,8 @@ export const en = {
     blurb: 'Small tools built for my own training, shared here.',
     unitsLabel: 'UNITS — ALL TOOLS',
     builtBy: 'Built by Enzo Muhlinghaus —',
-    readJournal: 'come read my journal ↗',
+    // The arrow is markup, not copy — see `.arrow-ne` in global.css.
+    readJournal: 'come read my journal',
     // The design's line ends "· Strava Namer is a demo — connect your account
     // to run it live"; dropped while that tool is off the bench.
     disclaimer: 'estimates only · times accept mm:ss or h:mm:ss · Based on Jack Daniels’ VDOT model',
