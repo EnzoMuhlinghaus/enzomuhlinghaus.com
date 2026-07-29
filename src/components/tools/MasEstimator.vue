@@ -5,6 +5,7 @@ import { vo2Cost, vdotFromRace, velocityAtVO2max } from '../../lib/vdot';
 import { useUnit } from '../../lib/units';
 import { useMessages } from '../../i18n';
 import ToolCard from './ToolCard.vue';
+import HelpBubble from './HelpBubble.vue';
 
 const m = useMessages();
 const unit = useUnit();
@@ -175,7 +176,7 @@ const zones = computed(() =>
       <div>
         <div class="readout-label">
           <span>{{ m.mas.vo2Label }}</span>
-          <span class="iinfo" tabindex="0" role="note" :aria-label="m.mas.vo2Info">?<span class="tip">{{ m.mas.vo2Info }}</span></span>
+          <HelpBubble :text="m.mas.vo2Info" size="sm" />
         </div>
         <div class="readout-value">
           <strong>{{ vo2max == null ? '—' : vo2max.toFixed(1) }}</strong>
@@ -185,7 +186,7 @@ const zones = computed(() =>
       <div>
         <div class="readout-label">
           <span>{{ m.mas.masLabel }}</span>
-          <span class="iinfo" tabindex="0" role="note" :aria-label="m.mas.masInfo">?<span class="tip">{{ m.mas.masInfo }}</span></span>
+          <HelpBubble :text="m.mas.masInfo" size="sm" />
         </div>
         <div class="readout-value">
           <strong>{{ masKmh == null ? '—' : masKmh.toFixed(1) }}</strong>
@@ -200,7 +201,7 @@ const zones = computed(() =>
       <div v-for="z in zones" :key="z.key" class="leader zone">
         <span class="zone-name">
           <span>{{ z.name }}</span>
-          <span class="iinfo" tabindex="0" role="note" :aria-label="z.info">?<span class="tip">{{ z.info }}</span></span>
+          <HelpBubble :text="z.info" size="sm" />
         </span>
         <span class="zone-pct">{{ z.pct }}</span>
         <span class="leader__fill" />

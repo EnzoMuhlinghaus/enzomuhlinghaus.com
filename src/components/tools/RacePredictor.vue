@@ -5,6 +5,7 @@ import { vo2Cost, vdotFromRace, timeMinFromVdot } from '../../lib/vdot';
 import { useUnit } from '../../lib/units';
 import { useMessages } from '../../i18n';
 import ToolCard from './ToolCard.vue';
+import HelpBubble from './HelpBubble.vue';
 
 const m = useMessages();
 const unit = useUnit();
@@ -108,9 +109,7 @@ const predictions = computed(() => {
       <span class="result-label">{{ m.predictor.predicted }}</span>
       <span class="method">
         <span class="method-tag">{{ methodTag }}</span>
-        <span class="iinfo" tabindex="0" role="note" :aria-label="m.predictor.vdotHint"
-          >?<span class="tip tip--right">{{ m.predictor.vdotHint }}</span></span
-        >
+        <HelpBubble :text="m.predictor.vdotHint" size="sm" right />
       </span>
     </div>
     <div class="predictions">
