@@ -1657,6 +1657,43 @@ const jsonLd = [
     margin-top: 0;
   }
 
+  /* The travel collage is the one thing on the site laid out in the design's
+     absolute pixel coordinates: the polaroids reach 468px across, which the page
+     only affords once the book hits its 1240px design width. Narrower than that
+     the page shrinks but the coordinates don't, so the right-hand polaroids
+     (Boston, La Drôme) run past the page edge and #book's `overflow: clip` cuts
+     them — 43px at the worst point.
+
+     Scale the whole canvas instead of nudging individual photos, so the
+     composition the design drew is preserved rather than rearranged. Stepped
+     rather than computed, because dividing lengths in calc() is newer than the
+     browsers this otherwise supports. Each step takes the scale for the *bottom*
+     of its range, so it always under-scales rather than clipping. */
+  @media (min-width: 1061px) and (max-width: 1240px) {
+    .stack {
+      transform: scale(0.81);
+      transform-origin: top left;
+    }
+  }
+
+  @media (min-width: 1100px) and (max-width: 1240px) {
+    .stack {
+      transform: scale(0.85);
+    }
+  }
+
+  @media (min-width: 1150px) and (max-width: 1240px) {
+    .stack {
+      transform: scale(0.9);
+    }
+  }
+
+  @media (min-width: 1200px) and (max-width: 1240px) {
+    .stack {
+      transform: scale(0.95);
+    }
+  }
+
   /* ================= stacked layout ================= */
   @media (max-width: 1060px) {
     #shell {
