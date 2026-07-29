@@ -451,6 +451,28 @@ const jsonLd = [
       </Page>
       </div>
     </div>
+
+    {/* Outside #stage on purpose: a .page is display:none unless it is the
+        active spread, so a notice living inside Home would vanish the moment
+        you tapped another tab. Ships hidden and is revealed by the script
+        below only when it has not already been dismissed — the other way round
+        would flash it at every returning visitor before JS could hide it. */}
+    <aside id="pocket" class="pocket" hidden>
+      <div class="pocket-body">
+        <span class="pocket-label"><T t={t.home.pocketLabel} /></span>
+        <p class="pocket-note"><T t={t.home.pocketNote} /></p>
+      </div>
+      <button type="button" class="pocket-close" aria-label={t.home.pocketDismiss[SITE_LANG]}>
+        <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true">
+          <path
+            d="M3.5 3.5 L12.5 12.5 M12.5 3.5 L3.5 12.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"></path>
+        </svg>
+      </button>
+    </aside>
   </div>
 </Layout>
 
@@ -617,6 +639,44 @@ const jsonLd = [
         intro = null;
         turn(landing, true);
       }, INTRO_MS);
+    }
+  }
+
+  // ---- the "pocket edition" notice ----
+  // CSS keeps this display:none above the stacked breakpoint, so no width check
+  // is needed here — on a desktop the element simply never renders and clearing
+  // `hidden` is a no-op.
+  {
+    const KEY = 'pocket-note-dismissed';
+    const note = document.getElementById('pocket');
+
+    /** Private browsing can make localStorage throw on both read and write. */
+    const remembered = (): boolean => {
+      try {
+        return localStorage.getItem(KEY) === '1';
+      } catch {
+        return false;
+      }
+    };
+
+    if (note && !remembered()) {
+      note.hidden = false;
+      // Two frames: the first commits the un-hidden start state, the second
+      // flips the class so the transition has something to animate from.
+      requestAnimationFrame(() => requestAnimationFrame(() => note.classList.add('is-in')));
+
+      note.querySelector('.pocket-close')?.addEventListener('click', () => {
+        note.classList.remove('is-in');
+        try {
+          localStorage.setItem(KEY, '1');
+        } catch {
+          /* Nothing to remember it with — it just returns next visit. */
+        }
+        const done = () => note.setAttribute('hidden', '');
+        note.addEventListener('transitionend', done, { once: true });
+        // Belt and braces: transitionend never fires under reduced motion.
+        setTimeout(done, 300);
+      });
     }
   }
 </script>
@@ -1659,6 +1719,14 @@ const jsonLd = [
     margin-top: 0;
   }
 
+  /* Tells a phone reader the spread exists. Desktop never sees it — there it
+     would point at the very layout already on screen — so it is display:none
+     outright above the breakpoint and switched on in the stacked block.
+     `hidden` in the markup is a second, independent gate the script lifts. */
+  .pocket {
+    display: none;
+  }
+
   /* The travel collage is the one thing on the site laid out in the design's
      absolute pixel coordinates: the polaroids reach 468px across, which the page
      only affords once the book hits its 1240px design width. Narrower than that
@@ -1775,6 +1843,80 @@ const jsonLd = [
 
     .display--spread {
       font-size: 46px;
+    }
+
+    /* Floats over the paper rather than sitting in it, so it reads as chrome
+       you can close. Borrows the dark treatment the help tips already use —
+       the site's one established "floating above the page" surface. Pinned to
+       the bottom because the tab strip already owns the top. */
+    .pocket:not([hidden]) {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      z-index: 40;
+      background: var(--ink);
+      color: var(--on-desk);
+      padding: 13px 12px 13px 16px;
+      border-radius: 11px;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+      /* Slides up once the script clears `hidden`; the global
+         prefers-reduced-motion rule flattens the transition to nothing. */
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    .pocket.is-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .pocket-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pocket-label {
+      display: block;
+      font-family: var(--font-label);
+      font-size: 9.5px;
+      letter-spacing: 0.22em;
+      color: var(--gold);
+      margin-bottom: 3px;
+    }
+
+    .pocket-note {
+      font-family: var(--font-hand);
+      font-weight: 600;
+      font-size: 17px;
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .pocket-close {
+      flex-shrink: 0;
+      /* 44px of tappable area around a 15px glyph. */
+      width: 44px;
+      height: 44px;
+      margin: -6px -4px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 0;
+      padding: 0;
+      color: var(--faint);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .pocket-close:hover,
+    .pocket-close:focus-visible {
+      color: var(--on-desk);
     }
 
     /* The "say hi" scrap stays on Enzo's shoulder rather than dropping below
