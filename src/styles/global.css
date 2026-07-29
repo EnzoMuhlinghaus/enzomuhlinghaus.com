@@ -386,6 +386,49 @@ a {
   border-bottom-color: var(--red);
 }
 
+/* ---- touch targets ----
+   The design draws these small on purpose, and they are fine under a mouse —
+   so this grows them only where a finger is doing the pointing, leaving the
+   desktop metrics exactly as designed.
+
+   Chips and pills get real padding rather than an invisible expanded hit box:
+   they sit in wrapped rows ~33px apart, so 44px overlays would overlap each
+   other and the wrong one would catch the tap. Growing the row is what actually
+   separates them. Stamp links are a single row, so there an overlay is safe and
+   keeps the underline tight to the text. */
+@media (pointer: coarse) {
+  .chip {
+    padding: 11px 14px;
+  }
+
+  .pill {
+    padding: 14px 16px;
+  }
+
+  .pill--tight {
+    padding: 11px 13px;
+  }
+
+  .stamp-link {
+    position: relative;
+  }
+
+  .stamp-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
+  }
+
+  /* Sits on its own line, so growing it pushes nothing sideways. */
+  .hand-link {
+    min-height: 44px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

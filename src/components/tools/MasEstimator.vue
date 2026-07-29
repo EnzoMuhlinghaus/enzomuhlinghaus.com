@@ -249,6 +249,13 @@ const zones = computed(() =>
   padding: 7px 13px;
 }
 
+/* Scoped rule ties with the global coarse-pointer one, so restate it here. */
+@media (pointer: coarse) {
+  .pill--tight {
+    padding: 11px 13px;
+  }
+}
+
 .field {
   margin-bottom: 16px;
 }

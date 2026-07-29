@@ -157,6 +157,13 @@ const resultLabel = computed(() => {
   padding: 6px 11px;
 }
 
+/* Out-specifies the global coarse-pointer rule, so restate it here. */
+@media (pointer: coarse) {
+  .pill-row .pill {
+    padding: 14px 14px;
+  }
+}
+
 .fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
