@@ -1863,21 +1863,73 @@ const jsonLd = [
       display: none;
     }
 
-    /* The note + photo sit side by side on a full page; stacked, that row is
-       wider than the phone, so let it wrap. */
-    .race-shot {
-      margin: 24px 0 0;
-      align-self: flex-start;
-      flex-wrap: wrap;
+    /* Both photo notes follow "Homepage v2 Mobile.dc.html" (M02 Endurance, M03
+       Work): the caption stops sitting beside the photo pointing at it and
+       moves underneath, centred, with the photo run full width. column-reverse
+       does that without reordering the markup, which keeps the figcaption first
+       in the DOM where it belongs. The pointing squiggle goes with the side-by-
+       side arrangement — it is aria-hidden decoration and has nothing to point
+       at once the caption is below. */
+    .race-shot,
+    .note-photo {
+      flex-direction: column-reverse;
+      align-items: stretch;
+      align-self: stretch;
+      gap: 0;
     }
 
-    .race-shot-note span {
-      text-align: left;
+    .race-shot {
+      transform: rotate(1.4deg);
+      margin: 32px 12px 0;
     }
 
     .note-photo {
-      flex-wrap: wrap;
-      justify-content: flex-start;
+      transform: rotate(1.6deg);
+      margin: 30px 12px 20px;
+    }
+
+    /* The block carries the tilt now, so the frame inside it sits square. */
+    .race-shot-frame,
+    .note-shot {
+      width: 100%;
+      transform: none;
+    }
+
+    /* The design re-frames this one for the taller, full-width box: the crop
+       rides higher (5% vs the spread's 18%) so the finish chute reads instead
+       of filling with tarmac. Captain Wallet keeps its 50% 45% in both. */
+    .race-shot-img {
+      height: 200px;
+      object-position: 50% 5%;
+    }
+
+    .note-frame {
+      height: 180px;
+    }
+
+    .race-shot-note,
+    .note-caption {
+      justify-content: center;
+      transform: none;
+      margin-top: 6px;
+    }
+
+    .race-shot-note span,
+    .note-caption span {
+      font-size: 20px;
+      max-width: none;
+      text-align: center;
+    }
+
+    /* Direct child only — the flag rides inside the span and stays. */
+    .race-shot-note > svg,
+    .note-caption > svg {
+      display: none;
+    }
+
+    /* The design's mobile screens tape these once, at the top-left corner. */
+    .note-shot .tape:last-child {
+      display: none;
     }
 
     /* Polaroids fall out of their absolute stack into a plain column. */
