@@ -192,9 +192,17 @@ export const POLAROIDS_RIGHT: Polaroid[] = [
   },
 ];
 
-/** Absolute wrapper placement for one polaroid on a desktop-sized page. */
+/**
+ * Absolute wrapper placement for one polaroid on a desktop-sized page.
+ *
+ * `--tilt` carries the same rotation the inline transform applies. The stacked
+ * layout drops the absolute placement but keeps the tilt, and can only reach it
+ * through a custom property — an inline `transform` outranks a stylesheet rule,
+ * so Polaroid.astro's mobile block overrides it with `!important` and reads the
+ * angle back out of `--tilt`.
+ */
 export function polaroidStyle(p: Polaroid): string {
-  return `left:${p.x}px;top:${p.y}px;width:${p.w}px;transform:rotate(${p.rot}deg)`;
+  return `left:${p.x}px;top:${p.y}px;width:${p.w}px;--tilt:${p.rot}deg;transform:rotate(${p.rot}deg)`;
 }
 
 /** The one or two tape strips holding a polaroid down. */
