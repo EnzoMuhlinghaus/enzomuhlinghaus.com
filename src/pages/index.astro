@@ -567,9 +567,16 @@ const jsonLd = [
       }
     }
 
+    // Stacked, there is no fold to watch: Page.astro sets `animation: none`, so
+    // turn()'s two phases spend ~580ms showing the spread you just left before
+    // the content swaps. Nothing is animating in that window — it is pure delay,
+    // so jump straight there. `.matches` is live, so this stays right across a
+    // resize even though neither query carries a change listener.
+    const instant = () => reduced.matches || !folds.matches;
+
     const go = (target: number, fromHash = false) => {
       cancelIntro();
-      if (reduced.matches) {
+      if (instant()) {
         if (target !== spread && !fromHash) history.pushState(null, '', '#' + SPREADS[target]);
         jump(target);
       } else {
@@ -1768,10 +1775,12 @@ const jsonLd = [
       display: none;
     }
 
-    /* Stacked pages have no fixed height to pin against. */
+    /* The sticky tab strip reaches every spread from anywhere on the page, which
+       makes the sequential "turn the page" / "back" links redundant — and they
+       read oddly under a layout with no page to turn. The design's mobile screens
+       carry none of them either. */
     .page-nav {
-      position: static;
-      margin-top: 24px;
+      display: none;
     }
 
     /* The note + photo sit side by side on a full page; stacked, that row is
