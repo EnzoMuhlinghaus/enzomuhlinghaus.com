@@ -625,6 +625,8 @@ const jsonLd = [
   /* ================= the desk and the book ================= */
   #shell {
     min-height: 100vh;
+    /* svh keeps iOS Safari's collapsing toolbar from overshooting. */
+    min-height: 100svh;
     background: linear-gradient(180deg, var(--desk-top), var(--desk-bottom));
     display: flex;
     align-items: center;
