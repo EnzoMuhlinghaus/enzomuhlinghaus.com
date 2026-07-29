@@ -19,6 +19,29 @@ import vancouver from '../assets/photos/vancouver.webp';
 /** Which corners the washi tape holds the polaroid by. */
 export type TapeVariant = 'tc' | 'tl' | 'tr' | 'two';
 
+/**
+ * Per-photo framing, copied verbatim from the design's `.image-slots.state.json`.
+ *
+ * The design frames these photos with `<image-slot>`, which does NOT express its
+ * crop in the HTML — the pan/zoom set by dragging a photo inside its frame lives
+ * in that sidecar file, keyed by slot id (`travel-photo-<id>`). Reading only the
+ * HTML makes every polaroid look hard-centred, which is why four of them were
+ * cropping through their subject here while looking right in the design.
+ *
+ *   s  zoom multiplier on top of the cover baseline (1 = plain cover)
+ *   x  horizontal pan, in % of the frame; positive moves the photo right
+ *   y  vertical pan, in % of the frame; positive moves it down, revealing the top
+ *
+ * `framePosition()` in Polaroid.astro replays image-slot's own `_clampView` +
+ * `_applyView` against these numbers. Re-read the sidecar with DesignSync when
+ * the design's framing changes.
+ */
+export interface PhotoFrame {
+  s: number;
+  x: number;
+  y: number;
+}
+
 export interface Polaroid {
   id: string;
   /** null renders the hatched empty frame — the photo hasn't been added yet. */
@@ -32,6 +55,8 @@ export interface Polaroid {
   y: number;
   w: number;
   tape: TapeVariant;
+  /** Omitted where the design leaves the slot untouched (s:1, x:0, y:0). */
+  frame?: PhotoFrame;
 }
 
 export const POLAROIDS_LEFT: Polaroid[] = [
@@ -80,7 +105,7 @@ export const POLAROIDS_LEFT: Polaroid[] = [
     place: 'New York',
     country: 'US',
     year: '2022',
-    caption: 'first time; looked up the whole trip.',
+    caption: 'looked up the whole trip.',
     rot: -6,
     x: 244,
     y: 326,
@@ -116,6 +141,9 @@ export const POLAROIDS_RIGHT: Polaroid[] = [
     y: 50,
     w: 230,
     tape: 'tc',
+    // Slot id `travel-photo-valence` in the design's sidecar. The only one with
+    // a zoom: pushed in on the keep, which is small and high in the frame.
+    frame: { s: 1.4446765407862923, x: -8.47001487346849, y: -14.599219155093529 },
   },
   {
     id: 'kyoto',
@@ -129,6 +157,7 @@ export const POLAROIDS_RIGHT: Polaroid[] = [
     y: 262,
     w: 206,
     tape: 'tr',
+    frame: { s: 1, x: 0, y: 4.5805568802950125 },
   },
   {
     id: 'boston',
@@ -142,6 +171,7 @@ export const POLAROIDS_RIGHT: Polaroid[] = [
     y: 298,
     w: 198,
     tape: 'two',
+    frame: { s: 1, x: 0, y: 14.463244999827573 },
   },
   {
     id: 'edinburgh',
@@ -155,6 +185,10 @@ export const POLAROIDS_RIGHT: Polaroid[] = [
     y: 516,
     w: 190,
     tape: 'tc',
+    // Stored y exceeds this frame's own pan limit, so image-slot clamps it —
+    // the photo is pinned hard to its top edge. Kept verbatim; the clamp is
+    // reproduced in framePosition() rather than baked in here.
+    frame: { s: 1, x: 0, y: 28 },
   },
 ];
 

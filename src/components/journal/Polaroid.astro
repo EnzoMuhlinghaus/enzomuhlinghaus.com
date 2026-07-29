@@ -8,6 +8,42 @@ interface Props {
 }
 
 const { polaroid: p } = Astro.props;
+
+/** The photo window inside the mount: full width, fixed height (see .frame). */
+const FRAME_H = 150;
+/** .mount adds 10px of card either side of the photo. */
+const MOUNT_X = 20;
+
+/**
+ * Replays the design's `<image-slot>` geometry for a hand-framed photo.
+ *
+ * A port of image-slot.js `_geom` + `_clampView` + `_applyView`: the image is
+ * drawn at the cover baseline times the stored zoom, centred on
+ * (50+x)%, (50+y)% of the frame, and the pan is clamped to half the overflow —
+ * which is load-bearing for Edinburgh, whose stored pan runs past its own limit.
+ *
+ * Resolution-independent: the baseline cancels the source's pixel dimensions, so
+ * only the photo's *aspect* matters. That is exactly what check-framing.mjs
+ * pins, which is why downscaling a photo can't disturb this but cropping would.
+ */
+function framePosition(photo: ImageMetadata, w: number, f: NonNullable<Polaroid['frame']>) {
+  const fw = w - MOUNT_X;
+  const base = Math.max(fw / photo.width, FRAME_H / photo.height);
+  const k = base * f.s;
+  const overX = Math.max(0, ((photo.width * k) / fw - 1) * 50);
+  const overY = Math.max(0, ((photo.height * k) / FRAME_H - 1) * 50);
+  const x = Math.min(overX, Math.max(-overX, f.x));
+  const y = Math.min(overY, Math.max(-overY, f.y));
+  // Sized off whichever axis the baseline is driven by, so the other follows
+  // the natural aspect and the crop survives the frame changing width.
+  const axis =
+    photo.width / photo.height < fw / FRAME_H
+      ? `width:${(f.s * 100).toFixed(4)}%;height:auto`
+      : `height:${(f.s * 100).toFixed(4)}%;width:auto`;
+  return `${axis};left:${(50 + x).toFixed(4)}%;top:${(50 + y).toFixed(4)}%`;
+}
+
+const frameStyle = p.photo && p.frame ? framePosition(p.photo, p.w, p.frame) : undefined;
 ---
 
 <figure class="polaroid" style={polaroidStyle(p)}>
@@ -15,7 +51,14 @@ const { polaroid: p } = Astro.props;
     <div class="frame">
       {
         p.photo ? (
-          <Image src={p.photo} alt={`${p.place} — ${p.caption}`} width={480} loading="lazy" />
+          <Image
+            src={p.photo}
+            alt={`${p.place} — ${p.caption}`}
+            width={480}
+            loading="lazy"
+            class={frameStyle ? 'framed' : undefined}
+            style={frameStyle}
+          />
         ) : (
           <div class="photo-empty" aria-hidden="true" />
         )
@@ -63,6 +106,16 @@ const { polaroid: p } = Astro.props;
     height: 100%;
     object-fit: cover;
     display: block;
+  }
+
+  /* Hand-framed in the design: the inline style carries the size and the
+     centre point, so the plain cover-fill above must not fight it. Mirrors
+     `.frame img` in image-slot.js's shadow CSS. */
+  .frame :global(img.framed) {
+    position: absolute;
+    max-width: none;
+    object-fit: fill;
+    transform: translate(-50%, -50%);
   }
 
   .line {

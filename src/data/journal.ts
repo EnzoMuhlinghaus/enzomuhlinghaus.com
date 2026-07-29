@@ -2,9 +2,9 @@
 // that link to them from the Home right-hand page.
 import type { ImageMetadata } from 'astro';
 
-import desk from '../assets/photos/desk.webp';
+import annecy from '../assets/photos/annecy.webp';
+import captainWallet from '../assets/photos/captain-wallet.webp';
 import race703 from '../assets/photos/race-703-finish.webp';
-import vancouver from '../assets/photos/vancouver.webp';
 import type { Spread } from './spreads';
 
 export { SPREADS, type Spread } from './spreads';
@@ -52,9 +52,9 @@ export const JOURNAL_ROWS: JournalRow[] = [
     kicker: 'senior software engineer',
     blurb: '9+ years designing & scaling distributed systems',
     target: 'work',
-    photo: desk,
-    alt: 'my desk setup',
-    crop: { position: '55% 75%' },
+    photo: captainWallet,
+    alt: 'The Captain Wallet office in Paris',
+    crop: { position: '50% 50%' },
     rot: 2,
     tapes: [
       'top:-13px;left:-18px;width:58px;height:20px;transform:rotate(-42deg)',
@@ -68,9 +68,9 @@ export const JOURNAL_ROWS: JournalRow[] = [
     kicker: 'home is a moving target',
     blurb: 'Born in France, currently parked in Vancouver',
     target: 'travel',
-    photo: vancouver,
-    alt: 'Vancouver skyline from Stanley Park',
-    crop: { position: '60% 55%', scale: 1.2 },
+    photo: annecy,
+    alt: 'Lake Annecy from the hills above the town',
+    crop: { position: '50% 50%' },
     rot: -1.6,
     tapes: ['top:-15px;right:22px;width:64px;height:20px;transform:rotate(7deg)'],
     blurbRot: -0.5,

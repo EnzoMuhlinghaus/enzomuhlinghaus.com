@@ -14,11 +14,18 @@
 //
 // GROUND TRUTH — Claude Design project "Enzo's Personal Website Design"
 //   projectId 96d7b1a6-139c-4c81-af68-b170975927d0
-//   file      "Homepage v2: Field Journal.dc.html"
-//   read      2026-07-27 via the claude_design MCP (DesignSync → get_file)
+//   files     "Homepage v2: Field Journal.dc.html"  — the <img> inline styles
+//             ".image-slots.state.json"             — the polaroid pan/zoom
+//   read      2026-07-28 via the claude_design MCP (DesignSync → get_file)
 // The `design` field on each rule below is the verbatim inline style from that
 // file's <img> tag. If the design changes, re-read it with DesignSync and update
 // this file in the same commit as the CSS — never the CSS alone.
+//
+// READ BOTH FILES. The travel polaroids are <image-slot> elements whose framing
+// is NOT in the HTML: the pan/zoom set by dragging a photo inside its frame lives
+// in the .image-slots.state.json sidecar, keyed `travel-photo-<id>`. Reading only
+// the HTML makes every polaroid look hard-centred — which is exactly the bug this
+// section was added for, four photos cropping through their subject.
 
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -56,22 +63,35 @@ const RULES = [
     must: ["position: '47% 4%', scale: 1.6, origin: '47% 2%'"],
   },
   {
-    label: 'Home contents — desk thumb (128×96)',
+    label: 'Home contents — Captain Wallet thumb (128×96)',
     file: 'src/data/journal.ts',
-    design: 'width:128px;height:96px;object-fit:cover;object-position:55% 75%;display:block',
-    must: ["position: '55% 75%'"],
+    design: 'width:128px;height:96px;object-fit:cover;object-position:50% 50%;display:block',
+    must: ["photo: captainWallet", "crop: { position: '50% 50%' }"],
   },
   {
-    label: 'Home contents — Vancouver thumb (128×96)',
+    label: 'Home contents — Annecy thumb (128×96)',
     file: 'src/data/journal.ts',
-    design: 'width:128px;height:96px;object-fit:cover;object-position:60% 55%;display:block;transform:scale(1.2);transform-origin:60% 55%',
-    must: ["position: '60% 55%', scale: 1.2"],
+    design: 'width:128px;height:96px;object-fit:cover;object-position:50% 50%;display:block',
+    must: ["photo: annecy", "crop: { position: '50% 50%' }"],
   },
 ];
 
-// The design's polaroids are <image-slot shape="rect"> with no object-position,
-// i.e. the CSS default. An object-position appearing here would be an invention.
-const POLAROID = { file: 'src/components/journal/Polaroid.astro', mustNot: 'object-position' };
+// The design's polaroids are <image-slot shape="rect">, which frames via
+// left/top/size — never object-position. One appearing in the component would be
+// a hand-invented crop rather than a replay of the sidecar.
+const POLAROID = { file: 'src/components/journal/Polaroid.astro', mustNot: 'object-position:' };
+
+// Verbatim from .image-slots.state.json. Slots absent here are untouched in the
+// design (s:1, x:0, y:0) and must carry no `frame` in travel.ts. Note the design
+// calls La Drôme's slot `valence` where the repo's polaroid id is `drome`.
+const POLAROID_FRAMES = {
+  'travel-photo-kyoto': 'frame: { s: 1, x: 0, y: 4.5805568802950125 }',
+  'travel-photo-boston': 'frame: { s: 1, x: 0, y: 14.463244999827573 }',
+  'travel-photo-edinburgh': 'frame: { s: 1, x: 0, y: 28 }',
+  'travel-photo-valence':
+    'frame: { s: 1.4446765407862923, x: -8.47001487346849, y: -14.599219155093529 }',
+};
+const POLAROID_FRAME_COUNT = 4;
 
 // Every literal object-position in the page CSS must be one of the three above;
 // a fourth means someone framed a new image without recording it here.
@@ -87,7 +107,6 @@ const PHOTOS = {
   'annecy.webp': 0.75,
   'boston.webp': 0.75,
   'crest.webp': 0.75,
-  'desk.webp': 0.75,
   'edinburgh.webp': 0.75,
   'paris.webp': 0.75,
   'ramen.webp': 0.75,
@@ -146,7 +165,26 @@ for (const rule of RULES) {
 
 if (read(POLAROID.file).includes(POLAROID.mustNot)) {
   failures.push(
-    `Travel polaroids\n    ${POLAROID.file} sets ${POLAROID.mustNot}, but the design\n    uses <image-slot shape="rect"> with no object-position (CSS default).`,
+    `Travel polaroids\n    ${POLAROID.file} sets ${POLAROID.mustNot}, but the design frames\n` +
+      `    <image-slot> via left/top/size. Replay the sidecar, don't invent a crop.`,
+  );
+}
+
+const travel = read('src/data/travel.ts');
+for (const [slot, frame] of Object.entries(POLAROID_FRAMES)) {
+  if (!travel.includes(frame)) {
+    failures.push(
+      `Travel polaroid ${slot}\n    src/data/travel.ts is missing:  ${frame}\n` +
+        `    .image-slots.state.json is the source for this — re-read it with DesignSync.`,
+    );
+  }
+}
+const frameCount = (travel.match(/frame: \{/g) ?? []).length;
+if (frameCount !== POLAROID_FRAME_COUNT) {
+  failures.push(
+    `src/data/travel.ts has ${frameCount} polaroid frames, expected ${POLAROID_FRAME_COUNT}.\n` +
+      `    Every framed slot must correspond to a non-default entry in the design's\n` +
+      `    .image-slots.state.json — and every non-default entry must appear here.`,
   );
 }
 

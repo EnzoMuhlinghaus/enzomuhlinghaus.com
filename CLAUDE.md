@@ -88,6 +88,15 @@ Any other page file in that project is from a superseded design — ignore it.
   design's values verbatim alongside each photo's expected aspect ratio and fails on either
   kind of drift. When the design genuinely changes, re-read it with the claude_design MCP
   (`DesignSync` → `get_file`) and update that script **in the same commit** as the CSS.
+- **The travel polaroids are framed in a file that isn't the HTML.** They are `<image-slot>`
+  elements, and the pan/zoom applied by dragging a photo inside its frame is persisted to
+  **`.image-slots.state.json`** in the design project, keyed `travel-photo-<id>` — *not* to any
+  attribute you can see in the page markup. Read only the HTML and every polaroid looks
+  hard-centred, which silently crops through the subject on any photo framed by hand. Those
+  numbers live in `travel.ts` as `frame: { s, x, y }`, and `framePosition()` in `Polaroid.astro`
+  is a direct port of image-slot's `_geom` + `_clampView` + `_applyView` (the clamp matters:
+  Edinburgh's stored pan exceeds its own frame's limit). Slots absent from the sidecar are
+  untouched and carry no `frame`. **Whenever you re-read the design, read the sidecar too.**
 - **Hosting**: **Cloudflare Workers** at `enzomuhlinghaus.com`, via `@astrojs/cloudflare` +
   `wrangler.jsonc`. Prerendered pages are served from the edge; only `/` invokes the Worker.
   **Deploys are Cloudflare Workers Builds**, configured in the Cloudflare dashboard (Worker →
