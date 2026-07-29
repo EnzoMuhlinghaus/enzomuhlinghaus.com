@@ -1762,9 +1762,89 @@ const jsonLd = [
       gap: 16px;
     }
 
+    /* Stacked, the page scrolls on its own — a capped inner scroller here is a
+       trap on touch, since its scrollbar is hidden and a swipe inside it never
+       reaches the page. Let the list flow instead. */
     .race-scroll {
-      max-height: 480px;
-      padding-right: 8px;
+      overflow-y: visible;
+      padding-right: 0;
+      gap: 15px;
+    }
+
+    /* The spread's three side-by-side columns don't survive a phone: the date
+       takes a fixed 82px and the result column another chunk, leaving the name
+       about 140px, so "BMO Vancouver Half Marathon" wrapped to four lines in a
+       139px-tall row while the outer columns sat half empty.
+
+       "Homepage v2 Mobile.dc.html" (M02) turns the row on its side instead —
+       name and time on one line, then date · place · rank underneath. The name
+       gets the full width and the row costs two lines however long the name is.
+
+       display:contents dissolves .race-main and .race-result so their children
+       become grid items of .race directly, which is what lets the name pair
+       with the time and the date with the rank across the original wrappers.
+       Both are plain divs carrying no role, so nothing semantic is lost. */
+    .race {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      /* row-gap explicitly: the base rule's `gap: 14px` was a flex column gap,
+         and as a grid it would apply to the rows too — 28px of dead space
+         inside every entry. The design sets the lines 1px apart. */
+      column-gap: 8px;
+      row-gap: 2px;
+      align-items: baseline;
+    }
+
+    .race-main,
+    .race-result {
+      display: contents;
+    }
+
+    .race-name {
+      grid-area: 1 / 1 / 2 / 3;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .race-time,
+    .up-next {
+      grid-area: 1 / 3 / 2 / 4;
+      white-space: nowrap;
+      font-size: 21px;
+    }
+
+    .race-day {
+      grid-area: 2 / 1 / 3 / 2;
+      width: auto;
+      font-size: 16px;
+    }
+
+    .race-rank {
+      grid-area: 2 / 3 / 3 / 4;
+      font-size: 15px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    /* Its own full-width line rather than a third column on the date's row.
+       Boxed between the date and the placing it got ~150px against the ~240px
+       "Road Running · Half · Vancouver, CA" needs, so every entry wrapped and
+       some orphaned their flag onto a line of its own. Spanning all three
+       columns it fits on one line, and the row ends up shorter than the
+       wrapped version despite using a third grid row. */
+    .race-meta {
+      grid-area: 3 / 1 / 4 / 4;
+      font-size: 16px;
+      margin-top: 0;
+    }
+
+    /* Inline, not hanging off the result column: there is no gutter left to
+       hang into once .race-scroll drops its padding. */
+    .pr {
+      position: static;
+      display: inline-block;
+      transform: rotate(-8deg);
+      margin-left: 5px;
     }
 
     .km {
