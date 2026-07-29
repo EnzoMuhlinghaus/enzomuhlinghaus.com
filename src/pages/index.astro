@@ -1673,23 +1673,39 @@ const jsonLd = [
     }
 
     /* Tabs become a horizontal strip above the book — the vertical spine
-       tabs have nowhere to live once the spread is a single column. */
+       tabs have nowhere to live once the spread is a single column.
+       Sticky, because a stacked spread runs 1700–2200px and the tabs are the
+       only way to reach another one: unpinned, switching spread means scrolling
+       all the way back to the top. The negative margin bleeds the band out to
+       #shell's padding edge; the matching padding puts the inset back. */
     #tabs {
       order: -1;
+      position: sticky;
+      top: 0;
+      z-index: 30;
       display: flex;
       gap: 6px;
-      padding: 0 0 12px;
+      margin: -14px -10px 12px;
+      padding: 12px 10px 10px;
+      background: #ecdfc2;
+      border-bottom: 1.5px solid rgba(140, 110, 70, 0.4);
+      box-shadow: 0 4px 10px rgba(60, 40, 15, 0.14);
       justify-content: center;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
 
     .tab,
     .tab[data-pos='l'],
     .tab[data-pos='r'] {
       position: static;
+      flex: 1;
       height: auto;
       width: auto;
-      padding: 7px 14px;
+      min-width: 0;
+      /* Explicit, rather than trusting padding + an 11px line box to land on 44. */
+      min-height: 44px;
+      align-items: center;
+      padding: 12px 4px;
       border-radius: 999px;
       box-shadow: none;
       justify-content: center;
