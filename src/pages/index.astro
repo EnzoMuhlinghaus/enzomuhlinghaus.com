@@ -1738,12 +1738,20 @@ const jsonLd = [
       font-size: 46px;
     }
 
+    /* The "say hi" scrap stays on Enzo's shoulder rather than dropping below
+       him. It wraps only because the card's natural width plus the name exceeds
+       a phone: min-width:0 lets the card shrink past that instead, and
+       .scrap-links already wraps internally, so it reflows its three stamps
+       rather than overflowing. */
     .hero {
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      gap: 12px;
     }
 
     .scrap {
-      margin-left: 0;
+      margin-left: auto;
+      min-width: 0;
+      padding: 12px 14px 10px;
     }
 
     .tagline {
