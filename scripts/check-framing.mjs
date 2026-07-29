@@ -37,12 +37,19 @@ const read = (p) => readFileSync(join(root, p), 'utf8');
 // ---------------------------------------------------------------- CSS framing
 
 const RULES = [
+  // THE ONE RULE THAT IS NOT THE DESIGN'S. The design's hero is `88% 26%` over a
+  // 3:4 photo; the shipped hero is `88% 36%` over a 900×996 one. Both halves were
+  // changed together on 2026-07-29 — a tighter re-cut of the same photo, and the
+  // y shifted to put the head back on the frame's centre line. Kept in the same
+  // shape as the others so the pair still has to move together. If the design's
+  // hero is ever re-read and this photo goes back to its uncropped frame, this
+  // rule reverts to `object-position: 88% 26%` and PHOTOS['moi.webp'] to 0.75.
   {
-    label: 'Home hero — the mounted print',
+    label: 'Home hero — the mounted print (re-cut, not the design)',
     file: 'src/pages/index.astro',
     design:
       'width:100%;height:363px;object-fit:cover;object-position:88% 26%;display:block;transform:scale(1.02);transform-origin:75% 30%',
-    must: ['height: 363px;', 'object-position: 88% 26%;', 'transform: scale(1.02);', 'transform-origin: 75% 30%;'],
+    must: ['height: 363px;', 'object-position: 88% 36%;', 'transform: scale(1.02);', 'transform-origin: 75% 30%;'],
   },
   {
     label: 'Endurance — the 70.3 finish shot',
@@ -122,7 +129,11 @@ const EXPECTED_LITERAL_POSITIONS = 4;
 // does. Tolerance absorbs integer rounding from a resize, nothing more.
 const ASPECT_TOLERANCE = 0.01;
 const PHOTOS = {
-  'moi.webp': 0.75,
+  // The one deliberate exception to "these are the uncropped frames": the hero
+  // print was re-cut tighter from the same photo (2026-07-29), trading away most
+  // of the table below the bowl. Its object-position moved with it, to 88% 36% —
+  // see the hero rule above and the note in index.astro's .print-frame.
+  'moi.webp': 900 / 996,
   'annecy.webp': 0.75,
   'boston.webp': 0.75,
   'crest.webp': 0.75,
