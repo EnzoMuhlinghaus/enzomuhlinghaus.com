@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, useId } from 'vue';
 import { KM_PER_MI, parseTime, formatTime } from '../../lib/time';
 import { useUnit } from '../../lib/units';
 import { useMessages } from '../../i18n';
@@ -7,6 +7,8 @@ import ToolCard from './ToolCard.vue';
 
 const m = useMessages();
 const unit = useUnit();
+/** Prefix for the label/input `for` pairs — unique per mounted card. */
+const uid = useId();
 
 type Mode = 'pace' | 'time' | 'distance';
 const MODES: Mode[] = ['pace', 'time', 'distance'];
@@ -104,16 +106,27 @@ const resultLabel = computed(() => {
 
     <div class="fields">
       <div v-if="mode !== 'distance'">
-        <div class="field-label">{{ m.pace.distanceLabel }} ({{ unit.toUpperCase() }})</div>
-        <input v-model="distanceValue" type="text" class="wf" placeholder="10" />
+        <label class="field-label" :for="`${uid}-dist`">
+          {{ m.pace.distanceLabel }} ({{ unit.toUpperCase() }})
+        </label>
+        <input
+          :id="`${uid}-dist`"
+          v-model="distanceValue"
+          type="text"
+          inputmode="decimal"
+          class="wf"
+          placeholder="10"
+        />
       </div>
       <div v-if="mode !== 'time'">
-        <div class="field-label">{{ m.pace.timeLabel }}</div>
-        <input v-model="timeValue" type="text" class="wf" placeholder="40:00" />
+        <label class="field-label" :for="`${uid}-time`">{{ m.pace.timeLabel }}</label>
+        <input :id="`${uid}-time`" v-model="timeValue" type="text" class="wf" placeholder="40:00" />
       </div>
       <div v-if="mode !== 'pace'">
-        <div class="field-label">{{ m.pace.paceLabel }} (/{{ unit.toUpperCase() }})</div>
-        <input v-model="paceValue" type="text" class="wf" placeholder="4:00" />
+        <label class="field-label" :for="`${uid}-pace`">
+          {{ m.pace.paceLabel }} (/{{ unit.toUpperCase() }})
+        </label>
+        <input :id="`${uid}-pace`" v-model="paceValue" type="text" class="wf" placeholder="4:00" />
       </div>
     </div>
 
@@ -152,6 +165,7 @@ const resultLabel = computed(() => {
 }
 
 .field-label {
+  display: block;
   font-family: var(--font-label);
   font-size: 10px;
   letter-spacing: 0.12em;

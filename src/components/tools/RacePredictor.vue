@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, useId } from 'vue';
 import { KM_PER_MI, parseTime, formatTime } from '../../lib/time';
 import { vo2Cost, vdotFromRace, timeMinFromVdot } from '../../lib/vdot';
 import { useUnit } from '../../lib/units';
@@ -9,6 +9,8 @@ import HelpBubble from './HelpBubble.vue';
 
 const m = useMessages();
 const unit = useUnit();
+/** Prefix for the label/input `for` pairs — unique per mounted card. */
+const uid = useId();
 
 const ORDER = ['5K', '10K', 'Half', 'Marathon'] as const;
 type Dist = (typeof ORDER)[number];
@@ -95,14 +97,29 @@ const predictions = computed(() => {
         </button>
       </div>
       <div class="field">
-        <div class="field-label">{{ m.predictor.yourTimeFor(distLabel(selected)) }}</div>
-        <input v-model="rawTime" type="text" class="wf wf--sm" :placeholder="DEFAULTS[selected]" />
+        <label class="field-label" :for="`${uid}-time`">
+          {{ m.predictor.yourTimeFor(distLabel(selected)) }}
+        </label>
+        <input
+          :id="`${uid}-time`"
+          v-model="rawTime"
+          type="text"
+          class="wf wf--sm"
+          :placeholder="DEFAULTS[selected]"
+        />
       </div>
     </template>
 
     <div v-else class="field">
-      <div class="field-label">{{ m.predictor.masFieldLabel }}</div>
-      <input v-model="masValue" type="text" class="wf wf--sm" placeholder="16.5" />
+      <label class="field-label" :for="`${uid}-mas`">{{ m.predictor.masFieldLabel }}</label>
+      <input
+        :id="`${uid}-mas`"
+        v-model="masValue"
+        type="text"
+        inputmode="decimal"
+        class="wf wf--sm"
+        placeholder="16.5"
+      />
     </div>
 
     <div class="result-head result-rule">
@@ -125,6 +142,7 @@ const predictions = computed(() => {
 
 <style scoped>
 .field-label {
+  display: block;
   font-family: var(--font-label);
   font-size: 10px;
   letter-spacing: 0.12em;
