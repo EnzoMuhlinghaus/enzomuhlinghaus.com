@@ -21,6 +21,11 @@ export const en = {
     tagline: 'curious about everything.',
     sayHi: 'say hi',
     meLabel: 'me',
+    // The dismissible notice shown only in the stacked layout — see .pocket.
+    pocketLabel: 'POCKET EDITION',
+    pocketNote:
+      'The full journal opens as a two-page spread on a wider screen.',
+    pocketDismiss: 'Dismiss',
     turnPage: 'turn the page ➝',
     back: '⟵ back',
     backHome: 'back home ➝',

@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, useId } from 'vue';
 import { KM_PER_MI, parseTime, formatTime } from '../../lib/time';
 import { vo2Cost, vdotFromRace, velocityAtVO2max } from '../../lib/vdot';
 import { useUnit } from '../../lib/units';
 import { useMessages } from '../../i18n';
 import ToolCard from './ToolCard.vue';
+import HelpBubble from './HelpBubble.vue';
 
 const m = useMessages();
 const unit = useUnit();
+/** Prefix for the label/input `for` pairs — unique per mounted card. */
+const uid = useId();
 
 const ORDER = ['1500m', '1 Mile', '3000m', '5K', '10K', 'Half', 'Marathon'] as const;
 const DIST_KM: Record<string, number> = {
@@ -141,8 +144,16 @@ const zones = computed(() =>
         </button>
       </div>
       <div class="field">
-        <div class="field-label">{{ m.mas.yourTimeFor(distLabel(selected)) }}</div>
-        <input v-model="rawTime" type="text" class="wf wf--sm" :placeholder="DEFAULTS[selected]" />
+        <label class="field-label" :for="`${uid}-time`">
+          {{ m.mas.yourTimeFor(distLabel(selected)) }}
+        </label>
+        <input
+          :id="`${uid}-time`"
+          v-model="rawTime"
+          type="text"
+          class="wf wf--sm"
+          :placeholder="DEFAULTS[selected]"
+        />
       </div>
     </template>
 
@@ -160,9 +171,16 @@ const zones = computed(() =>
         </button>
       </div>
       <div class="field">
-        <div class="field-label">{{ m.mas.testLabels[protocol] }}</div>
+        <label class="field-label" :for="`${uid}-test`">{{ m.mas.testLabels[protocol] }}</label>
         <div class="test-row">
-          <input v-model="testValue" type="text" class="wf wf--sm" :placeholder="TEST_DEFAULTS[protocol]" />
+          <input
+            :id="`${uid}-test`"
+            v-model="testValue"
+            type="text"
+            inputmode="decimal"
+            class="wf wf--sm"
+            :placeholder="TEST_DEFAULTS[protocol]"
+          />
           <p class="test-hint">
             {{ m.mas.testHints[protocol] }}
             <a :href="TEST_WIKI[protocol]" target="_blank" rel="noopener">{{ m.mas.whatsThis }}</a>
@@ -175,7 +193,7 @@ const zones = computed(() =>
       <div>
         <div class="readout-label">
           <span>{{ m.mas.vo2Label }}</span>
-          <span class="iinfo" tabindex="0" role="note" :aria-label="m.mas.vo2Info">?<span class="tip">{{ m.mas.vo2Info }}</span></span>
+          <HelpBubble :text="m.mas.vo2Info" size="sm" />
         </div>
         <div class="readout-value">
           <strong>{{ vo2max == null ? '—' : vo2max.toFixed(1) }}</strong>
@@ -185,7 +203,7 @@ const zones = computed(() =>
       <div>
         <div class="readout-label">
           <span>{{ m.mas.masLabel }}</span>
-          <span class="iinfo" tabindex="0" role="note" :aria-label="m.mas.masInfo">?<span class="tip">{{ m.mas.masInfo }}</span></span>
+          <HelpBubble :text="m.mas.masInfo" size="sm" />
         </div>
         <div class="readout-value">
           <strong>{{ masKmh == null ? '—' : masKmh.toFixed(1) }}</strong>
@@ -200,7 +218,7 @@ const zones = computed(() =>
       <div v-for="z in zones" :key="z.key" class="leader zone">
         <span class="zone-name">
           <span>{{ z.name }}</span>
-          <span class="iinfo" tabindex="0" role="note" :aria-label="z.info">?<span class="tip">{{ z.info }}</span></span>
+          <HelpBubble :text="z.info" size="sm" />
         </span>
         <span class="zone-pct">{{ z.pct }}</span>
         <span class="leader__fill" />
@@ -212,6 +230,7 @@ const zones = computed(() =>
 
 <style scoped>
 .field-label {
+  display: block;
   font-family: var(--font-label);
   font-size: 10px;
   letter-spacing: 0.12em;
@@ -228,6 +247,13 @@ const zones = computed(() =>
 
 .pill--tight {
   padding: 7px 13px;
+}
+
+/* Scoped rule ties with the global coarse-pointer one, so restate it here. */
+@media (pointer: coarse) {
+  .pill--tight {
+    padding: 11px 13px;
+  }
 }
 
 .field {

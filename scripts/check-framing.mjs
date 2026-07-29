@@ -56,6 +56,24 @@ const RULES = [
     design: 'width:100%;height:170px;object-fit:cover;object-position:50% 45%;display:block',
     must: ['height: 170px;', 'object-position: 50% 45%;'],
   },
+  // The two photo notes are the only images the design frames twice — the phone
+  // runs them full width and taller. Do not assume the mobile crop matches the
+  // spread's: the 70.3 shot is re-framed to 50% 5% for the taller box, while
+  // Captain Wallet keeps 50% 45%. Reading the height and carrying the desktop
+  // object-position over is exactly the mistake this rule now catches.
+  // GROUND TRUTH "Homepage v2 Mobile.dc.html", screens M02 Endurance / M03 Work.
+  {
+    label: 'Endurance — the 70.3 finish shot (mobile)',
+    file: 'src/pages/index.astro',
+    design: 'width:100%;height:200px;object-fit:cover;object-position:50% 5%;display:block',
+    must: ['height: 200px;', 'object-position: 50% 5%;'],
+  },
+  {
+    label: 'Work — the Captain Wallet office note (mobile)',
+    file: 'src/pages/index.astro',
+    design: 'width:100%;height:180px;object-fit:cover;object-position:50% 45%;display:block',
+    must: ['height: 180px;'],
+  },
   {
     label: 'Home contents — 70.3 thumb (128×96)',
     file: 'src/data/journal.ts',
@@ -93,9 +111,10 @@ const POLAROID_FRAMES = {
 };
 const POLAROID_FRAME_COUNT = 4;
 
-// Every literal object-position in the page CSS must be one of the three above;
-// a fourth means someone framed a new image without recording it here.
-const EXPECTED_LITERAL_POSITIONS = 3;
+// Every literal object-position in the page CSS must be one of those above; one
+// more means someone framed an image without recording it here. Four, not three:
+// the 70.3 finish shot is framed twice, once per layout.
+const EXPECTED_LITERAL_POSITIONS = 4;
 
 // ------------------------------------------------------------ photo geometry
 // Aspect = width/height of the committed file. These are the *uncropped* source
@@ -230,7 +249,8 @@ if (untracked.length) {
 if (failures.length) {
   console.error(`\n✗ framing has drifted from the design (${failures.length} problem${failures.length > 1 ? 's' : ''}):\n`);
   for (const f of failures) console.error(`  • ${f}\n`);
-  console.error('  Ground truth: "Homepage v2: Field Journal.dc.html" in the Claude Design');
+  console.error('  Ground truth: "Homepage v2: Field Journal.dc.html", or for a rule marked');
+  console.error('  (mobile), "Homepage v2 Mobile.dc.html" — both in the Claude Design');
   console.error('  project 96d7b1a6-139c-4c81-af68-b170975927d0 (DesignSync → get_file).\n');
   process.exit(1);
 }

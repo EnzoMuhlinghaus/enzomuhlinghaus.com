@@ -73,6 +73,8 @@ const jsonLd = {
      `.bench-page` only exists on this page, so nothing else is touched. */
   .bench-page {
     min-height: 100vh;
+    /* svh keeps iOS Safari's collapsing toolbar from overshooting. */
+    min-height: 100svh;
     background: radial-gradient(ellipse 120% 80% at 50% -10%, var(--bench-top), var(--bench-bottom));
     padding: 34px 30px 64px;
     box-sizing: border-box;

@@ -198,10 +198,14 @@ const { index, side, folio, label } = Astro.props;
       border-radius: 0;
     }
 
+    /* Folios number the leaves of an open book. Stacked, there are no leaves —
+       each spread is one scrolling column — so the numbers count nothing, and
+       they go with .page-nav for the same reason.
+       NOTE this is a deliberate divergence: "Homepage v2 Mobile.dc.html" does
+       carry a folio on every mobile screen. Dropped here by request. */
     .folio,
     .page[data-side='r'] .folio {
-      left: auto;
-      right: 22px;
+      display: none;
     }
   }
 </style>

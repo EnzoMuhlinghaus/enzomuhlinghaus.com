@@ -150,7 +150,10 @@ const frameStyle = p.photo && p.frame ? framePosition(p.photo, p.w, p.frame) : u
     margin-top: 1px;
   }
 
-  /* Stacked layout: the hand-placed coordinates stop making sense. */
+  /* Stacked layout: the hand-placed coordinates stop making sense, but the
+     tilt does — each photo keeps its own. `--tilt` is set alongside the inline
+     transform by polaroidStyle(); the !important is what lets a stylesheet rule
+     beat that inline transform at all. */
   @media (max-width: 1060px) {
     .polaroid {
       position: static !important;

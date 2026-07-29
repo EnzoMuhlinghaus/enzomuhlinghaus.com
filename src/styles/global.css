@@ -226,7 +226,7 @@ a {
   border-top: 1.5px dashed rgba(154, 130, 88, 0.45);
 }
 
-/* ---- Help bubbles: "?" with a dark tip on hover ---- */
+/* ---- Help bubbles: "?" with a dark tip, on hover or on press ---- */
 .info,
 .iinfo {
   position: relative;
@@ -235,11 +235,27 @@ a {
   justify-content: center;
   border-radius: 50%;
   border: 1.5px solid var(--gold);
+  background: none;
+  padding: 0;
   color: var(--gold);
   font-family: var(--font-mono);
   font-weight: 700;
   cursor: help;
+  -webkit-tap-highlight-color: transparent;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+/* The drawn circle is 15–23px because the design says so, which is far under a
+   thumb. Expand what you can *hit* to 44px without touching what you can see. */
+.info::after,
+.iinfo::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
 }
 
 .info {
@@ -257,7 +273,9 @@ a {
 .info:hover,
 .iinfo:hover,
 .info:focus-visible,
-.iinfo:focus-visible {
+.iinfo:focus-visible,
+.info[aria-expanded='true'],
+.iinfo[aria-expanded='true'] {
   background: var(--red);
   border-color: var(--red);
   color: var(--paper-l);
@@ -300,10 +318,14 @@ a {
   right: -2px;
 }
 
+/* Hover is the mouse path; aria-expanded is the press path, and the only one
+   that exists on touch. */
 .info:hover .tip,
 .iinfo:hover .tip,
 .info:focus-visible .tip,
-.iinfo:focus-visible .tip {
+.iinfo:focus-visible .tip,
+.info[aria-expanded='true'] .tip,
+.iinfo[aria-expanded='true'] .tip {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -362,6 +384,49 @@ a {
 .stamp-link:hover {
   color: var(--ink);
   border-bottom-color: var(--red);
+}
+
+/* ---- touch targets ----
+   The design draws these small on purpose, and they are fine under a mouse —
+   so this grows them only where a finger is doing the pointing, leaving the
+   desktop metrics exactly as designed.
+
+   Chips and pills get real padding rather than an invisible expanded hit box:
+   they sit in wrapped rows ~33px apart, so 44px overlays would overlap each
+   other and the wrong one would catch the tap. Growing the row is what actually
+   separates them. Stamp links are a single row, so there an overlay is safe and
+   keeps the underline tight to the text. */
+@media (pointer: coarse) {
+  .chip {
+    padding: 11px 14px;
+  }
+
+  .pill {
+    padding: 14px 16px;
+  }
+
+  .pill--tight {
+    padding: 11px 13px;
+  }
+
+  .stamp-link {
+    position: relative;
+  }
+
+  .stamp-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
+  }
+
+  /* Sits on its own line, so growing it pushes nothing sideways. */
+  .hand-link {
+    min-height: 44px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

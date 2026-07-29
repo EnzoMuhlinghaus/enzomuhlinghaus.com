@@ -32,6 +32,8 @@ import { SITE_ORIGIN, WORKBENCH_ORIGIN } from '../data/site';
 <style>
   .desk {
     min-height: 100vh;
+    /* svh keeps iOS Safari's collapsing toolbar from overshooting. */
+    min-height: 100svh;
     display: flex;
     align-items: center;
     justify-content: center;

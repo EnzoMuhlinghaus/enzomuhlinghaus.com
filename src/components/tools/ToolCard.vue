@@ -2,6 +2,8 @@
 // One paper tool card on the bench. Every card shares this anatomy:
 // No. + "?" help bubble, felt-tip name, one-line subtitle, then the controls.
 // Design System v2 §08.
+import HelpBubble from './HelpBubble.vue';
+
 defineProps<{
   no: string;
   title: string;
@@ -18,7 +20,7 @@ defineProps<{
   <section class="card" :data-tone="tone" :id="anchor">
     <div class="card-head">
       <span class="card-no">No. {{ no }}</span>
-      <span class="info" tabindex="0" role="note" :aria-label="help">?<span class="tip">{{ help }}</span></span>
+      <HelpBubble :text="help" />
     </div>
     <h2 class="card-title">{{ title }}</h2>
     <p class="card-sub">{{ subtitle }}</p>

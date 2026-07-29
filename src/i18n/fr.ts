@@ -24,6 +24,10 @@ export const fr: Messages = {
     tagline: 'curious about everything.',
     sayHi: 'say hi',
     meLabel: 'me',
+    pocketLabel: 'POCKET EDITION',
+    pocketNote:
+      'The full journal opens as a two-page spread on a wider screen.',
+    pocketDismiss: 'Dismiss',
     turnPage: 'turn the page ➝',
     back: '⟵ back',
     backHome: 'back home ➝',
