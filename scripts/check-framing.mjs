@@ -15,7 +15,7 @@
 // GROUND TRUTH — Claude Design project "Enzo's Personal Website Design"
 //   projectId 96d7b1a6-139c-4c81-af68-b170975927d0
 //   file      "Homepage v2: Field Journal.dc.html"
-//   read      2026-07-27 via the claude_design MCP (DesignSync → get_file)
+//   read      2026-07-28 via the claude_design MCP (DesignSync → get_file)
 // The `design` field on each rule below is the verbatim inline style from that
 // file's <img> tag. If the design changes, re-read it with DesignSync and update
 // this file in the same commit as the CSS — never the CSS alone.
@@ -56,16 +56,16 @@ const RULES = [
     must: ["position: '47% 4%', scale: 1.6, origin: '47% 2%'"],
   },
   {
-    label: 'Home contents — desk thumb (128×96)',
+    label: 'Home contents — Captain Wallet thumb (128×96)',
     file: 'src/data/journal.ts',
-    design: 'width:128px;height:96px;object-fit:cover;object-position:55% 75%;display:block',
-    must: ["position: '55% 75%'"],
+    design: 'width:128px;height:96px;object-fit:cover;object-position:50% 50%;display:block',
+    must: ["photo: captainWallet", "crop: { position: '50% 50%' }"],
   },
   {
-    label: 'Home contents — Vancouver thumb (128×96)',
+    label: 'Home contents — Annecy thumb (128×96)',
     file: 'src/data/journal.ts',
-    design: 'width:128px;height:96px;object-fit:cover;object-position:60% 55%;display:block;transform:scale(1.2);transform-origin:60% 55%',
-    must: ["position: '60% 55%', scale: 1.2"],
+    design: 'width:128px;height:96px;object-fit:cover;object-position:50% 50%;display:block',
+    must: ["photo: annecy", "crop: { position: '50% 50%' }"],
   },
 ];
 
@@ -87,7 +87,6 @@ const PHOTOS = {
   'annecy.webp': 0.75,
   'boston.webp': 0.75,
   'crest.webp': 0.75,
-  'desk.webp': 0.75,
   'edinburgh.webp': 0.75,
   'paris.webp': 0.75,
   'ramen.webp': 0.75,

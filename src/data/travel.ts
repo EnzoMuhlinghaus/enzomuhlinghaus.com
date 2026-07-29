@@ -80,7 +80,7 @@ export const POLAROIDS_LEFT: Polaroid[] = [
     place: 'New York',
     country: 'US',
     year: '2022',
-    caption: 'first time; looked up the whole trip.',
+    caption: 'looked up the whole trip.',
     rot: -6,
     x: 244,
     y: 326,
