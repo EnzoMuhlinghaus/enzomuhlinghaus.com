@@ -54,8 +54,16 @@ Any other page file in that project is from a superseded design — ignore it.
   twice *identically*. A crawler reads that as repetition, not translation. Leaves that take
   arguments (`kmSuffix`, `racesCount`) are called as `t.x.y[SITE_LANG](…)` at the call site,
   since `<T>` only takes string pairs.
-  Kept for when FR returns: the `{ en, fr }` pair structure, both dictionaries, `useMessages()`,
-  and the `langchange` listeners in `lang.ts` / `Dateline.astro` (inert — nothing dispatches it).
+  **No runtime path can reach French any more, on purpose** — the translation is unreviewed,
+  so English is the only acceptable output until Enzo has read the FR copy. `SITE_LANG` is typed
+  as the literal `'en'` (widening it back to `'en' | 'fr'` is now a visible diff, not a
+  one-character slip); `useMessages()` returns the `en` dictionary outright; `useLang()` returns
+  a constant and no longer reads `data-lang`; and the `langchange` listeners in `lang.ts` /
+  `Dateline.astro` are **removed**, not merely inert — a listener nothing dispatches is still one
+  `dispatchEvent` away from flipping a hydrated island. Dateline's clock is pinned to `en-US` /
+  12-hour and no longer imports `fr`.
+  Kept for when FR returns: the `{ en, fr }` pair structure, both dictionaries (still exported),
+  `useMessages()` itself, and `lang.ts` as the seam to restore the reads through.
   **The CSS-toggle restore path is gone, deliberately.** Bring FR back as real `/fr/` routes
   with `hreflang`, which is what search engines want anyway: separate URLs per language, not one
   URL carrying both. `<T>` then reads the active route's language instead of the constant.
@@ -205,7 +213,8 @@ production, so a preview reads and writes the same cache entries.
 
 - **The journal copy is untranslated** — the `home`/`endurance`/`work`/`travel` blocks in
   `src/i18n/fr.ts` still hold English. Harmless now that only `SITE_LANG` is rendered (the
-  duplicate no longer reaches the HTML), but it still blocks restoring French.
+  duplicate no longer reaches the HTML), but it still blocks restoring French. The FR dictionary
+  is also **pending Enzo's review** — keep it up to date, but nothing may render it until then.
 - **`StravaNamer.vue` is finished but unmounted** — see the note at the top of this file for
   the three places to re-add it together.
 

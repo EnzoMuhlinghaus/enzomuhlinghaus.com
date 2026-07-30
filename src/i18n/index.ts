@@ -1,7 +1,6 @@
 import { computed, type ComputedRef } from 'vue';
 import { en, type Messages } from './en';
 import { fr } from './fr';
-import { useLang } from '../lib/lang';
 
 export { en, fr };
 export type { Messages };
@@ -11,8 +10,12 @@ export type { Messages };
  * hard-coded in Layout.astro, so this is the single place that decides which
  * half of every `{ en, fr }` pair reaches the HTML (see `<T>`). Restoring French
  * means routing on it, not flipping it globally.
+ *
+ * Typed as the literal `'en'` on purpose: French is unreviewed and must not
+ * reach a visitor, so widening this to `'en' | 'fr'` is a deliberate act that
+ * shows up in a diff rather than a one-character slip.
  */
-export const SITE_LANG: 'en' | 'fr' = 'en';
+export const SITE_LANG = 'en' as const;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Pairable = string | ((...args: any[]) => any) | readonly unknown[];
@@ -37,8 +40,12 @@ function zip(a: any, b: any): any {
  */
 export const t: DeepPair<Messages> = zip(en, fr);
 
-/** Vue composable: the current language's dictionary, reactive to the toggle. */
+/**
+ * Vue composable: the dictionary the islands render. English only — French is
+ * dormant until it has been reviewed, and `useLang()` is pinned to 'en', so the
+ * `fr` branch is deliberately gone rather than merely unreachable. It comes back
+ * with real /fr/ routes; `fr` stays exported for that.
+ */
 export function useMessages(): ComputedRef<Messages> {
-  const lang = useLang();
-  return computed(() => (lang.value === 'fr' ? fr : en));
+  return computed(() => en);
 }

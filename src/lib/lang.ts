@@ -1,23 +1,20 @@
-import { onMounted, ref, type Ref } from 'vue';
+// Currently unused: `useMessages()` returns the English dictionary outright
+// while French is dormant. Kept as the seam to restore it through.
+import { ref, type Ref } from 'vue';
 
 export type Lang = 'en' | 'fr';
 
 const lang: Ref<Lang> = ref('en');
 
-if (typeof window !== 'undefined') {
-  window.addEventListener('langchange', (e) => {
-    lang.value = (e as CustomEvent<Lang>).detail === 'fr' ? 'fr' : 'en';
-  });
-}
-
 /**
- * Reactive current language, kept in sync with the site-wide toggle.
- * Islands are server-rendered in EN; syncing in onMounted keeps the first
- * client render identical to the SSR HTML so hydration stays clean.
+ * The current language — pinned to English.
+ *
+ * French is dormant until the translation has been reviewed, so this no longer
+ * reads `data-lang` and no longer listens for `langchange`: the only way an
+ * island could have rendered FR was a client-side flip after hydration, and
+ * that is exactly what must not happen. The `Lang` union and the ref stay so
+ * the call sites survive; restore the reads alongside real /fr/ routes.
  */
 export function useLang(): Ref<Lang> {
-  onMounted(() => {
-    lang.value = document.documentElement.dataset.lang === 'fr' ? 'fr' : 'en';
-  });
   return lang;
 }

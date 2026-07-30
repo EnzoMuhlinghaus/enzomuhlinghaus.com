@@ -63,8 +63,10 @@ import { t } from '../../i18n';
 </div>
 
 <script>
+  // English only, deliberately: French is dormant until it has been reviewed, so
+  // nothing here reads `data-lang` any more. Restore the `fr` branch alongside
+  // real /fr/ routes — see CLAUDE.md.
   import { en } from '../../i18n/en';
-  import { fr } from '../../i18n/fr';
 
   const dateEl = document.getElementById('jd-date');
   const timeEl = document.getElementById('jd-time');
@@ -73,21 +75,20 @@ import { t } from '../../i18n';
 
   if (dateEl && timeEl && wxEl && iconEl) {
     const TZ = 'America/Vancouver';
-    const lang = () => (document.documentElement.dataset.lang === 'fr' ? 'fr' : 'en');
-    const messages = () => (lang() === 'fr' ? fr : en);
+    const messages = () => en;
 
-    /** Latest Open-Meteo reading, kept so a language switch can re-render it. */
+    /** Latest Open-Meteo reading, kept so a re-render doesn't need a refetch. */
     let current: { temp: number; code: number } | null = null;
 
     function renderClock() {
-      const locale = lang() === 'fr' ? 'fr-CA' : 'en-US';
+      const locale = 'en-US';
       const now = new Date();
       // "wednesday, july 24" — lowercased to sit in the handwriting.
       dateEl!.textContent = now
         .toLocaleDateString(locale, { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric' })
         .toLowerCase();
       timeEl!.textContent = now
-        .toLocaleTimeString(locale, { timeZone: TZ, hour: 'numeric', minute: '2-digit', hour12: lang() !== 'fr' })
+        .toLocaleTimeString(locale, { timeZone: TZ, hour: 'numeric', minute: '2-digit', hour12: true })
         .toLowerCase();
     }
 
@@ -127,10 +128,6 @@ import { t } from '../../i18n';
 
     renderClock();
     setInterval(renderClock, 30_000);
-    window.addEventListener('langchange', () => {
-      renderClock();
-      renderWeather();
-    });
     fetchWeather();
     setInterval(fetchWeather, 10 * 60 * 1000);
   }
