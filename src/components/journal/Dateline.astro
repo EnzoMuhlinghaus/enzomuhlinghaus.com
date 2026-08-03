@@ -83,10 +83,13 @@ import { t } from '../../i18n';
     function renderClock() {
       const locale = 'en-US';
       const now = new Date();
-      // "wednesday, july 24" — lowercased to sit in the handwriting.
-      dateEl!.textContent = now
-        .toLocaleDateString(locale, { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric' })
-        .toLowerCase();
+      // "Wednesday, July 24" — as the locale capitalises it.
+      dateEl!.textContent = now.toLocaleDateString(locale, {
+        timeZone: TZ,
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+      });
       timeEl!.textContent = now
         .toLocaleTimeString(locale, { timeZone: TZ, hour: 'numeric', minute: '2-digit', hour12: true })
         .toLowerCase();
