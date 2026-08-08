@@ -119,7 +119,7 @@ Any other page file in that project is from a superseded design — ignore it.
 
 `workbench.enzomuhlinghaus.com` is the workbench's **canonical home**; `/toolbox/` on the apex
 is a legacy path that 301s to it. Both are served by the one Worker and one build — there is no
-second project — via two pieces of **dashboard** configuration that are not in this repo:
+second project — via **dashboard** configuration that is not in this repo:
 
 1. A **Custom Domain** on the Worker for `workbench.enzomuhlinghaus.com`.
 2. A **URL Rewrite** transform rule: host `workbench.enzomuhlinghaus.com` + path `/` → `/toolbox/`.
@@ -128,14 +128,18 @@ second project — via two pieces of **dashboard** configuration that are not in
    the "everything prerendered except `/`" rule still holds.
 3. A **Redirect Rule**: host `enzomuhlinghaus.com` + path starting `/toolbox` → 301 to
    `https://workbench.enzomuhlinghaus.com/`.
+4. **Always Use HTTPS** (zone-level, SSL/TLS → Edge Certificates): plain `http://` on either
+   host 301s to `https://` at the edge — otherwise Google sees an HTTP twin of every page.
+5. A **Redirect Rule**: host `workbench.enzomuhlinghaus.com` + path starting `/toolbox` → 301 to
+   `https://workbench.enzomuhlinghaus.com/` (mirror of the apex rule; removes the 200 duplicate).
 
 Consequences worth knowing before editing anything here:
 
 - **Cross-host links must be absolute**, from `src/data/site.ts`. `/` on the workbench loops back
   to the workbench; `/toolbox/` from the journal would 301 rather than go direct.
-- The workbench page is reachable at three URLs (apex `/toolbox/`, subdomain `/`, subdomain
-  `/toolbox/`). The apex one redirects; `<link rel="canonical">` — hard-coded to the subdomain
-  root in `src/pages/toolbox/index.astro` — collapses the other two.
+- The workbench page is reachable at two URLs on the subdomain (root `/` and `/toolbox/`); the
+  `/toolbox/` one 301s to the root, and the legacy apex `/toolbox/` 301s as well. The only live
+  URL is the subdomain root, so `<link rel="canonical">` on it is effectively self-canonical.
 - **The sitemap is hand-written** (`src/pages/sitemap.xml.ts`, on-demand) and keys off the `Host`
   header, because `@astrojs/sitemap` emits every route under a single `site:` and would have
   filed the workbench under the journal's origin. `@astrojs/sitemap` is deliberately *not* a
