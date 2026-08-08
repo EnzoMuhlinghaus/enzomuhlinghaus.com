@@ -19,11 +19,13 @@ export const GET: APIRoute = ({ request }) => {
   // An unknown host means a preview deployment or a direct workers.dev hit;
   // fall back to the journal rather than emitting an empty urlset.
   const urls = PAGES[host] ?? PAGES[new URL(SITE_ORIGIN).host];
-  const lastmod = new Date().toISOString().slice(0, 10);
 
+  // No <lastmod>: a fresh timestamp on every request makes the sitemap claim
+  // the site changes daily. The URL set is stable — let Google re-crawl on
+  // its own schedule.
   const body = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((loc) => `  <url><loc>${loc}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')}
+${urls.map((loc) => `  <url><loc>${loc}</loc></url>`).join('\n')}
 </urlset>
 `;
 
