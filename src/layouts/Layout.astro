@@ -23,9 +23,11 @@ interface Props {
   canonical: string;
   /** Structured data for this page. Serialised into one ld+json block. */
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** Exclude the page from search results (e.g. the 404 page). */
+  noindex?: boolean;
 }
 
-const { title, description, canonical, jsonLd } = Astro.props;
+const { title, description, canonical, jsonLd, noindex } = Astro.props;
 
 // A purpose-cut 1200×630 landscape crop of the Home spread's mounted print. The
 // print itself is portrait and gets centre-cropped to mush by social scrapers,
@@ -45,6 +47,7 @@ const ogImageAlt = 'Enzo, mid-espresso, in a corner bistro';
     <link rel="canonical" href={canonical} />
     <meta name="author" content="Enzo Muhlinghaus" />
     <meta name="theme-color" content="#2b231a" />
+    {noindex && <meta name="robots" content="noindex" />}
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
