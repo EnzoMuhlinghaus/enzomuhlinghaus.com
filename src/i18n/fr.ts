@@ -247,6 +247,23 @@ export const fr: Messages = {
     errIntensity: 'choisissez FACILE / MODÉRÉ / INTENSE / COURSE',
     errNetwork: 'Service de planification injoignable — vérifiez votre connexion et réessayez.',
     errServer: 'Le service de planification a rencontré un problème — réessayez dans un instant.',
+    // --- product catalog (brand gating + states, task t_965bfae3) ---
+    catalogTitle: 'PRODUITS DISPONIBLES',
+    catalogSub: 'Choisissez votre ravitaillement — le planificateur s’occupe du reste.',
+    catalogLoading: 'Chargement des produits…',
+    catalogEmpty: 'Aucun produit disponible pour le moment',
+    catalogEmptySub: 'Le catalogue est revenu vide — repassez dans un instant.',
+    catalogErrorTitle: 'Impossible de charger la liste des produits',
+    catalogErrorNetwork:
+      'Service de planification injoignable — vérifiez votre connexion et réessayez.',
+    catalogErrorServer:
+      'Le service de planification a rencontré un problème — réessayez dans un instant.',
+    catalogErrorMalformed:
+      'La liste des produits est revenue dans un format inattendu — réessayez dans un instant.',
+    catalogDisabledHint: 'bientôt disponible',
+    catalogSelect: 'ajouter à ma sélection',
+    catalogDeselect: 'retirer de ma sélection',
+    catalogFormats: { gel: 'GEL', drink: 'BOISSON', solid: 'SOLIDE' },
   },
 
   namer: {

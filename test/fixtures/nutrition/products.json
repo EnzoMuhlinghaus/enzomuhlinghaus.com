@@ -1,0 +1,150 @@
+{
+  "meta": {
+    "generatedAt": "2026-08-09T00:00:00.000Z",
+    "brands": [
+      {
+        "id": "maurten",
+        "name": "Maurten",
+        "currency": "USD",
+        "ruleVersion": 1,
+        "catalogVersion": "2026-08",
+        "carbPerHourByIntensity": {
+          "easy": 40,
+          "moderate": 60,
+          "hard": 75,
+          "race": 90
+        }
+      }
+    ]
+  },
+  "products": [
+    {
+      "id": "maurten-gel-100",
+      "name": "Gel 100",
+      "format": "gel",
+      "carbsG": 25,
+      "caffeineMg": null,
+      "servingSize": "1 sachet",
+      "boxSize": 12,
+      "boxPrice": 45,
+      "autoSelect": true,
+      "active": true,
+      "sourceUrl": "https://www.maurten.com/us/fuel/gel-100",
+      "updatedAt": "2026-08-09",
+      "brandId": "maurten",
+      "unitPrice": 3.75
+    },
+    {
+      "id": "maurten-gel-100-caf-100",
+      "name": "Gel 100 Caf 100",
+      "format": "gel",
+      "carbsG": 25,
+      "caffeineMg": 100,
+      "servingSize": "1 sachet",
+      "boxSize": 12,
+      "boxPrice": 52,
+      "autoSelect": true,
+      "active": true,
+      "sourceUrl": "https://www.maurten.com/us/fuel/gel-100-caf-100",
+      "updatedAt": "2026-08-09",
+      "brandId": "maurten",
+      "unitPrice": 4.33
+    },
+    {
+      "id": "maurten-gel-160",
+      "name": "Gel 160",
+      "format": "gel",
+      "carbsG": 40,
+      "caffeineMg": null,
+      "servingSize": "1 sachet",
+      "boxSize": 12,
+      "boxPrice": 55,
+      "autoSelect": true,
+      "active": true,
+      "sourceUrl": "https://www.maurten.com/us/fuel/gel-160",
+      "updatedAt": "2026-08-09",
+      "brandId": "maurten",
+      "unitPrice": 4.58
+    },
+    {
+      "id": "maurten-drink-mix-160",
+      "name": "Drink Mix 160",
+      "format": "drink",
+      "carbsG": 40,
+      "caffeineMg": null,
+      "servingSize": "500 ml",
+      "boxSize": 18,
+      "boxPrice": 45,
+      "autoSelect": true,
+      "active": true,
+      "sourceUrl": "https://www.maurten.com/us/fuel/drink-mix-160",
+      "updatedAt": "2026-08-09",
+      "brandId": "maurten",
+      "unitPrice": 2.5
+    },
+    {
+      "id": "maurten-drink-mix-320",
+      "name": "Drink Mix 320",
+      "format": "drink",
+      "carbsG": 80,
+      "caffeineMg": null,
+      "servingSize": "500 ml",
+      "boxSize": 14,
+      "boxPrice": 51,
+      "autoSelect": true,
+      "active": true,
+      "sourceUrl": "https://www.maurten.com/us/fuel/drink-mix-320",
+      "updatedAt": "2026-08-09",
+      "brandId": "maurten",
+      "unitPrice": 3.64
+    },
+    {
+      "id": "maurten-drink-mix-320-caf-100",
+      "name": "Drink Mix 320 Caf 100",
+      "format": "drink",
+      "carbsG": 80,
+      "caffeineMg": 100,
+      "servingSize": "500 ml",
+      "boxSize": 14,
+      "boxPrice": 56,
+      "autoSelect": false,
+      "active": true,
+      "sourceUrl": "https://www.maurten.com/us/fuel/drink-mix-320-caf-100",
+      "updatedAt": "2026-08-09",
+      "brandId": "maurten",
+      "unitPrice": 4
+    },
+    {
+      "id": "maurten-solid-160",
+      "name": "Solid 160",
+      "format": "solid",
+      "carbsG": 40,
+      "caffeineMg": null,
+      "servingSize": "1 bar",
+      "boxSize": 12,
+      "boxPrice": 36,
+      "autoSelect": false,
+      "active": true,
+      "sourceUrl": "https://www.maurten.com/us/fuel/solid-160",
+      "updatedAt": "2026-08-09",
+      "brandId": "maurten",
+      "unitPrice": 3
+    },
+    {
+      "id": "maurten-solid-c-160",
+      "name": "Solid C 160",
+      "format": "solid",
+      "carbsG": 40,
+      "caffeineMg": null,
+      "servingSize": "1 bar",
+      "boxSize": 12,
+      "boxPrice": 36,
+      "autoSelect": false,
+      "active": true,
+      "sourceUrl": "https://www.maurten.com/us/fuel/solid-c-160",
+      "updatedAt": "2026-08-09",
+      "brandId": "maurten",
+      "unitPrice": 3
+    }
+  ]
+}

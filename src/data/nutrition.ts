@@ -234,6 +234,22 @@ export const BRANDS: Record<string, Brand> = {
 
 export const DEFAULT_BRAND_ID = 'maurten';
 
+/**
+ * MVP brand allowlist — the ONLY brands the UI may enable/select (task
+ * t_965bfae3). Products from brands not listed here render disabled (or
+ * hidden) in the catalog.
+ *
+ * This is the config entry for brand gating: adding a future brand means
+ * adding its id here (plus its Brand/Product rows in the registry above) —
+ * no UI or engine restructuring. The data layer (nutrition-store.ts) does
+ * NOT apply this; it is a UI concern by design.
+ */
+export const BRAND_ALLOWLIST: readonly string[] = ['maurten'];
+
+/** True when the UI may enable/select products of this brand. */
+export const isBrandAllowed = (brandId: string): boolean =>
+  BRAND_ALLOWLIST.includes(brandId);
+
 export const PRODUCTS: Product[] = [...MAURTEN_PRODUCTS];
 
 export function getBrand(id: string): Brand | undefined {

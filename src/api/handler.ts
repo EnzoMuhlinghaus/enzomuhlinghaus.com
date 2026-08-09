@@ -10,7 +10,9 @@
 
 import { calculatePlan } from '../lib/nutrition';
 import { validatePlanRequest } from '../lib/validate';
+import { BRANDS, getBrand, getProducts } from '../data/nutrition';
 import type { ApiError } from '../lib/validate';
+import type { Brand, Product } from '../data/nutrition';
 
 export interface HttpRequest {
   method: string;
@@ -42,11 +44,82 @@ function pathname(url: string): string {
   }
 }
 
+/**
+ * GET /api/nutrition/products — the purchasable catalog.
+ *
+ * Returns every ACTIVE product across the registered brands (optional
+ * `?brand=<id>` filter, validated against the registry). `meta.brands` maps
+ * brandId -> display name + audit fields so clients can render brand gating
+ * without hardcoding names. Response shape (spec §4 + §6 Product):
+ *   { meta: { generatedAt, brands: [{id,name,currency,ruleVersion,catalogVersion}] },
+ *     products: [Product] }
+ */
+function handleProducts(url: string): HttpResponse {
+  let brandId: string | undefined;
+  try {
+    const q = new URL(url, 'http://localhost').searchParams.get('brand');
+    brandId = q ?? undefined;
+  } catch {
+    brandId = undefined;
+  }
+
+  if (brandId !== undefined) {
+    const brand = getBrand(brandId);
+    if (!brand) {
+      return error(400, {
+        code: 'UNKNOWN_BRAND',
+        message: `Unknown brand "${brandId}"; expected one of ${Object.keys(BRANDS).join(', ')}`,
+        fields: [
+          {
+            field: 'brand',
+            code: 'UNKNOWN_BRAND',
+            detail: `expected one of ${Object.keys(BRANDS).join('|')}`,
+          },
+        ],
+      });
+    }
+  }
+
+  const products: Product[] = brandId !== undefined
+    ? getProducts(brandId)
+    : Object.values(BRANDS)
+        .filter((b: Brand) => b.active)
+        .flatMap((b: Brand) => getProducts(b.id));
+
+  const brands = Object.values(BRANDS)
+    .filter((b: Brand) => b.active)
+    .map((b: Brand) => ({
+      id: b.id,
+      name: b.name,
+      currency: b.rules.currency,
+      ruleVersion: b.ruleVersion,
+      catalogVersion: b.catalogVersion,
+      // Carb rates ride along so the frontend data layer needs no hardcoded
+      // brand config (data-layer task t_e9815e44).
+      carbPerHourByIntensity: b.rules.carbPerHourByIntensity,
+    }));
+
+  return json(200, {
+    meta: { generatedAt: new Date().toISOString(), brands },
+    products,
+  });
+}
+
 export function handleRequest(req: HttpRequest): HttpResponse {
   const path = pathname(req.url);
 
   if (req.method === 'GET' && path === '/health') {
     return json(200, { ok: true, service: 'nutrition-plan' });
+  }
+
+  if (path === '/api/nutrition/products') {
+    if (req.method !== 'GET') {
+      return error(405, {
+        code: 'METHOD_NOT_ALLOWED',
+        message: `Method ${req.method} not allowed for ${path}; use GET`,
+      });
+    }
+    return handleProducts(req.url);
   }
 
   if (path === '/api/nutrition/plan') {

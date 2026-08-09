@@ -12,26 +12,21 @@
 // display:grid/flex class on the same element would override the UA's
 // [hidden] and leak the region (design handoff §11).
 //
-// The component is deliberately dumb: it renders `Plan`, it never re-derives
-// carb math. Brand is the registry default (Maurten) for v1 — there is no
-// brand picker in the design; adding one later is a UI-only change.
-import { computed, onBeforeUnmount, ref, useId } from 'vue';
+// The component is deliberately dumb: it renders what the data layer
+// (src/lib/nutrition-store.ts) exposes and never re-derives carb math. The
+// catalog, brand summary and plan all come from the live API — no product
+// data is hardcoded in the UI. Brand is the registry default (Maurten) for
+// v1 — there is no brand picker in the design; adding one later is a
+// UI-only change (brand gating: task t_965bfae3).
+import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue';
 import { useMessages } from '../../i18n';
-import {
-  BRANDS,
-  DEFAULT_BRAND_ID,
-  getProducts,
-  type FormatPreference,
-  type Intensity,
-} from '../../data/nutrition';
-import type { Plan, ScheduleEntry } from '../../lib/nutrition';
+import type { FormatPreference, Intensity, ScheduleEntry } from '../../api/contract';
+import { nutritionStore } from '../../lib/nutrition-store';
 import ToolCard from './ToolCard.vue';
+import ProductCatalog from './ProductCatalog.vue';
 
 const m = useMessages();
 const uid = useId();
-
-const BRAND = BRANDS[DEFAULT_BRAND_ID]!;
-const PRODUCTS = getProducts(DEFAULT_BRAND_ID);
 
 type UiState = 'idle' | 'loading' | 'success' | 'error';
 const state = ref<UiState>('idle');
@@ -56,7 +51,7 @@ const caffeine = ref(false);
 const formatPreference = ref<FormatPreference>('auto');
 const preload = ref(true);
 
-const plan = ref<Plan | null>(null);
+const plan = computed(() => nutritionStore.plan);
 const errors = ref<FieldError[]>([]);
 
 /** Recap (CHECK THESE) lists only field errors; body-level failures get the banner alone. */
@@ -79,7 +74,11 @@ const showPreload = computed(
   () => intensity.value === 'race' && (durationNum.value ?? 0) >= 150,
 );
 
-const rateFor = (i: Intensity) => BRAND.rules.carbPerHourByIntensity[i];
+/** Carb rate for the hint — live from the API brand summary (store). */
+const rateFor = (i: Intensity) => nutritionStore.carbRateFor(i) ?? 0;
+
+/** Rates are only known once the catalog (meta.brands) has loaded. */
+const ratesReady = computed(() => nutritionStore.productsStatus === 'ready');
 
 // --- display helpers -------------------------------------------------------
 
@@ -106,7 +105,7 @@ const isCaffeineEntry = (e: ScheduleEntry) =>
 
 const preloadProduct = computed(() => {
   const p = plan.value?.preRacePreload;
-  return p ? PRODUCTS.find((pr) => pr.id === p.productId) ?? null : null;
+  return p ? nutritionStore.getProduct(p.productId) ?? null : null;
 });
 
 const isMedNote = (n: string) => n.toLowerCase().includes('not medical advice');
@@ -183,17 +182,8 @@ const errorMessage = (e: FieldError) => {
 
 let disposed = false;
 
-/** Map an API error body to UI FieldErrors (spec §5.4 shape). */
-function toFieldErrors(data: unknown): FieldError[] {
-  const api =
-    (data as { error?: { code?: string; fields?: FieldError[] } } | null) ?? null;
-  const fields = api?.error?.fields;
-  if (fields && fields.length > 0) return fields;
-  return [{ field: 'body', code: api?.error?.code ?? 'INTERNAL' }];
-}
-
 async function submit() {
-  if (state.value === 'loading') return;
+  if (nutritionStore.submitting) return;
   const fieldErrors = validate();
   if (fieldErrors.length > 0) {
     errors.value = fieldErrors;
@@ -203,47 +193,48 @@ async function submit() {
   errors.value = [];
   state.value = 'loading';
   const startedAt = Date.now();
-  try {
-    const res = await fetch('/api/nutrition/plan', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        brand: DEFAULT_BRAND_ID,
-        durationMinutes: Number(durationValue.value),
-        intensity: intensity.value,
-        bodyWeightKg:
-          weightValue.value.trim() === '' ? undefined : Number(weightValue.value),
-        temperatureC: tempValue.value.trim() === '' ? null : Number(tempValue.value),
-        caffeine: caffeine.value,
-        formatPreference: formatPreference.value,
-        preRacePreload: preload.value,
-      }),
-    });
-    // Keep the dots on screen ≥ 300 ms (design handoff §7) even on a fast
-    // server — otherwise the state reads as a flicker.
-    const elapsed = Date.now() - startedAt;
-    if (elapsed < 300) await new Promise((r) => setTimeout(r, 300 - elapsed));
-    if (disposed) return;
-    const data: unknown = await res.json();
-    if (!res.ok) {
-      errors.value = toFieldErrors(data);
-      state.value = 'error';
-      return;
-    }
-    plan.value = data as Plan;
+  // The store owns the request: submitting/plan/submitError live there, and
+  // failures come back normalized (NutritionApiError with contract fields).
+  const result = await nutritionStore.submitPlan({
+    durationMinutes: Number(durationValue.value),
+    intensity: intensity.value,
+    bodyWeightKg:
+      weightValue.value.trim() === '' ? undefined : Number(weightValue.value),
+    temperatureC: tempValue.value.trim() === '' ? null : Number(tempValue.value),
+    caffeine: caffeine.value,
+    formatPreference: formatPreference.value,
+    preRacePreload: preload.value,
+  });
+  // Keep the dots on screen ≥ 300 ms (design handoff §7) even on a fast
+  // server — otherwise the state reads as a flicker.
+  const elapsed = Date.now() - startedAt;
+  if (elapsed < 300) await new Promise((r) => setTimeout(r, 300 - elapsed));
+  if (disposed) return;
+  if (result) {
     state.value = 'success';
-  } catch {
-    if (disposed) return;
-    errors.value = [{ field: 'body', code: 'NETWORK' }];
-    state.value = 'error';
+    return;
   }
+  const err = nutritionStore.submitError;
+  const fields = err?.fields;
+  errors.value =
+    fields && fields.length > 0
+      ? fields
+      : [{ field: 'body', code: err?.code ?? 'INTERNAL' }];
+  state.value = 'error';
 }
 
 /** "adjust my inputs" / early return — back to the form, values preserved. */
 function adjust() {
   errors.value = [];
+  nutritionStore.resetPlan();
   state.value = 'idle';
 }
+
+onMounted(() => {
+  // Fetch the live catalog once — products/brands feed the preload row and
+  // the carb-rate hint; the results themselves are self-contained.
+  void nutritionStore.loadProducts();
+});
 
 onBeforeUnmount(() => {
   disposed = true;
@@ -317,8 +308,7 @@ onBeforeUnmount(() => {
           </button>
         </div>
         <p class="field-hint" aria-live="polite">
-          {{ m.nutrition.intensities[intensity] }} — {{ m.nutrition.intensityHints[intensity] }} ·
-          {{ m.nutrition.carbsRate(rateFor(intensity)) }}
+          {{ m.nutrition.intensities[intensity] }} — {{ m.nutrition.intensityHints[intensity] }}<span v-if="ratesReady"> · {{ m.nutrition.carbsRate(rateFor(intensity)) }}</span>
         </p>
       </div>
 
@@ -455,6 +445,13 @@ onBeforeUnmount(() => {
         <span class="fp-cta-note">{{ m.nutrition.ctaNote }}</span>
       </div>
     </form>
+
+    <!-- ---------------- PRODUCT CATALOG (brand-gated, live from store) ---- -->
+    <ProductCatalog
+      :products="nutritionStore.products"
+      :status="nutritionStore.productsStatus"
+      :error="nutritionStore.productsError"
+    />
 
     <!-- ---------------- RESULT REGION (announced politely) ---------------- -->
     <div class="fp-region" aria-live="polite" :aria-busy="state === 'loading'">

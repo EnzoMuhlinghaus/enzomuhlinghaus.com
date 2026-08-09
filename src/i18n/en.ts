@@ -249,6 +249,21 @@ export const en = {
     errIntensity: 'choose one of EASY / MODERATE / HARD / RACE',
     errNetwork: "Couldn't reach the plan service — check your connection and try again.",
     errServer: 'The plan service hit a snag — please try again in a moment.',
+    // --- product catalog (brand gating + states, task t_965bfae3) ---
+    catalogTitle: 'AVAILABLE PRODUCTS',
+    catalogSub: 'Pick what to fuel with — the planner works out the rest.',
+    catalogLoading: 'Loading products…',
+    catalogEmpty: 'No products available yet',
+    catalogEmptySub: 'The catalog came back empty — check back in a bit.',
+    catalogErrorTitle: "Couldn't load the product list",
+    catalogErrorNetwork: "Couldn't reach the plan service — check your connection and try again.",
+    catalogErrorServer: 'The plan service hit a snag — please try again in a moment.',
+    catalogErrorMalformed:
+      'The product list came back in an unexpected format — please try again in a moment.',
+    catalogDisabledHint: 'coming soon',
+    catalogSelect: 'add to my picks',
+    catalogDeselect: 'remove from my picks',
+    catalogFormats: { gel: 'GEL', drink: 'DRINK', solid: 'SOLID' },
   },
 
   namer: {
