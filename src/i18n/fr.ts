@@ -232,7 +232,7 @@ export const fr: Messages = {
     emptyMono: 'TOTAL EST. · PRODUITS · PLANNING',
     loadingTitle: 'calcul en cours',
     loadingSub: 'Mise en correspondance des glucides avec les produits Maurten…',
-    loadingMono: 'RÈGLES DÉTERMINISTES · AUCUN RÉSEAU',
+    loadingMono: 'RÈGLES CÔTÉ SERVEUR · CATALOGUE MAURTEN',
     errorTitle: 'Impossible de calculer',
     errorDetail: (n: number) =>
       `${n} champ(s) en échec de validation — corrigez les champs en surbrillance et réessayez.`,
@@ -245,6 +245,8 @@ export const fr: Messages = {
     errWeightRange: 'doit être entre 30 et 200 kg',
     errTempRange: 'doit être entre −20 et 50 °C',
     errIntensity: 'choisissez FACILE / MODÉRÉ / INTENSE / COURSE',
+    errNetwork: 'Service de planification injoignable — vérifiez votre connexion et réessayez.',
+    errServer: 'Le service de planification a rencontré un problème — réessayez dans un instant.',
   },
 
   namer: {

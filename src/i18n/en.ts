@@ -234,7 +234,7 @@ export const en = {
     emptyMono: 'EST. TOTAL · PRODUCTS · SCHEDULE',
     loadingTitle: 'working it out',
     loadingSub: 'Matching carbs to Maurten products…',
-    loadingMono: 'DETERMINISTIC RULES · NO NETWORK',
+    loadingMono: 'SERVER RULES · MAURTEN CATALOG',
     errorTitle: 'Couldn’t work that out',
     errorDetail: (n: number) =>
       `${n} field(s) failed validation — fix the highlighted fields and try again.`,
@@ -247,6 +247,8 @@ export const en = {
     errWeightRange: 'must be 30–200 kg',
     errTempRange: 'must be −20–50 °C',
     errIntensity: 'choose one of EASY / MODERATE / HARD / RACE',
+    errNetwork: "Couldn't reach the plan service — check your connection and try again.",
+    errServer: 'The plan service hit a snag — please try again in a moment.',
   },
 
   namer: {

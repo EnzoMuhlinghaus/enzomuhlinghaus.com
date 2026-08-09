@@ -1,12 +1,13 @@
 <script setup lang="ts">
 // Fuel Planner — the workbench's fourth tool card.
 //
-// Renders the form, runs the pure rules engine (src/lib/nutrition.ts) on
-// submit, and shows the plan: hero price, what to buy, intake schedule,
-// assumptions and notes. Five UI states per the design (nutrition-planner
-// handoff §1): idle (empty box), loading (dots, kept for the optional server
-// route / slow devices), success (results, incl. the no-fuel $0.00 variant),
-// and error (banner + CHECK THESE recap while the live form keeps the
+// Renders the form, POSTs it to the plan service (/api/nutrition/plan,
+// src/pages/api/nutrition/plan.ts), and shows the plan: hero price, what to
+// buy, intake schedule, assumptions and notes. Five UI states per the design
+// (nutrition-planner handoff §1): idle (empty box), loading (dots — kept ≥
+// 300 ms even on a fast server), success (results, incl. the no-fuel $0.00
+// variant), and error (banner + CHECK THESE recap for field errors, plain
+// banner for network/service failures, while the live form keeps the
 // offending fields highlighted). State regions use v-if, NOT v-show — a
 // display:grid/flex class on the same element would override the UA's
 // [hidden] and leak the region (design handoff §11).
@@ -23,12 +24,7 @@ import {
   type FormatPreference,
   type Intensity,
 } from '../../data/nutrition';
-import {
-  calculatePlan,
-  normalizeInput,
-  type Plan,
-  type ScheduleEntry,
-} from '../../lib/nutrition';
+import type { Plan, ScheduleEntry } from '../../lib/nutrition';
 import ToolCard from './ToolCard.vue';
 
 const m = useMessages();
@@ -62,6 +58,16 @@ const preload = ref(true);
 
 const plan = ref<Plan | null>(null);
 const errors = ref<FieldError[]>([]);
+
+/** Recap (CHECK THESE) lists only field errors; body-level failures get the banner alone. */
+const hasFieldErrors = computed(() => errors.value.some((e) => e.field !== 'body'));
+
+/** Banner detail: field-error count when fields are involved, the service message otherwise. */
+const errorDetailText = computed(() =>
+  hasFieldErrors.value
+    ? m.value.nutrition.errorDetail(errors.value.length)
+    : errorMessage(errors.value[0] ?? { field: 'body', code: 'INTERNAL' }),
+);
 
 const durationNum = computed(() => {
   const n = Number(durationValue.value);
@@ -164,6 +170,10 @@ const errorMessage = (e: FieldError) => {
       return m.value.nutrition.errTempRange;
     case 'intensity':
       return m.value.nutrition.errIntensity;
+    case 'body':
+      return e.code === 'NETWORK'
+        ? m.value.nutrition.errNetwork
+        : m.value.nutrition.errServer;
     default:
       return e.code;
   }
@@ -171,9 +181,18 @@ const errorMessage = (e: FieldError) => {
 
 // --- submit / state transitions --------------------------------------------
 
-let loadingTimer: ReturnType<typeof setTimeout> | null = null;
+let disposed = false;
 
-function submit() {
+/** Map an API error body to UI FieldErrors (spec §5.4 shape). */
+function toFieldErrors(data: unknown): FieldError[] {
+  const api =
+    (data as { error?: { code?: string; fields?: FieldError[] } } | null) ?? null;
+  const fields = api?.error?.fields;
+  if (fields && fields.length > 0) return fields;
+  return [{ field: 'body', code: api?.error?.code ?? 'INTERNAL' }];
+}
+
+async function submit() {
   if (state.value === 'loading') return;
   const fieldErrors = validate();
   if (fieldErrors.length > 0) {
@@ -183,45 +202,51 @@ function submit() {
   }
   errors.value = [];
   state.value = 'loading';
-  // v1 computes client-side with no network; keep the dots on screen ≥ 250 ms
-  // so the state is visible rather than a flicker (design handoff §7).
-  loadingTimer = setTimeout(() => {
-    try {
-      plan.value = calculatePlan(
-        normalizeInput({
-          brand: DEFAULT_BRAND_ID,
-          durationMinutes: Number(durationValue.value),
-          intensity: intensity.value,
-          bodyWeightKg:
-            weightValue.value.trim() === '' ? undefined : Number(weightValue.value),
-          temperatureC: tempValue.value.trim() === '' ? null : Number(tempValue.value),
-          caffeine: caffeine.value,
-          formatPreference: formatPreference.value,
-          preRacePreload: preload.value,
-        }),
-        BRAND,
-        PRODUCTS,
-      );
-      state.value = 'success';
-    } catch {
-      errors.value = [{ field: 'body', code: 'INTERNAL' }];
+  const startedAt = Date.now();
+  try {
+    const res = await fetch('/api/nutrition/plan', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        brand: DEFAULT_BRAND_ID,
+        durationMinutes: Number(durationValue.value),
+        intensity: intensity.value,
+        bodyWeightKg:
+          weightValue.value.trim() === '' ? undefined : Number(weightValue.value),
+        temperatureC: tempValue.value.trim() === '' ? null : Number(tempValue.value),
+        caffeine: caffeine.value,
+        formatPreference: formatPreference.value,
+        preRacePreload: preload.value,
+      }),
+    });
+    // Keep the dots on screen ≥ 300 ms (design handoff §7) even on a fast
+    // server — otherwise the state reads as a flicker.
+    const elapsed = Date.now() - startedAt;
+    if (elapsed < 300) await new Promise((r) => setTimeout(r, 300 - elapsed));
+    if (disposed) return;
+    const data: unknown = await res.json();
+    if (!res.ok) {
+      errors.value = toFieldErrors(data);
       state.value = 'error';
+      return;
     }
-  }, 300);
+    plan.value = data as Plan;
+    state.value = 'success';
+  } catch {
+    if (disposed) return;
+    errors.value = [{ field: 'body', code: 'NETWORK' }];
+    state.value = 'error';
+  }
 }
 
 /** "adjust my inputs" / early return — back to the form, values preserved. */
 function adjust() {
-  if (loadingTimer) {
-    clearTimeout(loadingTimer);
-    loadingTimer = null;
-  }
   errors.value = [];
   state.value = 'idle';
 }
 
 onBeforeUnmount(() => {
-  if (loadingTimer) clearTimeout(loadingTimer);
+  disposed = true;
 });
 </script>
 
@@ -458,14 +483,14 @@ onBeforeUnmount(() => {
       <div v-if="state === 'error'" class="fp-statebox">
         <div class="fp-errorbox">
           <p class="e-title">{{ m.nutrition.errorTitle }}</p>
-          <p class="e-detail">{{ m.nutrition.errorDetail(errors.length) }}</p>
+          <p class="e-detail">{{ errorDetailText }}</p>
           <p class="e-detail e-retry">
             <button class="stamp-link" type="button" @click="submit">
               {{ m.nutrition.tryAgain }}
             </button>
           </p>
         </div>
-        <div v-if="errors.length > 0" class="fp-recap">
+        <div v-if="hasFieldErrors" class="fp-recap">
           <div class="fp-col-title">{{ m.nutrition.checkThese }}</div>
           <p v-for="(e, i) in errors" :key="i" class="fp-recap-line">
             · {{ fieldLabel(e.field) }} — {{ errorMessage(e) }}
