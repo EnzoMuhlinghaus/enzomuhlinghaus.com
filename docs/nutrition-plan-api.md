@@ -306,3 +306,7 @@ Scenario requests (for reference — fixture files pair request + response):
 - Adding a brand = one `Brand` entry + `Product[]` rows + registry key; the
   engine, validator, both endpoints, and the contract need no changes
   (proven by `test/multibrand.test.ts` + `products-multibrand.json`).
+- UI brand gating is config-driven: `BRAND_ALLOWLIST` (src/data/nutrition.ts)
+  decides which brands the catalog UI enables for selection. Adding a brand
+  to the allowlist (plus the registry rows above) is all that's needed — no
+  component restructuring (task t_965bfae3).
