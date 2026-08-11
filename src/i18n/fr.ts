@@ -168,13 +168,14 @@ export const fr: Messages = {
     zonesTitle: "ALLURES D'ENTRAÎNEMENT",
     zones: {
       easy: 'Facile',
-      marathon: 'Marathon',
+      steady: 'Soutenu',
       threshold: 'Seuil',
       vo2max: 'VO₂max',
     },
     zoneInfo: {
       easy: "Effort où l'on peut discuter — l'essentiel du volume hebdomadaire. Construit la base aérobie sans fatigue.",
-      marathon: 'Régulier, tenable pendant deux heures. En gros votre effort marathon visé.',
+      steady:
+        "Tenable quelques heures — l'allure des sorties longues spécifiques marathon. Une allure d'entraînement, volontairement un cran sous l'allure de course.",
       threshold: "Confortablement dur, environ un effort d'une heure. Repousse l'allure tenable avant que le lactate ne s'accumule.",
       vo2max: 'Intervalles durs de 3 à 5 min près du maximum aérobie. Fait grossir le moteur lui-même.',
     },

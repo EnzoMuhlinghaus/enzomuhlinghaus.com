@@ -170,13 +170,14 @@ export const en = {
     zonesTitle: 'TRAINING PACES',
     zones: {
       easy: 'Easy',
-      marathon: 'Marathon',
+      steady: 'Steady',
       threshold: 'Threshold',
       vo2max: 'VO₂max',
     },
     zoneInfo: {
       easy: 'Conversational effort — the bulk of your weekly mileage. Builds aerobic base with little fatigue.',
-      marathon: 'Steady, sustainable for a couple of hours. Roughly your goal marathon effort.',
+      steady:
+        'Sustainable for a couple of hours — the pace of marathon-specific long runs. A training pace, deliberately a notch below race pace.',
       threshold: 'Comfortably hard, about a 1-hour race effort. Lifts the pace you can hold before lactate piles up.',
       vo2max: 'Hard 3–5 min intervals near your aerobic max. Grows the size of the engine itself.',
     },

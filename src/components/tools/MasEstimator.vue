@@ -34,7 +34,7 @@ const DEFAULTS: Record<string, string> = {
 
 const ZONE_PCTS = [
   { key: 'easy', pct: 0.7 },
-  { key: 'marathon', pct: 0.8 },
+  { key: 'steady', pct: 0.8 },
   { key: 'threshold', pct: 0.88 },
   { key: 'vo2max', pct: 0.98 },
 ] as const;
