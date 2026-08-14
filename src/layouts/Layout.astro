@@ -10,6 +10,7 @@ import '@fontsource/jetbrains-mono/500.css';
 import '@fontsource/jetbrains-mono/700.css';
 import '../styles/global.css';
 import ogCard from '../assets/photos/og-card.jpg';
+import type { ImageMetadata } from 'astro';
 
 interface Props {
   title: string;
@@ -25,16 +26,21 @@ interface Props {
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   /** Exclude the page from search results (e.g. the 404 page). */
   noindex?: boolean;
+  /** Page-specific social preview image; null disables image metadata. */
+  shareImage?: ImageMetadata | null;
+  /** Accessible description for the social preview image. */
+  shareImageAlt?: string;
 }
 
-const { title, description, canonical, jsonLd, noindex } = Astro.props;
+const { title, description, canonical, jsonLd, noindex, shareImage, shareImageAlt } = Astro.props;
 
 // A purpose-cut 1200×630 landscape crop of the Home spread's mounted print. The
 // print itself is portrait and gets centre-cropped to mush by social scrapers,
 // so the share card is its own asset rather than a reuse of moi.webp. Resolved
 // against the canonical so each host advertises a card on its own origin.
-const ogImage = new URL(ogCard.src, canonical).href;
-const ogImageAlt = 'Enzo, mid-espresso, in a corner bistro';
+const socialImage = shareImage === undefined ? ogCard : shareImage;
+const ogImage = socialImage ? new URL(socialImage.src, canonical).href : undefined;
+const ogImageAlt = shareImageAlt ?? 'Enzo, mid-espresso, in a corner bistro';
 ---
 
 <!doctype html>
@@ -61,18 +67,18 @@ const ogImageAlt = 'Enzo, mid-espresso, in a corner bistro';
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="Enzo Muhlinghaus" />
     <meta property="og:locale" content="en" />
-    <meta property="og:image" content={ogImage} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={ogImageAlt} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {socialImage && <meta property="og:image:width" content={String(socialImage.width)} />}
+    {socialImage && <meta property="og:image:height" content={String(socialImage.height)} />}
+    {socialImage && <meta property="og:image:alt" content={ogImageAlt} />}
 
     {/* Without an explicit card type X renders the link as a bare URL, however
         well-formed the og: tags are. */}
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:card" content={socialImage ? 'summary_large_image' : 'summary'} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
-    <meta name="twitter:image:alt" content={ogImageAlt} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    {socialImage && <meta name="twitter:image:alt" content={ogImageAlt} />}
 
     {
       jsonLd && (
