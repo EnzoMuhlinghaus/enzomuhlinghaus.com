@@ -9,6 +9,7 @@ import { useMessages } from '../../i18n';
 import PaceCalculator from './PaceCalculator.vue';
 import RacePredictor from './RacePredictor.vue';
 import MasEstimator from './MasEstimator.vue';
+import NutritionPlanner from './NutritionPlanner.vue';
 // StravaNamer.vue is finished code but deliberately not mounted — the tool
 // isn't ready to ship, so it stays off the bench and off the journal's
 // workbench card in src/pages/index.astro. Re-add both together.
@@ -55,6 +56,7 @@ function setUnit(u: Unit) {
       <PaceCalculator ref="pace" />
       <RacePredictor />
       <MasEstimator />
+      <NutritionPlanner />
     </div>
 
     <footer class="bench-foot">

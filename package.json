@@ -8,6 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check && node scripts/check-framing.mjs",
+    "test": "vitest run",
     "astro": "astro"
   },
   "dependencies": {
@@ -21,7 +22,11 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@types/node": "^26.2.0",
+    "@vue/test-utils": "^2.4.11",
+    "happy-dom": "^15.11.7",
     "typescript": "^5.9.3",
+    "vitest": "^4.1.10",
     "vue-tsc": "^3.3.7",
     "wrangler": "^4.114.0"
   }
