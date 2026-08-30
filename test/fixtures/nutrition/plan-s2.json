@@ -1,0 +1,98 @@
+{
+  "request": {
+    "durationMinutes": 120,
+    "intensity": "moderate",
+    "bodyWeightKg": 70,
+    "temperatureC": 20,
+    "caffeine": false
+  },
+  "response": {
+    "meta": {
+      "brand": "maurten",
+      "currency": "USD",
+      "ruleVersion": 1,
+      "catalogVersion": "2026-08",
+      "generatedAt": "2026-08-09T00:00:00.000Z"
+    },
+    "inputs": {
+      "brand": "maurten",
+      "durationMinutes": 120,
+      "intensity": "moderate",
+      "bodyWeightKg": 70,
+      "temperatureC": 20,
+      "caffeine": false,
+      "formatPreference": "auto",
+      "preRacePreload": true
+    },
+    "target": {
+      "hours": 2,
+      "carbsPerHour": 60,
+      "weightFactor": 1,
+      "totalCarbsTargetG": 120,
+      "cappedG": null
+    },
+    "items": [
+      {
+        "productId": "maurten-drink-mix-160",
+        "name": "Drink Mix 160",
+        "format": "drink",
+        "quantity": 1,
+        "unitPrice": 2.5,
+        "subtotal": 2.5,
+        "carbsG": 40,
+        "caffeineMg": null,
+        "servingSize": "500 ml"
+      },
+      {
+        "productId": "maurten-gel-160",
+        "name": "Gel 160",
+        "format": "gel",
+        "quantity": 2,
+        "unitPrice": 4.58,
+        "subtotal": 9.16,
+        "carbsG": 40,
+        "caffeineMg": null,
+        "servingSize": "1 sachet"
+      }
+    ],
+    "totals": {
+      "carbsDeliveredG": 120,
+      "targetG": 120,
+      "itemCount": 2,
+      "units": 3,
+      "price": 11.66
+    },
+    "schedule": [
+      {
+        "offsetMin": 0,
+        "label": "Start",
+        "action": "Sip 1× Drink Mix 160 steadily over the first hour",
+        "productId": "maurten-drink-mix-160"
+      },
+      {
+        "offsetMin": 30,
+        "label": "Gel 1",
+        "action": "Take 1× Gel 160 with water",
+        "productId": "maurten-gel-160"
+      },
+      {
+        "offsetMin": 60,
+        "label": "Gel 2",
+        "action": "Take 1× Gel 160 with water",
+        "productId": "maurten-gel-160"
+      }
+    ],
+    "preRacePreload": null,
+    "assumptions": [
+      "Carb target 60 g/h for moderate intensity",
+      "Weight factor 1.00 applied (70 kg vs 70 kg reference)",
+      "35% of carbs from liquid, 65% from gels (auto format, < 25 °C)",
+      "Gel 160 chosen by largest-fitting-unit rule"
+    ],
+    "notes": [
+      "Practice this exact plan in training — race day is not for experiments",
+      "Drink water to thirst alongside",
+      "Estimates only — not medical advice"
+    ]
+  }
+}

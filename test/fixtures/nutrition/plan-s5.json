@@ -1,0 +1,52 @@
+{
+  "request": {
+    "durationMinutes": 30,
+    "intensity": "easy"
+  },
+  "response": {
+    "meta": {
+      "brand": "maurten",
+      "currency": "USD",
+      "ruleVersion": 1,
+      "catalogVersion": "2026-08",
+      "generatedAt": "2026-08-09T00:00:00.000Z"
+    },
+    "inputs": {
+      "brand": "maurten",
+      "durationMinutes": 30,
+      "intensity": "easy",
+      "bodyWeightKg": 70,
+      "temperatureC": null,
+      "caffeine": false,
+      "formatPreference": "auto",
+      "preRacePreload": true
+    },
+    "target": {
+      "hours": 0.5,
+      "carbsPerHour": 40,
+      "weightFactor": 1,
+      "totalCarbsTargetG": 0,
+      "cappedG": null
+    },
+    "items": [],
+    "totals": {
+      "carbsDeliveredG": 0,
+      "targetG": 0,
+      "itemCount": 0,
+      "units": 0,
+      "price": 0
+    },
+    "schedule": [],
+    "preRacePreload": null,
+    "assumptions": [
+      "Carb target 40 g/h for easy intensity",
+      "Weight factor 1.00 applied (70 kg vs 70 kg reference)",
+      "Sessions under 45 minutes need no fuel"
+    ],
+    "notes": [
+      "No fuel needed for this session",
+      "Drink water to thirst alongside",
+      "Estimates only — not medical advice"
+    ]
+  }
+}

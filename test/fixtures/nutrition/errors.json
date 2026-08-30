@@ -1,0 +1,253 @@
+{
+  "unknown brand": {
+    "request": {
+      "brand": "siS",
+      "durationMinutes": 60,
+      "intensity": "easy"
+    },
+    "response": {
+      "error": {
+        "code": "UNKNOWN_BRAND",
+        "message": "Unknown brand \"siS\"; expected one of maurten",
+        "fields": [
+          {
+            "field": "brand",
+            "code": "UNKNOWN_BRAND",
+            "detail": "expected one of maurten"
+          }
+        ]
+      }
+    }
+  },
+  "missing duration + bad intensity": {
+    "request": {
+      "intensity": "sprint"
+    },
+    "response": {
+      "error": {
+        "code": "VALIDATION",
+        "message": "2 field(s) failed validation",
+        "fields": [
+          {
+            "field": "durationMinutes",
+            "code": "REQUIRED"
+          },
+          {
+            "field": "intensity",
+            "code": "INVALID_ENUM",
+            "detail": "expected one of easy|moderate|hard|race"
+          }
+        ]
+      }
+    }
+  },
+  "duration out of range (low)": {
+    "request": {
+      "durationMinutes": 3,
+      "intensity": "easy"
+    },
+    "response": {
+      "error": {
+        "code": "VALIDATION",
+        "message": "1 field(s) failed validation",
+        "fields": [
+          {
+            "field": "durationMinutes",
+            "code": "OUT_OF_RANGE",
+            "detail": "expected 5–720",
+            "min": 5,
+            "max": 720
+          }
+        ]
+      }
+    }
+  },
+  "duration out of range (high)": {
+    "request": {
+      "durationMinutes": 721,
+      "intensity": "easy"
+    },
+    "response": {
+      "error": {
+        "code": "VALIDATION",
+        "message": "1 field(s) failed validation",
+        "fields": [
+          {
+            "field": "durationMinutes",
+            "code": "OUT_OF_RANGE",
+            "detail": "expected 5–720",
+            "min": 5,
+            "max": 720
+          }
+        ]
+      }
+    }
+  },
+  "non-integer duration": {
+    "request": {
+      "durationMinutes": 60.5,
+      "intensity": "easy"
+    },
+    "response": {
+      "error": {
+        "code": "VALIDATION",
+        "message": "1 field(s) failed validation",
+        "fields": [
+          {
+            "field": "durationMinutes",
+            "code": "INVALID_TYPE",
+            "detail": "expected integer"
+          }
+        ]
+      }
+    }
+  },
+  "weight out of range": {
+    "request": {
+      "durationMinutes": 60,
+      "intensity": "easy",
+      "bodyWeightKg": 250
+    },
+    "response": {
+      "error": {
+        "code": "VALIDATION",
+        "message": "1 field(s) failed validation",
+        "fields": [
+          {
+            "field": "bodyWeightKg",
+            "code": "OUT_OF_RANGE",
+            "detail": "expected 30–200",
+            "min": 30,
+            "max": 200
+          }
+        ]
+      }
+    }
+  },
+  "temp out of range": {
+    "request": {
+      "durationMinutes": 60,
+      "intensity": "easy",
+      "temperatureC": 60
+    },
+    "response": {
+      "error": {
+        "code": "VALIDATION",
+        "message": "1 field(s) failed validation",
+        "fields": [
+          {
+            "field": "temperatureC",
+            "code": "OUT_OF_RANGE",
+            "detail": "expected -20–50",
+            "min": -20,
+            "max": 50
+          }
+        ]
+      }
+    }
+  },
+  "caffeine not boolean": {
+    "request": {
+      "durationMinutes": 60,
+      "intensity": "easy",
+      "caffeine": "yes"
+    },
+    "response": {
+      "error": {
+        "code": "VALIDATION",
+        "message": "1 field(s) failed validation",
+        "fields": [
+          {
+            "field": "caffeine",
+            "code": "INVALID_TYPE",
+            "detail": "expected boolean"
+          }
+        ]
+      }
+    }
+  },
+  "bad format enum": {
+    "request": {
+      "durationMinutes": 60,
+      "intensity": "easy",
+      "formatPreference": "powder"
+    },
+    "response": {
+      "error": {
+        "code": "VALIDATION",
+        "message": "1 field(s) failed validation",
+        "fields": [
+          {
+            "field": "formatPreference",
+            "code": "INVALID_ENUM",
+            "detail": "expected one of auto|gels|drink|mixed"
+          }
+        ]
+      }
+    }
+  },
+  "malformed json": {
+    "request": "{not json",
+    "response": {
+      "error": {
+        "code": "VALIDATION",
+        "message": "Request body is not valid JSON",
+        "fields": [
+          {
+            "field": "body",
+            "code": "INVALID_JSON",
+            "detail": "expected a JSON object"
+          }
+        ]
+      }
+    }
+  },
+  "null body": {
+    "request": null,
+    "response": {
+      "error": {
+        "code": "VALIDATION",
+        "message": "Request body must be a JSON object",
+        "fields": [
+          {
+            "field": "body",
+            "code": "INVALID_TYPE",
+            "detail": "expected a JSON object"
+          }
+        ]
+      }
+    }
+  },
+  "GET plan → 405": {
+    "response": {
+      "error": {
+        "code": "METHOD_NOT_ALLOWED",
+        "message": "Method GET not allowed for /api/nutrition/plan; use POST"
+      }
+    }
+  },
+  "POST products → 405": {
+    "response": {
+      "error": {
+        "code": "METHOD_NOT_ALLOWED",
+        "message": "Method POST not allowed for /api/nutrition/products; use GET"
+      }
+    }
+  },
+  "unknown route → 404": {
+    "response": {
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "No route for GET /nope"
+      }
+    }
+  },
+  "payload too large → 413": {
+    "response": {
+      "error": {
+        "code": "PAYLOAD_TOO_LARGE",
+        "message": "Request body exceeds 64 KB"
+      }
+    }
+  }
+}

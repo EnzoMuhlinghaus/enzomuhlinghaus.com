@@ -1,0 +1,110 @@
+{
+  "request": {
+    "durationMinutes": 120,
+    "intensity": "hard",
+    "bodyWeightKg": 70,
+    "temperatureC": 30,
+    "caffeine": false
+  },
+  "response": {
+    "meta": {
+      "brand": "maurten",
+      "currency": "USD",
+      "ruleVersion": 1,
+      "catalogVersion": "2026-08",
+      "generatedAt": "2026-08-09T00:00:00.000Z"
+    },
+    "inputs": {
+      "brand": "maurten",
+      "durationMinutes": 120,
+      "intensity": "hard",
+      "bodyWeightKg": 70,
+      "temperatureC": 30,
+      "caffeine": false,
+      "formatPreference": "auto",
+      "preRacePreload": true
+    },
+    "target": {
+      "hours": 2,
+      "carbsPerHour": 75,
+      "weightFactor": 1,
+      "totalCarbsTargetG": 150,
+      "cappedG": null
+    },
+    "items": [
+      {
+        "productId": "maurten-drink-mix-320",
+        "name": "Drink Mix 320",
+        "format": "drink",
+        "quantity": 1,
+        "unitPrice": 3.64,
+        "subtotal": 3.64,
+        "carbsG": 80,
+        "caffeineMg": null,
+        "servingSize": "500 ml"
+      },
+      {
+        "productId": "maurten-gel-160",
+        "name": "Gel 160",
+        "format": "gel",
+        "quantity": 1,
+        "unitPrice": 4.58,
+        "subtotal": 4.58,
+        "carbsG": 40,
+        "caffeineMg": null,
+        "servingSize": "1 sachet"
+      },
+      {
+        "productId": "maurten-gel-100",
+        "name": "Gel 100",
+        "format": "gel",
+        "quantity": 1,
+        "unitPrice": 3.75,
+        "subtotal": 3.75,
+        "carbsG": 25,
+        "caffeineMg": null,
+        "servingSize": "1 sachet"
+      }
+    ],
+    "totals": {
+      "carbsDeliveredG": 145,
+      "targetG": 150,
+      "itemCount": 3,
+      "units": 3,
+      "price": 11.97
+    },
+    "schedule": [
+      {
+        "offsetMin": 0,
+        "label": "Start",
+        "action": "Sip 1× Drink Mix 320 steadily over the first hour",
+        "productId": "maurten-drink-mix-320"
+      },
+      {
+        "offsetMin": 30,
+        "label": "Gel 1",
+        "action": "Take 1× Gel 160 with water",
+        "productId": "maurten-gel-160"
+      },
+      {
+        "offsetMin": 60,
+        "label": "Gel 2",
+        "action": "Take 1× Gel 100 with water",
+        "productId": "maurten-gel-100"
+      }
+    ],
+    "preRacePreload": null,
+    "assumptions": [
+      "Carb target 75 g/h for hard intensity",
+      "Weight factor 1.00 applied (70 kg vs 70 kg reference)",
+      "50% of carbs from liquid, 50% from gels (auto format, ≥ 25 °C heat)",
+      "Gel 160 chosen by largest-fitting-unit rule"
+    ],
+    "notes": [
+      "Practice this exact plan in training — race day is not for experiments",
+      "Drink water to thirst alongside; plan extra fluid if hot",
+      "Plan extra water / electrolyte at aid stations",
+      "Estimates only — not medical advice"
+    ]
+  }
+}

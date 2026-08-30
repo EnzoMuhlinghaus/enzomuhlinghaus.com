@@ -1,0 +1,75 @@
+{
+  "request": {
+    "durationMinutes": 60,
+    "intensity": "easy",
+    "bodyWeightKg": 62,
+    "temperatureC": 18,
+    "caffeine": false
+  },
+  "response": {
+    "meta": {
+      "brand": "maurten",
+      "currency": "USD",
+      "ruleVersion": 1,
+      "catalogVersion": "2026-08",
+      "generatedAt": "2026-08-09T00:00:00.000Z"
+    },
+    "inputs": {
+      "brand": "maurten",
+      "durationMinutes": 60,
+      "intensity": "easy",
+      "bodyWeightKg": 62,
+      "temperatureC": 18,
+      "caffeine": false,
+      "formatPreference": "auto",
+      "preRacePreload": true
+    },
+    "target": {
+      "hours": 1,
+      "carbsPerHour": 40,
+      "weightFactor": 0.886,
+      "totalCarbsTargetG": 35.4,
+      "cappedG": null
+    },
+    "items": [
+      {
+        "productId": "maurten-gel-100",
+        "name": "Gel 100",
+        "format": "gel",
+        "quantity": 1,
+        "unitPrice": 3.75,
+        "subtotal": 3.75,
+        "carbsG": 25,
+        "caffeineMg": null,
+        "servingSize": "1 sachet"
+      }
+    ],
+    "totals": {
+      "carbsDeliveredG": 25,
+      "targetG": 35.4,
+      "itemCount": 1,
+      "units": 1,
+      "price": 3.75
+    },
+    "schedule": [
+      {
+        "offsetMin": 30,
+        "label": "Gel 1",
+        "action": "Take 1× Gel 100 with water",
+        "productId": "maurten-gel-100"
+      }
+    ],
+    "preRacePreload": null,
+    "assumptions": [
+      "Carb target 40 g/h for easy intensity",
+      "Weight factor 0.89 applied (62 kg vs 70 kg reference)",
+      "100% of carbs from gels (short session < 90 min)",
+      "Gel 100 chosen by largest-fitting-unit rule"
+    ],
+    "notes": [
+      "Practice this exact plan in training — race day is not for experiments",
+      "Drink water to thirst alongside",
+      "Estimates only — not medical advice"
+    ]
+  }
+}
