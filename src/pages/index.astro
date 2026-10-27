@@ -6,6 +6,7 @@ import Flag from '../components/Flag.astro';
 import Page from '../components/journal/Page.astro';
 import Dateline from '../components/journal/Dateline.astro';
 import Polaroid from '../components/journal/Polaroid.astro';
+import Tally from '../components/journal/Tally.astro';
 import { journalEntries, prEntries } from '../lib/races';
 import { kmThisYear } from '../lib/strava';
 import { JOURNAL_ROWS, LINKS, SPREADS } from '../data/journal';
@@ -211,6 +212,7 @@ const jsonLd = [
                 <span class="pb-event">
                   <T t={t.endurance.prDistances[p.distance]} />
                 </span>
+                <Tally count={p.count} label={t.endurance.raceTally[SITE_LANG](p.count)} />
                 <span class="leader__fill" />
                 <span class="pb-time">{p.time ?? <T t={t.endurance.soon} />}</span>
               </div>
