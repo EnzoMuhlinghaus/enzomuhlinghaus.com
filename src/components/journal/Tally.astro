@@ -1,0 +1,58 @@
+---
+// Pencil tally marks: four uprights and a slash per group of five, the way a
+// count gets kept in the margin of a notebook. Hand-drawn feel comes from a fixed
+// per-stroke wobble (not random, so the SSR output is stable between requests).
+interface Props {
+  count: number;
+  label: string;
+}
+
+const { count, label } = Astro.props;
+
+const STEP = 5; // px between uprights
+const GROUP_GAP = 7; // extra px between groups of five
+const H = 18;
+const WOBBLE = [-0.8, 0.6, -0.3, 0.9];
+
+const strokes: string[] = [];
+let x = 2;
+for (let i = 0; i < count; i++) {
+  const inGroup = i % 5;
+  if (inGroup === 4) {
+    // The fifth mark slashes back across the four uprights.
+    strokes.push(`M${x - 4 * STEP - 2} ${H - 4} L${x} 4`);
+    x += GROUP_GAP;
+  } else {
+    const w = WOBBLE[(i + Math.floor(i / 5)) % WOBBLE.length];
+    strokes.push(`M${x + w} 2 L${x - w} ${H - 1}`);
+    x += STEP;
+  }
+}
+const width = Math.max(x, 4);
+---
+
+{
+  count > 0 && (
+    <span class="tally" role="img" aria-label={label} title={label}>
+      <svg viewBox={`0 0 ${width} ${H}`} width={width} height={H} aria-hidden="true">
+        <path d={strokes.join(' ')} />
+      </svg>
+    </span>
+  )
+}
+
+<style>
+  .tally {
+    display: inline-flex;
+    align-self: center;
+    transform: rotate(-3deg);
+  }
+
+  path {
+    fill: none;
+    stroke: var(--rust);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    opacity: 0.85;
+  }
+</style>
