@@ -56,6 +56,7 @@ export const fr: Messages = {
     kmSuffix: (year: string) => `run so far in ${year}`,
     pbTitle: 'PERSONAL BESTS',
     soon: 'soon…',
+    raceTally: (n: number) => `${n} ${n === 1 ? 'course courue' : 'courses courues'}`,
     journalTitle: 'RACE JOURNAL',
     racesCount: (n: number) => `${n} races · scroll ↓`,
     upNext: 'UP NEXT',

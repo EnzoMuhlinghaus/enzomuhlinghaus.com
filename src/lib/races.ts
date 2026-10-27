@@ -37,6 +37,8 @@ export type PrDistance = '5K' | '10K' | 'Half' | 'Marathon';
 export interface PrEntry {
   distance: PrDistance;
   time: string | null;
+  /** Completed races at this distance; drawn as a tally next to the PR. */
+  count: number;
 }
 
 // Exact Notion property names — centralized so a rename in Notion is a one-line edit here.
@@ -294,20 +296,27 @@ function toPrDistance(runDistance: string | null): PrDistance | null {
 
 const PR_ORDER: PrDistance[] = ['5K', '10K', 'Half', 'Marathon'];
 
-/** PR blackboard: fastest completed time per distance, derived from the race list. */
+/** PR blackboard: fastest completed time and number of completed races per
+ *  distance, derived from the race list. */
 export async function prEntries(): Promise<PrEntry[]> {
   const races = await fetchRaces();
   const best = new Map<PrDistance, { time: string; seconds: number }>();
+  const count = new Map<PrDistance, number>();
 
   for (const r of races) {
     if (r.state !== 'done' || !r.time) continue;
     const distance = toPrDistance(r.runDistance);
     if (!distance) continue;
+    count.set(distance, (count.get(distance) ?? 0) + 1);
     const seconds = timeToSeconds(r.time);
     if (seconds === null) continue;
     const current = best.get(distance);
     if (!current || seconds < current.seconds) best.set(distance, { time: r.time, seconds });
   }
 
-  return PR_ORDER.map((distance) => ({ distance, time: best.get(distance)?.time ?? null }));
+  return PR_ORDER.map((distance) => ({
+    distance,
+    time: best.get(distance)?.time ?? null,
+    count: count.get(distance) ?? 0,
+  }));
 }
